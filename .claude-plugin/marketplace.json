@@ -1,0 +1,15 @@
+{
+  "name": "verticalbar",
+  "description": "Vertical Bar — public Claude plugin distribution.",
+  "owner": {
+    "name": "Vertical Bar"
+  },
+  "plugins": [
+    {
+      "name": "verticalbar-agent",
+      "source": ".",
+      "version": "0.5.1",
+      "description": "Lens for Claude Code: author and publish self-contained, on-brand HTML analysis artifacts grounded in CrossCheck and Vertical Bar data, over a local stdio MCP server. Read-only, thin-GET-only; talks to CrossCheck only over HTTP. Does not replace Claude Code's agent, model, or permissions."
+    }
+  ]
+}
