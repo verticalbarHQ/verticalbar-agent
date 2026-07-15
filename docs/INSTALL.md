@@ -28,6 +28,12 @@ see [SECURITY.md](./SECURITY.md).
   - **Cognito** operator credentials (`CC_EMAIL` / `CC_PASSWORD`, or the in-session `login`
     tool) — the same account as the CrossCheck / Vertical Bar web apps. Vertical Bar tools
     (`vb_*`) require Cognito; the API key covers CrossCheck only.
+- **Deployment tool-pack auth:** auth is server-side. A Cognito user (the demo owner/admin) has all
+  needed scopes. An API key must carry the scope per tool: `deploy:read` for workflow/package reads
+  and closure, `sync:read` for Git source, `environments:read` for the workflow env-name join, and
+  `deploy:write` for create/add. The mutation scope is limited to create/add. Start-run
+  additionally requires an identified Cognito user (OAuth or SRP), so every API key receives
+  `IDENTITY_REQUIRED`.
 - The plugin does **not** require a separate Anthropic / LLM API key.
 
 ---
@@ -72,6 +78,7 @@ export CC_EMAIL="you@example.com"; export CC_PASSWORD="…"   # Cognito SRP (CC 
 | Var | Default | Purpose |
 | --- | --- | --- |
 | `LENS_API_URL` | `https://crosscheck-api.vertical.bar` | CrossCheck API base (prod). `http://localhost:14001` is a dev-only override |
+| `CC_API_URL` | — | Fallback CrossCheck API base used only when `LENS_API_URL` is unset |
 | `LENS_DASHBOARD_URL` | `https://crosscheck.vertical.bar` | Dashboard base for the user-openable `viewUrl` (override for a local dashboard) |
 | `LENS_AUTO_OPEN` | `1` | Auto-open the published `viewUrl` in the browser; set `0` to disable |
 | `CC_WORKSPACE_ID` | — | Workspace passed as `?workspaceId` (CC) / `X-Workspace-Id` (VB) |
@@ -133,6 +140,31 @@ and a reachable `LENS_API_URL`):
 4. **lens_list** — confirm the published id appears.
 
 See the plugin's smoke script for an automated version of the above.
+
+## Deployment tool pack (RND-2907)
+
+The plugin exposes nine deployment tools. The read tools are
+`cc_list_ci_workflows`, `cc_get_ci_workflow`, `cc_get_env_snapshot_git_source`,
+`cc_list_release_packages`, `cc_get_release_package`, and `cc_get_ci_workflow_run`. The mutation
+tools are `cc_create_release_package`, `cc_add_release_package_items`, and
+`cc_start_ci_workflow_run`.
+
+Each mutation is a single direct server call — there is no client-side confirmation gate; the server
+enforces its own guards. A Cognito user (the demo owner/admin) has all needed scopes. An API key must
+carry `deploy:read` for workflow/package reads and closure, `sync:read` for Git source,
+`environments:read` for the workflow env-name join, and `deploy:write` for create/add; mutation scope
+does not grant read access. Create/add are not identity-gated. `cc_start_ci_workflow_run` additionally
+requires an identified Cognito user (OAuth or SRP), so every API key returns the server's
+`IDENTITY_REQUIRED` verbatim (use `login`). There is no approval-capable Lens tool (approval stays a
+web action under server-enforced SoD).
+
+Point Lens at the intended local, staging, or demo API with `LENS_API_URL`. If it is unset,
+`CC_API_URL` is consulted next; if both are unset, Lens targets production. The demo walkthrough is:
+`login` → get the environment snapshot Git source → create a release package → add items → get the
+package and closure → start the workflow run → poll the run projection. Note: the full
+start→observe flow (strict all-target Review, staged A→B) needs PR #833 (RND-2885) in the target
+deployment; before that lands, `cc_start_ci_workflow_run` returns `RUN_ENGINE_NOT_READY` (503),
+surfaced verbatim.
 
 ---
 

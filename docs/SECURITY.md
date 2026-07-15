@@ -1,9 +1,13 @@
 # Lens plugin — Security
 
-The Lens plugin is **read-only and thin-GET-only**. It authors HTML and publishes it; it
-acquires data **only** through CrossCheck's authenticated HTTP read proxies. It is
-self-contained and talks to CrossCheck **only over HTTP** (no `@vb-crosscheck/*` imports, no
-in-process DB access).
+The Lens plugin's analysis and data paths are **read-only**. One narrow, governed exception exposes
+three workspace-scoped deployment mutations — create a Release Package, add package items, and start
+a CI workflow run — each a single direct server call (no client-side gate). Create and add-items
+require `deploy:write` only and are not identity-gated; start-run additionally requires an identified
+Cognito user (OAuth or SRP), so every API key gets `IDENTITY_REQUIRED`. Lens exposes no approval
+capability. Deployment reads require their own per-tool scopes; mutation scope does not grant read
+access. It is self-contained and talks to CrossCheck **only over HTTP** (no
+`@vb-crosscheck/*` imports, no in-process DB access). See `docs/lens-boundary.adr.md`.
 
 ## The security boundary — honest statement (G3)
 
@@ -41,7 +45,7 @@ safe-surface repo and signed desktop installers (macOS `.dmg`, DevID + notarized
 Authenticode). Those are not shipped yet — until they land, distribution is unchanged and this doc
 describes the intended end-state, not a current guarantee.
 
-## Read-only, thin-GET-only
+## Read-only analysis paths and the governed deployment exception
 
 - The plugin **never holds a database connection or DB credentials**, and **never issues raw
   SQL against a database**. `lens_data_query` and `lens_live_read` are **HTTP proxies the
@@ -54,13 +58,25 @@ describes the intended end-state, not a current guarantee.
 - The live read proxy (`/api/v1/live-read`, exposed as `lens_live_read`) is **SELECT-only**,
   enforced server-side and at the NetSuite RESTlet, rate-limited, audited, and row-capped. It is
   the **only** live path — there is no ungoverned, M2M-direct NetSuite access in the plugin.
-- There is **no write path** to CrossCheck or NetSuite. The only mutation is publishing an HTML
-  artifact (`POST /api/v1/lens`), which writes a workspace-scoped Lens row — never source data.
+- The only deployment mutations are create Release Package, add package items, and start CI workflow
+  run. Each is a single direct server call (no client-side confirm gate). Auth is server-side. A
+  Cognito user (the demo owner/admin) has all needed scopes. API-key reads require `deploy:read` for
+  workflow/package reads and closure, `sync:read` for Git source, and `environments:read` for the
+  workflow env-name join; create/add require `deploy:write` only and are not identity-gated. Mutation
+  scope does not cover reads. Start-run additionally requires an identified Cognito user (OAuth or
+  SRP), so every API key gets `IDENTITY_REQUIRED`. Approval is intentionally excluded and remains in
+  the web UI under server-enforced separation of duties. See `docs/lens-boundary.adr.md`.
+- Lens exposes no other source-data or deployment-control write path. Its only other mutation is
+  publishing an HTML artifact (`POST /api/v1/lens`), which writes a workspace-scoped Lens row —
+  never source data. Lens never holds DB or NetSuite credentials; deployment effects remain behind
+  the authenticated CrossCheck server boundary.
 
 ## Multi-tenant isolation (the non-negotiable floor)
 
-- `workspaceId` for every read/publish comes from the **auth context server-side** (and is sent
-  as `?workspaceId` from the configured `CC_WORKSPACE_ID`). The plugin **fails loudly** when no
+- `workspaceId` for every legacy read/publish comes from the **auth context server-side** (and is
+  sent as `?workspaceId` from the configured `CC_WORKSPACE_ID`). Deployment-pack tools instead take
+  an **explicit `workspaceId` argument** on every call (in API-key mode it must match the key's
+  workspace; the server validates either way). The plugin **fails loudly** when no
   workspace is resolvable rather than fabricating a default (a wrong default would silently
   cross tenants). All `lens_*` / `cc_*` reads and the publish are workspace-fenced by the API.
 
