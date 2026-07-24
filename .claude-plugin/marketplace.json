@@ -8,7 +8,7 @@
     {
       "name": "verticalbar-agent",
       "source": ".",
-      "version": "0.6.0",
+      "version": "0.7.0",
       "description": "Lens for Claude Code: author and publish self-contained, on-brand HTML analysis artifacts grounded in CrossCheck and Vertical Bar data, over a local stdio MCP server. Includes a governed deployment-mutation exception for workspace-scoped release-package and workflow tools (create/add require deploy:write; start-run additionally requires an identified Cognito user via OAuth or SRP; no API key can start a run; no approval capability); talks to CrossCheck only over HTTP. Does not replace Claude Code's agent, model, or permissions."
     }
   ]
