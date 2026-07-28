@@ -1,4 +1,4 @@
-# Lens plugin — Install
+# VerticalBar Agent plugin — Install
 
 A **standalone, self-contained** Claude Code plugin. Unlike the close adapter, this plugin
 keeps its MCP server and its `lib/` **inside the plugin directory** and ships them as a single
@@ -158,10 +158,10 @@ requires an identified Cognito user (OAuth or SRP), so every API key returns the
 `IDENTITY_REQUIRED` verbatim (use `login`). There is no approval-capable Lens tool (approval stays a
 web action under server-enforced SoD).
 
-Point Lens at the intended local, staging, or demo API with `LENS_API_URL`. If it is unset,
-`CC_API_URL` is consulted next; if both are unset, Lens targets production. The demo walkthrough is:
-`login` → get the environment snapshot Git source → create a release package → add items → get the
-package and closure → start the workflow run → poll the run projection. Note: the full
+Point VerticalBar Agent at the intended local, staging, or demo API with `LENS_API_URL`. If it
+is unset, `CC_API_URL` is consulted next; if both are unset, it targets production. The demo
+walkthrough is: `login` → get the environment snapshot Git source → create a release package → add
+items → get the package and closure → start the workflow run → poll the run projection. Note: the full
 start→observe flow (strict all-target Review, staged A→B) needs PR #833 (RND-2885) in the target
 deployment; before that lands, `cc_start_ci_workflow_run` returns `RUN_ENGINE_NOT_READY` (503),
 surfaced verbatim.
@@ -192,7 +192,7 @@ to a GitHub release tagged `lens-v<version>`:
 ```bash
 cd plugins/lens && npm run build:mcpb
 VER=$(node -p "require('./.claude-plugin/plugin.json').version")
-gh release create "lens-v$VER" "dist/lens-$VER.mcpb" --notes "Lens Desktop Extension (.mcpb)"
+gh release create "lens-v$VER" "dist/lens-$VER.mcpb" --notes "VerticalBar Agent Desktop Extension (.mcpb)"
 # upload the EXACT versioned file, not dist/lens-*.mcpb — a glob would also attach stale .mcpb
 # builds left in dist/ from a previous version.
 ```

@@ -32,9 +32,18 @@ export const logErr = (...a) => process.stderr.write(a.join(' ') + '\n')
 export const diag = (event, outcome, detail) =>
   process.stderr.write(`verticalbar-agent launcher event=${event} outcome=${outcome} detail=${detail}\n`)
 
-/** macOS + Windows only (platform decision); Linux/others fail loud (covers WSL, R13). */
+/** RND-2848: Intel macOS is no longer a supported target. Fail HERE with actionable copy — resolving
+ *  it to a target with no artifact surfaces downstream as `no artifact for target macos-x64`, which
+ *  reads like a broken release rather than an unsupported machine. Mirrors `selfupdate::resolve_target`. */
+export const INTEL_MAC_UNSUPPORTED =
+  'VerticalBar Agent no longer supports Intel Macs — this build is Apple Silicon only. Use an Apple Silicon Mac, or run the Claude Code plugin (`/plugin install verticalbar-agent@verticalbar`), which does not need this client.'
+
+/** Apple Silicon macOS + Windows only (platform decision); everything else fails loud (covers WSL, R13). */
 export function resolveTarget(platform = process.platform, arch = process.arch) {
-  if (platform === 'darwin') return arch === 'arm64' ? 'macos-arm64' : 'macos-x64'
+  if (platform === 'darwin') {
+    if (arch === 'arm64') return 'macos-arm64'
+    throw new Error(INTEL_MAC_UNSUPPORTED)
+  }
   if (platform === 'win32') return 'win-x64'
   throw new Error(`verticalbar-agent supports macOS and Windows only (got ${platform}/${arch}; note: Claude Code inside WSL resolves as linux)`)
 }
@@ -46,11 +55,17 @@ export function installDir() {
   return join(base, 'verticalbar-agent')
 }
 
+/** RND-2848: the macOS `.app` bundle root, which is the ROOT of the published tarball and therefore
+ *  must equal `productName` in `src-tauri/tauri.conf.json`. Exported as the SINGLE literal (the on-disk
+ *  path and the in-archive path both derive from it) so the two can never drift from each other, and so
+ *  `desktop/scripts/check-artifact-names.mjs` can assert its VALUE rather than grep for its text. */
+export const MAC_APP_BUNDLE = 'VerticalBar Agent.app'
+
 const targetDir = (dir, target) => join(dir, target)
 const artifactPath = (dir, target) => join(targetDir(dir, target), process.platform === 'win32' ? 'artifact.zip' : 'artifact.tar.gz')
 const exePath = (dir, target) => process.platform === 'win32'
   ? join(targetDir(dir, target), 'app', 'lens-desktop.exe')
-  : join(targetDir(dir, target), 'app', 'Lens.app', 'Contents', 'MacOS', 'lens-desktop')
+  : join(targetDir(dir, target), 'app', MAC_APP_BUNDLE, 'Contents', 'MacOS', 'lens-desktop')
 
 export function readState(dir) {
   try { return JSON.parse(readFileSync(join(dir, 'state.json'), 'utf8')) } catch { return {} }
@@ -68,7 +83,7 @@ export function verifyCachedBinary(dir, target, pubkey = PINNED_PUBKEY) {
 /** The executable's path WITHIN the artifact archive (the launcher extracts to `app/…`). */
 const exeArchivePath = () => process.platform === 'win32'
   ? 'lens-desktop.exe'
-  : 'Lens.app/Contents/MacOS/lens-desktop'
+  : `${MAC_APP_BUNDLE}/Contents/MacOS/lens-desktop`
 
 /** R3/AC5 (codex): confirm the ON-DISK exe matches the exe inside the (separately signature-verified)
  *  artifact, by extracting THAT ONE file to memory and comparing sha256 — a post-install overwrite of
