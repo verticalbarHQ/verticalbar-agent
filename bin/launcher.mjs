@@ -64,8 +64,8 @@ export const MAC_APP_BUNDLE = 'VerticalBar Agent.app'
 const targetDir = (dir, target) => join(dir, target)
 const artifactPath = (dir, target) => join(targetDir(dir, target), process.platform === 'win32' ? 'artifact.zip' : 'artifact.tar.gz')
 const exePath = (dir, target) => process.platform === 'win32'
-  ? join(targetDir(dir, target), 'app', 'lens-desktop.exe')
-  : join(targetDir(dir, target), 'app', MAC_APP_BUNDLE, 'Contents', 'MacOS', 'lens-desktop')
+  ? join(targetDir(dir, target), 'app', 'verticalbar-agent.exe')
+  : join(targetDir(dir, target), 'app', MAC_APP_BUNDLE, 'Contents', 'MacOS', 'verticalbar-agent')
 
 export function readState(dir) {
   try { return JSON.parse(readFileSync(join(dir, 'state.json'), 'utf8')) } catch { return {} }
@@ -82,8 +82,8 @@ export function verifyCachedBinary(dir, target, pubkey = PINNED_PUBKEY) {
 
 /** The executable's path WITHIN the artifact archive (the launcher extracts to `app/…`). */
 const exeArchivePath = () => process.platform === 'win32'
-  ? 'lens-desktop.exe'
-  : `${MAC_APP_BUNDLE}/Contents/MacOS/lens-desktop`
+  ? 'verticalbar-agent.exe'
+  : `${MAC_APP_BUNDLE}/Contents/MacOS/verticalbar-agent`
 
 /** R3/AC5 (codex): confirm the ON-DISK exe matches the exe inside the (separately signature-verified)
  *  artifact, by extracting THAT ONE file to memory and comparing sha256 — a post-install overwrite of

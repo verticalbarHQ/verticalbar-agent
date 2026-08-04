@@ -1,13 +1,13 @@
-# Lens plugin — Security
+# VerticalBar Agent — Security
 
-The Lens plugin's analysis and data paths are **read-only**. One narrow, governed exception exposes
+VerticalBar Agent's analysis and data paths are **read-only**. One narrow, governed exception exposes
 three workspace-scoped deployment mutations — create a Release Package, add package items, and start
 a CI workflow run — each a single direct server call (no client-side gate). Create and add-items
 require `deploy:write` only and are not identity-gated; start-run additionally requires an identified
-Cognito user (OAuth or SRP), so every API key gets `IDENTITY_REQUIRED`. Lens exposes no approval
+Cognito user (OAuth or SRP), so every API key gets `IDENTITY_REQUIRED`. It exposes no approval
 capability. Deployment reads require their own per-tool scopes; mutation scope does not grant read
 access. It is self-contained and talks to CrossCheck **only over HTTP** (no
-`@vb-crosscheck/*` imports, no in-process DB access). See `docs/lens-boundary.adr.md`.
+`@vb-crosscheck/*` imports, no in-process DB access). See `docs/briefing-boundary.adr.md`.
 
 ## The security boundary — honest statement (G3)
 
@@ -23,7 +23,7 @@ join-key / detector knowledge is protected by two things, **neither of which is 
    map is served at runtime from an auth-gated endpoint (`briefing_schema`, requires `analysis:read`); it
    is **never** shipped as plaintext in the public safe-surface tree. A CI + local **leak-gate**
    (`leak-denylist.json`) fails any change that would reintroduce that IP — as source or inside a
-   compiled bundle. See `docs/lens-boundary.adr.md`.
+   compiled bundle. See `docs/briefing-boundary.adr.md`.
 
 ## Public safe-surface contract
 
@@ -51,7 +51,7 @@ describes the intended end-state, not a current guarantee.
   SQL against a database**. `briefing_data_query` and `briefing_live_read` are **HTTP proxies the
   CrossCheck platform runs server-side**; the caller sends a `SELECT`/`WITH` string and gets
   JSON back.
-- The landed-data proxy (`/api/v1/lens-data`) is **SELECT/WITH only**, bound to an allowlist of
+- The landed-data proxy (`/api/v1/briefings-data`) is **SELECT/WITH only**, bound to an allowlist of
   `close_*` tables, and every allowlisted table is **CTE-shadowed with the auth-derived
   `workspace_id`** server-side — an arbitrary SELECT/JOIN can only ever see this workspace's
   rows. Write/DDL keywords are rejected.
@@ -65,10 +65,10 @@ describes the intended end-state, not a current guarantee.
   workflow env-name join; create/add require `deploy:write` only and are not identity-gated. Mutation
   scope does not cover reads. Start-run additionally requires an identified Cognito user (OAuth or
   SRP), so every API key gets `IDENTITY_REQUIRED`. Approval is intentionally excluded and remains in
-  the web UI under server-enforced separation of duties. See `docs/lens-boundary.adr.md`.
-- Lens exposes no other source-data or deployment-control write path. Its only other mutation is
-  publishing an HTML artifact (`POST /api/v1/lens`), which writes a workspace-scoped Lens row —
-  never source data. Lens never holds DB or NetSuite credentials; deployment effects remain behind
+  the web UI under server-enforced separation of duties. See `docs/briefing-boundary.adr.md`.
+- It exposes no other source-data or deployment-control write path. Its only other mutation is
+  publishing an HTML artifact (`POST /api/v1/briefings`), which writes a workspace-scoped Briefing row —
+  never source data. It never holds DB or NetSuite credentials; deployment effects remain behind
   the authenticated CrossCheck server boundary.
 
 ## Multi-tenant isolation (the non-negotiable floor)
@@ -78,7 +78,7 @@ describes the intended end-state, not a current guarantee.
   an **explicit `workspaceId` argument** on every call (in API-key mode it must match the key's
   workspace; the server validates either way). The plugin **fails loudly** when no
   workspace is resolvable rather than fabricating a default (a wrong default would silently
-  cross tenants). All `lens_*` / `cc_*` reads and the publish are workspace-fenced by the API.
+  cross tenants). All `briefing_*` / `cc_*` reads and the publish are workspace-fenced by the API.
 
 ## Credentials
 
@@ -92,11 +92,11 @@ describes the intended end-state, not a current guarantee.
 - Credentials are read from the environment / the `login` tool. They are **never** written into
   `.mcp.json`, `.claude/settings*.json`, or a repository `.env`, and **never** echoed to
   stdout/stderr or pasted into the conversation. Cognito tokens (if used) are cached at
-  `~/tmp/lens-plugin/cc-mcp-token.json`, outside any repo.
+  `~/tmp/verticalbar-agent/cc-mcp-token.json`, outside any repo.
 
 ## Sandboxed render
 
-- A published Lens is rendered by the dashboard inside a **sandboxed iframe**
+- A published Briefing is rendered by the dashboard inside a **sandboxed iframe**
   (`sandbox="allow-scripts"`, **no** `allow-same-origin`) and served `X-Content-Type-Options:
   nosniff`, consumed only as a `srcDoc` string (never navigated to). The artifact cannot reach
   the parent session, cookies, or origin. Self-contained HTML only — the sandbox blocks the
@@ -110,7 +110,7 @@ describes the intended end-state, not a current guarantee.
 
 ## Production data note
 
-- Reads may touch **production** CrossCheck/NetSuite data depending on `LENS_API_URL` and the
+- Reads may touch **production** CrossCheck/NetSuite data depending on `CC_API_URL` and the
   configured workspace/credentials. The read-only + workspace-fenced + SELECT-only floors
-  above hold regardless, but treat published Lenses as potentially containing real customer
-  data and govern access to the Lens surface accordingly.
+  above hold regardless, but treat published Briefings as potentially containing real customer
+  data and govern access to the Briefing surface accordingly.

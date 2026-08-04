@@ -2,7 +2,7 @@
 
 A **standalone, self-contained** Claude Code plugin. Unlike the close adapter, this plugin
 keeps its MCP server and its `lib/` **inside the plugin directory** and ships them as a single
-committed esbuild bundle (`mcp/lens-server.bundle.mjs`) that inlines its three runtime deps —
+committed esbuild bundle (`mcp/server.bundle.mjs`) that inlines its three runtime deps —
 so a git-source install **boots with no `node_modules` and no `npm install` step**. There is no
 out-of-tree runtime, no monorepo `pnpm install`, and no `VBAR_*` env var. It talks to CrossCheck
 **only over HTTP** and imports no `@vb-crosscheck/*` package.
@@ -19,7 +19,7 @@ see [SECURITY.md](./SECURITY.md).
   flow needs a recent build (`/plugin marketplace` + `/plugin install`).
 - **Node.js >= 18** (the MCP server uses global `fetch`; `amazon-cognito-identity-js` and
   `@modelcontextprotocol/sdk` run on Node 18+). `bin/run.sh` fails loudly if Node is older.
-- A reachable CrossCheck API (`LENS_API_URL`, default `https://crosscheck-api.vertical.bar` —
+- A reachable CrossCheck API (`CC_API_URL`, default `https://crosscheck-api.vertical.bar` —
   production). `http://localhost:14001` is a **dev-only** override.
 - **Auth**, one of:
   - a **workspace API key** (`CC_API_KEY`) — the headless path. Scope it for the tools you use:
@@ -40,17 +40,17 @@ see [SECURITY.md](./SECURITY.md).
 
 ## 2. No dependency install — the server ships as a committed bundle
 
-The MCP server runs from `mcp/lens-server.bundle.mjs`, a committed esbuild single-file bundle
+The MCP server runs from `mcp/server.bundle.mjs`, a committed esbuild single-file bundle
 that **inlines its runtime deps** (`@modelcontextprotocol/sdk`, `amazon-cognito-identity-js`,
 `zod`). A git-source install therefore needs **no `node_modules` and no `npm install`** — the
-bundle plus the committed `assets/lens-viz.min.js` (read at publish time) are everything the
+bundle plus the committed `assets/briefing-viz.min.js` (read at publish time) are everything the
 runtime needs.
 
 The one-shot installer wraps marketplace registration, `/plugin install`, and an out-of-band
 login:
 
 ```bash
-node plugins/lens/install.mjs        # add marketplace → install lens → login (browser by default; or CC_API_KEY / CC_EMAIL+CC_PASSWORD)
+node plugins/verticalbar-agent/install.mjs        # add marketplace → install verticalbar-agent → login (browser by default; or CC_API_KEY / CC_EMAIL+CC_PASSWORD)
 ```
 
 > Maintainers only: after editing `mcp/*.mjs`, rebuild the bundle with
@@ -65,8 +65,8 @@ not touch your shell env beyond its own `${CLAUDE_PLUGIN_*}` substitutions). Exp
 launching `claude`:
 
 ```bash
-# LENS_API_URL defaults to production — only set it for a dev override:
-# export LENS_API_URL="http://localhost:14001"         # DEV-ONLY override of the prod default
+# CC_API_URL defaults to production — only set it for a dev override:
+# export CC_API_URL="http://localhost:14001"         # DEV-ONLY override of the prod default
 export CC_WORKSPACE_ID="<your-workspace-id>"            # resolved workspace for all tools
 # --- auth: pick ONE (or none → browser sign-in) ---
 # Default (no creds set): the `login` tool / installer opens a browser to sign in (incl. Google).
@@ -77,10 +77,9 @@ export CC_EMAIL="you@example.com"; export CC_PASSWORD="…"   # Cognito SRP (CC 
 
 | Var | Default | Purpose |
 | --- | --- | --- |
-| `LENS_API_URL` | `https://crosscheck-api.vertical.bar` | CrossCheck API base (prod). `http://localhost:14001` is a dev-only override |
-| `CC_API_URL` | — | Fallback CrossCheck API base used only when `LENS_API_URL` is unset |
-| `LENS_DASHBOARD_URL` | `https://crosscheck.vertical.bar` | Dashboard base for the user-openable `viewUrl` (override for a local dashboard) |
-| `LENS_AUTO_OPEN` | `1` | Auto-open the published `viewUrl` in the browser; set `0` to disable |
+| `CC_API_URL` | `https://crosscheck-api.vertical.bar` | CrossCheck API base (prod). `http://localhost:14001` is a dev-only override |
+| `BRIEFING_DASHBOARD_URL` | `https://crosscheck.vertical.bar` | Dashboard base for the user-openable `viewUrl` (override for a local dashboard) |
+| `BRIEFING_AUTO_OPEN` | `1` | Auto-open the published `viewUrl` in the browser; set `0` to disable |
 | `CC_WORKSPACE_ID` | — | Workspace passed as `?workspaceId` (CC) / `X-Workspace-Id` (VB) |
 | `CC_API_KEY` | — | API-key auth: Bearer'd directly for CrossCheck. No Cognito needed |
 | `CC_EMAIL` / `CC_PASSWORD` | — | Cognito SRP auth (mints CC + VB tokens) |
@@ -93,7 +92,7 @@ export CC_EMAIL="you@example.com"; export CC_PASSWORD="…"   # Cognito SRP (CC 
 Load it in place from this directory:
 
 ```bash
-claude --plugin-dir ./plugins/lens
+claude --plugin-dir ./plugins/verticalbar-agent
 ```
 
 No dependency install needed (the bundle is committed). To avoid the flag each launch, add the
@@ -102,11 +101,11 @@ plugin dir to your Claude Code settings (`enabledPlugins`) instead.
 When the plugin is enabled, Claude Code starts the MCP server with:
 
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/bin/run.sh ${CLAUDE_PLUGIN_ROOT} mcp/lens-server.bundle.mjs
+bash ${CLAUDE_PLUGIN_ROOT}/bin/run.sh ${CLAUDE_PLUGIN_ROOT} mcp/server.bundle.mjs
 ```
 
 `bin/run.sh` checks Node >= 18, `cd`s into the plugin root, and execs
-`node mcp/lens-server.bundle.mjs` (the committed single-file bundle).
+`node mcp/server.bundle.mjs` (the committed single-file bundle).
 
 ---
 
@@ -123,14 +122,14 @@ required env-var runtime pointer** — the cache copy boots as-is.
 /plugin install verticalbar-agent@verticalbar
 ```
 
-`node plugins/lens/install.mjs` (step 2) automates both of these plus the login.
+`node plugins/verticalbar-agent/install.mjs` (step 2) automates both of these plus the login.
 
 ---
 
 ## 6. Verify (smoke)
 
 A minimal end-to-end check (an API key with `analysis:read` + `canvas:write`, a workspace id,
-and a reachable `LENS_API_URL`):
+and a reachable `CC_API_URL`):
 
 1. **tools/list** — boot the server and drive a JSON-RPC `initialize` + `tools/list` over
    stdin; confirm `briefing_publish`, `briefing_data_query`, `briefing_live_read`, `cc_*`, `vb_*` appear.
@@ -158,8 +157,8 @@ requires an identified Cognito user (OAuth or SRP), so every API key returns the
 `IDENTITY_REQUIRED` verbatim (use `login`). There is no approval-capable Briefing tool (approval stays a
 web action under server-enforced SoD).
 
-Point VerticalBar Agent at the intended local, staging, or demo API with `LENS_API_URL`. If it
-is unset, `CC_API_URL` is consulted next; if both are unset, it targets production. The demo
+Point VerticalBar Agent at the intended local, staging, or demo API with `CC_API_URL`. If it is
+unset, it targets production. The demo
 walkthrough is: `login` → get the environment snapshot Git source → create a release package → add
 items → get the package and closure → start the workflow run → poll the run projection. Note: the full
 start→observe flow (strict all-target Review, staged A→B) needs PR #833 (RND-2885) in the target
@@ -178,29 +177,35 @@ stdio MCP server in Claude Desktop is a **`.mcpb` Desktop Extension**.
 **Build** (maintainers; needs network for `npx @anthropic-ai/mcpb`):
 
 ```bash
-cd plugins/lens && npm run build:mcpb     # → dist/lens-<version>.mcpb
+cd plugins/verticalbar-agent && npm run build:mcpb     # → dist/verticalbar-agent-<version>.mcpb
 ```
 
-The `.mcpb` wraps the **same committed** `mcp/lens-server.bundle.mjs` + `assets/lens-viz.min.js`
+The `.mcpb` wraps the **same committed** `mcp/server.bundle.mjs` + `assets/briefing-viz.min.js`
 (3 files, no `node_modules` — our esbuild bundle inlines every dep). The version is stamped from
 `plugin.json`. Inputs are committed (`mcpb/manifest.json` + `mcpb/build.mjs`); the packed `.mcpb`
 is a build artifact (gitignored), not source.
 
-**Distribution = GitHub Release.** On each plugin release, attach the packed `lens-<version>.mcpb`
-to a GitHub release tagged `lens-v<version>`:
+**Distribution = GitHub Release.** On each plugin release, attach the packed `verticalbar-agent-<version>.mcpb`
+to a GitHub release tagged `verticalbar-agent-v<version>`:
 
 ```bash
-cd plugins/lens && npm run build:mcpb
+cd plugins/verticalbar-agent && npm run build:mcpb
 VER=$(node -p "require('./.claude-plugin/plugin.json').version")
-gh release create "lens-v$VER" "dist/lens-$VER.mcpb" --notes "VerticalBar Agent Desktop Extension (.mcpb)"
-# upload the EXACT versioned file, not dist/lens-*.mcpb — a glob would also attach stale .mcpb
+gh release create "verticalbar-agent-v$VER" "dist/verticalbar-agent-$VER.mcpb" --notes "VerticalBar Agent Desktop Extension (.mcpb)"
+# upload the EXACT versioned file, not dist/verticalbar-agent-*.mcpb — a glob would also attach stale .mcpb
 # builds left in dist/ from a previous version.
 ```
 
 Teammates (repo access) download the `.mcpb` from that release and install it (below). The version
-is baked into the filename, so it's always clear which build is installed. (`lens-v*` tags are
-**plugin-only** — distinct from the product `vX.Y.Z` / `-rc.N` release tags; don't glob `v*` in a
-deploy workflow.)
+is baked into the filename, so it's always clear which build is installed.
+
+> **Why this tag is safe.** This `gh release create` publishes a release *in this monorepo*, and
+> `deploy-production.yml` fires on `release: published`. It used to gate on
+> `startsWith(release.tag_name, 'v')` — satisfied by any tag starting with the letter `v`, so
+> `verticalbar-agent-v0.9.6` would have rolled production, and component tags were safe only by
+> starting with some other letter. RND-3297 changed that gate to require a **digit** after the `v`
+> (a real semver app tag), so component tags are safe by rule rather than by luck. Product releases
+> stay `vX.Y.Z` / `vX.Y.Z-rc.N`.
 
 > **No auto-update.** A `.mcpb` installed via "Install Extension" has no update channel — each
 > plugin release ships a new `.mcpb` to re-install. (The Claude Code marketplace path *does*
@@ -208,7 +213,7 @@ deploy workflow.)
 > Extensions list shows what's installed.
 
 **Install** (end user): Claude Desktop → Settings → **데스크톱 앱 / Desktop App → 확장 프로그램 /
-Extensions** → **확장 프로그램 설치 / Install Extension** → pick `lens-<version>.mcpb` (or
+Extensions** → **확장 프로그램 설치 / Install Extension** → pick `verticalbar-agent-<version>.mcpb` (or
 double-click the file). Claude Desktop ships its own Node runtime (≥18), so no system Node is
 needed.
 
@@ -252,7 +257,7 @@ Report install/verify issues with the captured stderr so a corrected manifest ca
 
 - Claude Code's plugin/marketplace registration (`~/.claude/plugins/...`).
 - The launcher-managed binary cache + `state.json` (anti-replay counter) under the OS app-support dir.
-- Cognito tokens, if you use the `login` path, are cached at `~/tmp/lens-plugin/cc-mcp-token.json`.
+- Cognito tokens, if you use the `login` path, are cached at `~/tmp/verticalbar-agent/cc-mcp-token.json`.
 
 Not changed: any `CLAUDE.md`, the Claude Code main agent, model selection, or permission model.
 
