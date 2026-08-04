@@ -155,7 +155,7 @@ carry `deploy:read` for workflow/package reads and closure, `sync:read` for Git 
 `environments:read` for the workflow env-name join, and `deploy:write` for create/add; mutation scope
 does not grant read access. Create/add are not identity-gated. `cc_start_ci_workflow_run` additionally
 requires an identified Cognito user (OAuth or SRP), so every API key returns the server's
-`IDENTITY_REQUIRED` verbatim (use `login`). There is no approval-capable Lens tool (approval stays a
+`IDENTITY_REQUIRED` verbatim (use `login`). There is no approval-capable Briefing tool (approval stays a
 web action under server-enforced SoD).
 
 Point VerticalBar Agent at the intended local, staging, or demo API with `LENS_API_URL`. If it
