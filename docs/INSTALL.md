@@ -178,10 +178,22 @@ surfaced verbatim.
 
 ## 7. Claude Desktop (`.mcpb` Desktop Extension) — RND-2764
 
-Claude Desktop's in-app plugin **Directory** (Customize → 플러그인/Plugins) is a **curated list** —
-it has no "add a custom GitHub marketplace / add from a repository" control, so the Claude Code
-marketplace path (sections 4–5) is **not available there**. The supported way to run this local
-stdio MCP server in Claude Desktop is a **`.mcpb` Desktop Extension**.
+> **This section's premise was true once and is not true now.** It said Claude Desktop's plugin
+> Directory "is a **curated list** — it has no 'add a custom GitHub marketplace / add from a
+> repository' control". Checked in Claude Desktop 1.24012.11 on 2026-08-05: **Settings → 사용자 지정 →
+> 플러그인 → 플러그인 추가 → 저장소에서 추가** is exactly that control, and it offers an auto-sync
+> option the `.mcpb` has no equivalent of. Plugins sit beside 스킬 / 커넥터 / 메모리 under 사용자 지정,
+> which also names the split cleanly: **커넥터 = MCP servers (tools), 플러그인 = skills + slash
+> commands**. A `.mcpb` is a Connector, so it can never carry the `briefing` skill.
+>
+> The plugin path is therefore intended to become the primary Desktop path (RND-3397). It is **not
+> live yet**: the mirror was publishing an invalid plugin `source` and Desktop rejected the whole
+> marketplace. That is fixed in this same change, but the mirror only publishes on merge to `main`,
+> so the fix has to land before the Desktop sync can be confirmed. Until it is confirmed, the
+> `.mcpb` below remains the working Desktop path and the README keeps pointing at it.
+
+The `.mcpb` Desktop Extension runs this local stdio MCP server inside Claude Desktop, and remains
+the fallback for anyone who cannot use the plugin path.
 
 **Build** (maintainers; needs network for `npx @anthropic-ai/mcpb`):
 

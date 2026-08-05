@@ -9,8 +9,8 @@ that puts the same capabilities inside Claude.
 ## Install
 
 **Pick the row for the Claude you actually use.** The two surfaces install differently and neither
-path works on the other — Claude Desktop cannot add a custom plugin marketplace, and Claude Code
-does not read Desktop's extensions.
+install works on the other — Claude Code does not read Claude Desktop's extensions, and a Desktop
+extension is not a plugin.
 
 | You use | Do this |
 |---|---|
