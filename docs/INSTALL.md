@@ -200,11 +200,20 @@ checks its version against the tag, signs it, and attaches it to the **public mi
 (`verticalbarHQ/verticalbar-agent`) next to the desktop artifacts. `npm run build:mcpb` above is for
 inspecting a build locally, not for publishing.
 
-> **This used to be a manual step, and that is why it never happened.** RND-2764 documented a
-> `gh release create` recipe here. No `verticalbar-agent-v*` release ever existed in this monorepo,
-> and none of v0.9.4–v0.9.8 on the public mirror carried a `.mcpb` — so the only install path Claude
-> Desktop supports shipped zero times while three documents described it in the present tense. If a
-> release step is not in the workflow, treat it as a step that will not run.
+> **This used to be a manual step, and it stopped happening at a rename.** RND-2764 ran the
+> `gh release create` recipe exactly once — `lens-0.4.0.mcpb`, tag `lens-v0.4.0`, 2026-06-25, in this
+> monorepo. Then Lens became VerticalBar Agent, releases moved to the public mirror, and the hand step
+> did not move with them: no `verticalbar-agent-v*` release existed here at all, and v0.9.4–v0.9.8 on
+> the mirror all shipped without a `.mcpb`, while three documents described it in the present tense.
+>
+> It got worse than "missing". Because every product release is a `v*-rc.N` **pre-release**, that lone
+> `lens-v0.4.0` was the newest non-prerelease and therefore wore the **Latest** badge on this repo's
+> releases page for nine weeks. The first thing anyone browsing found was a superseded artifact under
+> the retired name — which is exactly how the first person to try installing found it (2026-08-05).
+> The release was deleted that day.
+>
+> Two lessons, both cheap to forget: a release step that is not in the workflow will not run, and a
+> stale release does not sit quietly — GitHub promotes it.
 
 > **The version gate.** The workflow fails the release if `plugin.json` disagrees with the tag. The
 > `.mcpb` stamps its version from `plugin.json`, so a partial six-file bump would otherwise ship a

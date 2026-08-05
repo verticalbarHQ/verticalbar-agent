@@ -49,11 +49,16 @@ Shipped today:
 - **Claude Desktop `.mcpb`** — attached to the same releases by `release-verticalbar-agent.yml`.
 
 > This entry read "plus a Claude Desktop `.mcpb` bundle attached to GitHub releases" from the day the
-> `.mcpb` builder was written until 2026-08-05, while **no release had ever carried one** — RND-2764
-> documented attaching it as a manual step and every release skipped it. The build is now part of the
-> release workflow, so the sentence describes the pipeline rather than an intention. Kept as a note
-> because the failure mode is worth remembering: a manual release step and a doc written in the
-> present tense will disagree, and the doc is the one nobody re-checks.
+> `.mcpb` builder was written until 2026-08-05. It was true once and then quietly stopped being true:
+> RND-2764 attached exactly one, by hand, as `lens-0.4.0.mcpb` (tag `lens-v0.4.0`, 2026-06-25). The
+> Lens→VerticalBar Agent rename moved releases to the public mirror and the hand step did not follow,
+> so v0.9.4–v0.9.8 all shipped without one. The build is now part of the release workflow, so the
+> sentence describes the pipeline rather than an intention.
+>
+> Kept as a note because the failure mode is worth remembering, and it is not the obvious one. The doc
+> was not written carelessly — it described a real artifact. What changed was the **release path**, and
+> nothing tied the sentence to it. A claim about what ships needs a gate in the thing that ships, not a
+> careful author.
 
 **Not shipped (RND-2794):** OS code-signing — no Apple Developer ID notarization, no Authenticode.
 macOS users clear quarantine by hand for the `.dmg`. The `.mcpb` sidesteps this (Claude Desktop runs
