@@ -45,7 +45,15 @@ Then **restart Claude Code** — the MCP server loads at session start. Update l
 
 ### Signing in
 
-Call the `login` tool (browser sign-in, including Google), or set `CC_API_KEY` for the headless path.
+**Just ask for your data.** *"List my CrossCheck workspaces."* If you are not signed in, the plugin
+opens the **VerticalBar Agent sign-in window** for you — Google or email/password — and continues as
+soon as you finish. There is nothing to install first and no command to remember.
+
+That window is the same app as the `.dmg` below; the plugin already has it and launches it when it is
+needed. Install the `.dmg` separately only if you want to open the app yourself, e.g. to connect a
+NetSuite environment.
+
+For headless use, set `CC_API_KEY` instead and no window appears.
 
 ### Updating
 
@@ -58,8 +66,8 @@ auto-sync is on; **Claude Code** updates with `/plugin update verticalbar-agent@
 
 ### The desktop app (optional)
 
-**You do not need this to use VerticalBar Agent in Claude.** Install it only to connect a NetSuite
-environment, or to sign in from a window instead of a tool call.
+**You do not need to install this to sign in** — the plugin opens its window for you. Install it
+separately only to open the app on its own, which is how you connect a NetSuite environment.
 
 1. Download `VerticalBarAgent-macos-arm64.dmg` from the [latest release][latest], open it, and drag
    **VerticalBar Agent** to `/Applications`.
@@ -86,7 +94,8 @@ If `/briefing` is missing:
   connector but not the plugin, so there is no skill — install the plugin.
 - **Claude Code** — restart the session; the plugin loads at session start.
 
-If `/briefing` is there but the tools fail, you are signed out — call `login`.
+If `/briefing` is there but the tools fail, you are signed out — ask for your data again and
+finish signing in in the window that opens.
 
 ## What it can do
 
