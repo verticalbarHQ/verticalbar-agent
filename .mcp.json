@@ -3,7 +3,7 @@
     "verticalbar-agent": {
       "command": "node",
       "args": [
-        "${CLAUDE_PLUGIN_ROOT}/bin/launcher.mjs"
+        "${CLAUDE_PLUGIN_ROOT}/launcher/launcher.mjs"
       ]
     }
   }
