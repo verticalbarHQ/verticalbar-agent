@@ -8,38 +8,30 @@ that puts the same capabilities inside Claude.
 
 ## Install
 
-**Pick the row for the Claude you actually use.** The two surfaces install differently and neither
-install works on the other — Claude Code does not read Claude Desktop's extensions, and a Desktop
-extension is not a plugin.
+**One plugin, one repository, both surfaces.** You add `verticalbarHQ/verticalbar-agent` as a plugin
+marketplace and install from it. Nothing to download, no file to edit.
 
 | You use | Do this |
 |---|---|
-| **Claude Desktop** | Download `verticalbar-agent-<version>.mcpb` from the [latest release][latest] and double-click it. |
-| **Claude Code** | `/plugin marketplace add verticalbarHQ/verticalbar-agent` then `/plugin install verticalbar-agent@verticalbar` |
+| **Claude Desktop** | Settings → **Customize → Plugins** → **Add plugin → Add marketplace → Add from repository** → `verticalbarHQ/verticalbar-agent` → **Install** |
+| **Claude Code** | `/plugin marketplace add verticalbarHQ/verticalbar-agent`<br>`/plugin install verticalbar-agent@verticalbar` |
 
-Then ask Claude for something that needs your data — *"list my CrossCheck workspaces"* — and sign in
-when it prompts you.
+Both give you the same thing: the **`/briefing`** skill, and the tools it needs. Type `/briefing` in
+a new chat to check it arrived.
+
+Then ask for something that needs your data — *"list my CrossCheck workspaces"* — and sign in when it
+prompts you.
 
 ### Claude Desktop
 
-1. Download **`verticalbar-agent-<version>.mcpb`** from the [latest release][latest].
-2. Double-click it, or drag it onto the Claude Desktop window. (Equivalently: Settings → Desktop App
-   → Extensions → Install Extension.)
-3. Review the permissions Claude Desktop shows you, and install.
+1. **Settings** (⌘,) → **Customize → Plugins**.
+2. **Add plugin → Add marketplace → Add from repository**.
+3. Enter `verticalbarHQ/verticalbar-agent`. Leave **Auto-sync** on if you want updates to arrive on
+   their own.
+4. **Sync**, then **Install** on the *Verticalbar agent* card.
 
-That is the whole install. Claude Desktop ships its own Node runtime, so there is nothing else to
-install and no config file to edit. There is no Gatekeeper prompt — Claude Desktop runs the
-extension, so macOS never sees an app *you* launched.
-
-Sign in with the `login` tool (browser sign-in, including Google), or fill in the optional
-`CC_API_KEY` field in the extension's settings for the headless path.
-
-> **The `.mcpb` does not include the desktop GUI app.** It gives Claude the tools. If you also want
-> the app — to connect NetSuite, or to sign in from a window instead of a tool call — install the
-> `.dmg` too (below). Most people only need the `.mcpb`.
-
-> **A `.mcpb` has no update channel.** To upgrade, install the newer one from a later release. The
-> Claude Code plugin and the desktop app both update themselves.
+The plugin's detail page lists exactly what it brings: the `/briefing` skill under **Skills**, and
+the `verticalbar-agent` server under **Connectors**.
 
 ### Claude Code
 
@@ -51,12 +43,23 @@ Sign in with the `login` tool (browser sign-in, including Google), or fill in th
 Then **restart Claude Code** — the MCP server loads at session start. Update later with
 `/plugin update verticalbar-agent@verticalbar`.
 
-You do not need any release download for this path: the plugin fetches and signature-verifies the
-compiled client on first run.
+### Signing in
+
+Call the `login` tool (browser sign-in, including Google), or set `CC_API_KEY` for the headless path.
+
+### Updating
+
+Nothing to download here either. The compiled client the plugin runs **updates itself** — every
+launch checks a signed manifest, verifies the download against a pinned key, and refuses anything
+older than the floor.
+
+The plugin itself follows its surface: **Claude Desktop** re-syncs from the repository when
+auto-sync is on; **Claude Code** updates with `/plugin update verticalbar-agent@verticalbar`.
 
 ### The desktop app (optional)
 
-Only needed to connect NetSuite, or to sign in from a GUI.
+**You do not need this to use VerticalBar Agent in Claude.** Install it only to connect a NetSuite
+environment, or to sign in from a window instead of a tool call.
 
 1. Download `VerticalBarAgent-macos-arm64.dmg` from the [latest release][latest], open it, and drag
    **VerticalBar Agent** to `/Applications`.
@@ -64,21 +67,26 @@ Only needed to connect NetSuite, or to sign in from a GUI.
    `xattr -dr com.apple.quarantine "/Applications/VerticalBar Agent.app"`).
 3. Open it and sign in.
 
-If you want the app to serve Claude Desktop *instead of* the `.mcpb`, use its **Connect to Claude
-Desktop** button — it writes the MCP entry itself, preserving any other servers already configured —
-then **restart Claude Desktop**. Do not do both; two registrations of the same server is one too many.
+The app can also register itself with Claude Desktop directly, via **Connect to Claude Desktop**.
+That is a **fallback** — it gives Claude the tools but **not** the `/briefing` skill, because it
+registers a connector rather than installing a plugin. Use the plugin path above unless something
+prevents it, and do not use both: two registrations of the same server is one too many.
 
 [latest]: https://github.com/verticalbarHQ/verticalbar-agent/releases/latest
 
 ## Verifying it worked
 
-Ask Claude something that needs your data — *"list my CrossCheck workspaces"*. If the tools are not
-there:
+Type **`/briefing`** in a new chat. If it is there, the skill installed. Then ask for something that
+needs your data — *"list my CrossCheck workspaces"* — to confirm the tools reach your account.
 
-- **Claude Desktop, `.mcpb`** — check Settings → Extensions to confirm it is installed and enabled.
-- **Claude Desktop, desktop app** — you almost certainly have not restarted it. It reads its config
-  only at startup.
-- **Claude Code** — restart the session; the MCP server loads at session start.
+If `/briefing` is missing:
+
+- **Claude Desktop** — Settings → Customize → Plugins, confirm *Verticalbar agent* is installed and
+  enabled. If you registered the desktop app with **Connect to Claude Desktop** instead, you have the
+  connector but not the plugin, so there is no skill — install the plugin.
+- **Claude Code** — restart the session; the plugin loads at session start.
+
+If `/briefing` is there but the tools fail, you are signed out — call `login`.
 
 ## What it can do
 
@@ -95,9 +103,9 @@ Analysis paths are read-only over HTTP. This client holds no database or NetSuit
 
 ## Requirements
 
-- **Claude Desktop** — any supported platform; the `.mcpb` carries no native code.
-- **The desktop app / the Claude Code plugin's compiled client** — macOS on Apple silicon, or
-  Windows x64. Intel Macs are not supported.
+- **Claude Desktop or Claude Code.**
+- **macOS on Apple silicon, or Windows x64** — the compiled client the plugin runs is native, and
+  Intel Macs are not supported.
 - A CrossCheck account. Sign in interactively (browser, including Google), or set `CC_API_KEY` for
   headless use.
 
@@ -106,5 +114,5 @@ Analysis paths are read-only over HTTP. This client holds no database or NetSuit
 Every release asset is signed with minisign against a pinned key:
 
 ```sh
-minisign -Vm verticalbar-agent-<version>.mcpb -P RWRKzVE+208a7cjnPi9jtqylZDIGOP8TrdmjS3AuJCaCX1XlltTlqgDo
+minisign -Vm VerticalBarAgent-macos-arm64.tar.gz -P RWRKzVE+208a7cjnPi9jtqylZDIGOP8TrdmjS3AuJCaCX1XlltTlqgDo
 ```
