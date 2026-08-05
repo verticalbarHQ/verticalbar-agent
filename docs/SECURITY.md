@@ -39,11 +39,25 @@ of the proprietary-IP boundary.
 
 ## Distribution
 
-Today: the Claude Code plugin via the repo-root private marketplace, plus a Claude Desktop `.mcpb`
-bundle attached to GitHub releases. **Planned (RND-2786 / RND-2794):** a dedicated public
-safe-surface repo and signed desktop installers (macOS `.dmg`, DevID + notarized; Windows `.msi`,
-Authenticode). Those are not shipped yet — until they land, distribution is unchanged and this doc
-describes the intended end-state, not a current guarantee.
+Shipped today:
+
+- **Claude Code plugin**, two marketplaces — the repo-root private one (`verticalbarHQ/crosscheck`,
+  for teammates) and the public safe-surface mirror (`verticalbarHQ/verticalbar-agent`, RND-2786).
+  The mirror is an allowlist copy; `mcp/`, `desktop/`, `mcpb/`, `test/` and the denylist never leave
+  the monorepo.
+- **Desktop app** — `.dmg` / `.tar.gz` / `.zip`, minisign-signed, on the public mirror's Releases.
+- **Claude Desktop `.mcpb`** — attached to the same releases by `release-verticalbar-agent.yml`.
+
+> This entry read "plus a Claude Desktop `.mcpb` bundle attached to GitHub releases" from the day the
+> `.mcpb` builder was written until 2026-08-05, while **no release had ever carried one** — RND-2764
+> documented attaching it as a manual step and every release skipped it. The build is now part of the
+> release workflow, so the sentence describes the pipeline rather than an intention. Kept as a note
+> because the failure mode is worth remembering: a manual release step and a doc written in the
+> present tense will disagree, and the doc is the one nobody re-checks.
+
+**Not shipped (RND-2794):** OS code-signing — no Apple Developer ID notarization, no Authenticode.
+macOS users clear quarantine by hand for the `.dmg`. The `.mcpb` sidesteps this (Claude Desktop runs
+it; no app is launched), but that is a consequence of the packaging, not a substitute for signing.
 
 ## Read-only analysis paths and the governed deployment exception
 

@@ -34,9 +34,15 @@ export const diag = (event, outcome, detail) =>
 
 /** RND-2848: Intel macOS is no longer a supported target. Fail HERE with actionable copy — resolving
  *  it to a target with no artifact surfaces downstream as `no artifact for target macos-x64`, which
- *  reads like a broken release rather than an unsupported machine. Mirrors `selfupdate::resolve_target`. */
+ *  reads like a broken release rather than an unsupported machine. Mirrors `selfupdate::resolve_target`.
+ *
+ *  The copy USED to say "run the Claude Code plugin (`/plugin install verticalbar-agent@verticalbar`)",
+ *  which is this very launcher — the plugin's MCP command is `node bin/launcher.mjs`, so the advice
+ *  pointed at the thing that had just failed. The real Intel-Mac answer is the Claude Desktop `.mcpb`:
+ *  it ships the pure-Node `mcp/server.bundle.mjs` with no compiled client, so it carries no
+ *  architecture at all. */
 export const INTEL_MAC_UNSUPPORTED =
-  'VerticalBar Agent no longer supports Intel Macs — this build is Apple Silicon only. Use an Apple Silicon Mac, or run the Claude Code plugin (`/plugin install verticalbar-agent@verticalbar`), which does not need this client.'
+  'VerticalBar Agent no longer supports Intel Macs — the compiled client is Apple Silicon only. Use the Claude Desktop extension instead: download verticalbar-agent-<version>.mcpb from https://github.com/verticalbarHQ/verticalbar-agent/releases/latest and double-click it. It runs on Intel Macs because it needs no compiled client. (Claude Code needs that client, so this path stays Apple Silicon / Windows x64.)'
 
 /** Apple Silicon macOS + Windows only (platform decision); everything else fails loud (covers WSL, R13). */
 export function resolveTarget(platform = process.platform, arch = process.arch) {

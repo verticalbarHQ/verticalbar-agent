@@ -6,47 +6,79 @@ real CrossCheck and Vertical Bar data, published to the product surface where yo
 One binary, two modes: a desktop app for connecting NetSuite and CrossCheck, and a stdio MCP server
 that puts the same capabilities inside Claude.
 
-## Installation
+## Install
 
-Paste this to Claude (Claude Code, or Claude Desktop with filesystem access):
+**Pick the row for the Claude you actually use.** The two surfaces install differently and neither
+path works on the other — Claude Desktop cannot add a custom plugin marketplace, and Claude Code
+does not read Desktop's extensions.
+
+| You use | Do this |
+|---|---|
+| **Claude Desktop** | Download `verticalbar-agent-<version>.mcpb` from the [latest release][latest] and double-click it. |
+| **Claude Code** | `/plugin marketplace add verticalbarHQ/verticalbar-agent` then `/plugin install verticalbar-agent@verticalbar` |
+
+Then ask Claude for something that needs your data — *"list my CrossCheck workspaces"* — and sign in
+when it prompts you.
+
+### Claude Desktop
+
+1. Download **`verticalbar-agent-<version>.mcpb`** from the [latest release][latest].
+2. Double-click it, or drag it onto the Claude Desktop window. (Equivalently: Settings → Desktop App
+   → Extensions → Install Extension.)
+3. Review the permissions Claude Desktop shows you, and install.
+
+That is the whole install. Claude Desktop ships its own Node runtime, so there is nothing else to
+install and no config file to edit. There is no Gatekeeper prompt — Claude Desktop runs the
+extension, so macOS never sees an app *you* launched.
+
+Sign in with the `login` tool (browser sign-in, including Google), or fill in the optional
+`CC_API_KEY` field in the extension's settings for the headless path.
+
+> **The `.mcpb` does not include the desktop GUI app.** It gives Claude the tools. If you also want
+> the app — to connect NetSuite, or to sign in from a window instead of a tool call — install the
+> `.dmg` too (below). Most people only need the `.mcpb`.
+
+> **A `.mcpb` has no update channel.** To upgrade, install the newer one from a later release. The
+> Claude Code plugin and the desktop app both update themselves.
+
+### Claude Code
 
 ```
-Install VerticalBar Agent from its public releases and wire it into Claude Desktop.
-
-Release: https://github.com/verticalbarHQ/verticalbar-agent/releases/latest
-Pick the asset for this machine — they're named VerticalBarAgent-<os>-<arch>.<ext>.
-macOS ships a .dmg holding an .app bundle; Windows a .zip holding verticalbar-agent.exe.
-Install it where apps belong on this OS. It's unsigned, so clear the OS's
-quarantine / blocked-file attribute.
-
-That same binary IS the MCP server — run it with `--mcp`.
-
-Register it in Claude Desktop's config file, claude_desktop_config.json
-(macOS ~/Library/Application Support/Claude/, Windows %APPDATA%\Claude\):
-  mcpServers["verticalbar-agent"] = { command: <installed binary path>, args: ["--mcp"] }
-Merge into the existing file — don't overwrite it.
-
-Restart Claude Desktop, then open the app so I can sign in.
+/plugin marketplace add verticalbarHQ/verticalbar-agent
+/plugin install verticalbar-agent@verticalbar
 ```
 
-Then open the app and sign in to NetSuite and CrossCheck.
+Then **restart Claude Code** — the MCP server loads at session start. Update later with
+`/plugin update verticalbar-agent@verticalbar`.
 
-### Doing it by hand
+You do not need any release download for this path: the plugin fetches and signature-verifies the
+compiled client on first run.
 
-1. Download the asset for your platform from the [latest release][latest].
-2. **macOS** — open the `.dmg`, drag the app to `/Applications`. It is unsigned, so the first launch
-   needs **right-click → Open** (or `xattr -dr com.apple.quarantine "/Applications/VerticalBar Agent.app"`).
-   **Windows** — extract `verticalbar-agent.exe` somewhere permanent; Windows may warn on first run.
-3. Open the app and use **Connect to Claude Desktop**. It writes the MCP entry for you, preserving
-   any other servers already in the file.
-4. **Restart Claude Desktop.** It reads that config only at startup, so until you do, nothing changes.
+### The desktop app (optional)
+
+Only needed to connect NetSuite, or to sign in from a GUI.
+
+1. Download `VerticalBarAgent-macos-arm64.dmg` from the [latest release][latest], open it, and drag
+   **VerticalBar Agent** to `/Applications`.
+2. It is **unsigned**, so the first launch needs **right-click → Open** (or
+   `xattr -dr com.apple.quarantine "/Applications/VerticalBar Agent.app"`).
+3. Open it and sign in.
+
+If you want the app to serve Claude Desktop *instead of* the `.mcpb`, use its **Connect to Claude
+Desktop** button — it writes the MCP entry itself, preserving any other servers already configured —
+then **restart Claude Desktop**. Do not do both; two registrations of the same server is one too many.
 
 [latest]: https://github.com/verticalbarHQ/verticalbar-agent/releases/latest
 
 ## Verifying it worked
 
 Ask Claude something that needs your data — *"list my CrossCheck workspaces"*. If the tools are not
-there, the restart in step 4 is the usual reason.
+there:
+
+- **Claude Desktop, `.mcpb`** — check Settings → Extensions to confirm it is installed and enabled.
+- **Claude Desktop, desktop app** — you almost certainly have not restarted it. It reads its config
+  only at startup.
+- **Claude Code** — restart the session; the MCP server loads at session start.
 
 ## What it can do
 
@@ -63,12 +95,16 @@ Analysis paths are read-only over HTTP. This client holds no database or NetSuit
 
 ## Requirements
 
-- macOS on Apple silicon, or Windows x64.
-- Claude Desktop (or Claude Code).
-- A CrossCheck account. Sign in from the app — interactive browser sign-in, or `CC_API_KEY` for
+- **Claude Desktop** — any supported platform; the `.mcpb` carries no native code.
+- **The desktop app / the Claude Code plugin's compiled client** — macOS on Apple silicon, or
+  Windows x64. Intel Macs are not supported.
+- A CrossCheck account. Sign in interactively (browser, including Google), or set `CC_API_KEY` for
   headless use.
 
-## Updating
+## Verifying a download
 
-Install the newer release over the old one and restart Claude Desktop. The MCP entry keeps pointing at
-the same path, so it needs no edit — unless you install somewhere new, in which case update `command`.
+Every release asset is signed with minisign against a pinned key:
+
+```sh
+minisign -Vm verticalbar-agent-<version>.mcpb -P RWRKzVE+208a7cjnPi9jtqylZDIGOP8TrdmjS3AuJCaCX1XlltTlqgDo
+```

@@ -1,5 +1,14 @@
 # VerticalBar Agent plugin — Install
 
+> **Are you trying to install this to use it?** Read the [README](../README.md) instead — it is two
+> steps and it is the supported path. This document is for **maintainers and contributors working in
+> the monorepo**: dev-loop paths, build commands, and how a release is cut.
+>
+> It is mirrored to the public repo alongside the README, so it names monorepo paths that only exist
+> there — `mcp/`, `mcpb/`, `install.mjs`, `test/` are deliberately **not** mirrored (see
+> [SECURITY.md](./SECURITY.md) § Distribution). If you are reading this on the public repo and a path
+> is missing, that is why, and it is not a path you need.
+
 A **standalone, self-contained** Claude Code plugin. Unlike the close adapter, this plugin
 keeps its MCP server and its `lib/` **inside the plugin directory** and ships them as a single
 committed esbuild bundle (`mcp/server.bundle.mjs`) that inlines its three runtime deps —
@@ -185,22 +194,24 @@ The `.mcpb` wraps the **same committed** `mcp/server.bundle.mjs` + `assets/brief
 `plugin.json`. Inputs are committed (`mcpb/manifest.json` + `mcpb/build.mjs`); the packed `.mcpb`
 is a build artifact (gitignored), not source.
 
-**Distribution = GitHub Release.** On each plugin release, attach the packed `verticalbar-agent-<version>.mcpb`
-to a GitHub release tagged `verticalbar-agent-v<version>`:
+**Distribution = the release workflow. There is nothing to do by hand.** Pushing a
+`verticalbar-agent-v<version>` tag runs `release-verticalbar-agent.yml`, which builds the `.mcpb`,
+checks its version against the tag, signs it, and attaches it to the **public mirror's** release
+(`verticalbarHQ/verticalbar-agent`) next to the desktop artifacts. `npm run build:mcpb` above is for
+inspecting a build locally, not for publishing.
 
-```bash
-cd plugins/verticalbar-agent && npm run build:mcpb
-VER=$(node -p "require('./.claude-plugin/plugin.json').version")
-gh release create "verticalbar-agent-v$VER" "dist/verticalbar-agent-$VER.mcpb" --notes "VerticalBar Agent Desktop Extension (.mcpb)"
-# upload the EXACT versioned file, not dist/verticalbar-agent-*.mcpb — a glob would also attach stale .mcpb
-# builds left in dist/ from a previous version.
-```
+> **This used to be a manual step, and that is why it never happened.** RND-2764 documented a
+> `gh release create` recipe here. No `verticalbar-agent-v*` release ever existed in this monorepo,
+> and none of v0.9.4–v0.9.8 on the public mirror carried a `.mcpb` — so the only install path Claude
+> Desktop supports shipped zero times while three documents described it in the present tense. If a
+> release step is not in the workflow, treat it as a step that will not run.
 
-Teammates (repo access) download the `.mcpb` from that release and install it (below). The version
-is baked into the filename, so it's always clear which build is installed.
+> **The version gate.** The workflow fails the release if `plugin.json` disagrees with the tag. The
+> `.mcpb` stamps its version from `plugin.json`, so a partial six-file bump would otherwise ship a
+> bundle labelled with a release it is not — the same class of drift that left `tauri.conf.json` at
+> 0.3.1 for a whole release.
 
-> **Why this tag is safe.** This `gh release create` publishes a release *in this monorepo*, and
-> `deploy-production.yml` fires on `release: published`. It used to gate on
+> **Why this tag is safe.** `deploy-production.yml` fires on `release: published`. It used to gate on
 > `startsWith(release.tag_name, 'v')` — satisfied by any tag starting with the letter `v`, so
 > `verticalbar-agent-v0.9.6` would have rolled production, and component tags were safe only by
 > starting with some other letter. RND-3297 changed that gate to require a **digit** after the `v`
