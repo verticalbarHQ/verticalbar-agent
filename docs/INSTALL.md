@@ -195,8 +195,21 @@ surfaced verbatim.
 > stdio MCP server and its skills appear. Until someone writes that down, treat Desktop sync as
 > "published, not yet witnessed" rather than either broken or proven.
 
-The `.mcpb` Desktop Extension runs this local stdio MCP server inside Claude Desktop, and remains
-the fallback for anyone who cannot use the plugin path.
+> **Nothing publishes a `.mcpb`, and that is deliberate.** RND-3397 removed the build+sign+attach
+> steps from `release-verticalbar-agent.yml` on 2026-08-05 (`ceb44db12`), in the same change that
+> made the marketplace the Desktop path. Its reasons, which still hold: a `.mcpb` is a Desktop
+> **Connector**, so it carries the tools but not `briefing` — the exact half-installed state the
+> first customer reported — and it runs the NODE server, whose `login` opens the managed Cognito web
+> UI, while the plugin runs the compiled client, whose `login` opens the app window. *"Two install
+> routes with two different sign-in experiences is not a fallback, it is a fork."*
+>
+> Verified 2026-08-07 against the shipped releases: `verticalbar-agent-v0.10.2`, `v0.10.0` and
+> `v0.9.8` carry only the desktop artifacts, `latest.json` and their signatures. No release has ever
+> carried a `.mcpb` under this name.
+
+The `.mcpb` Desktop Extension runs this local stdio MCP server inside Claude Desktop. It is now a
+**local build only** — kept so a re-add can be deliberate rather than a rewrite, and useful for
+inspecting what the Connector surface would contain.
 
 **Build** (maintainers; needs network for `npx @anthropic-ai/mcpb`):
 
@@ -209,11 +222,11 @@ The `.mcpb` wraps the **same committed** `mcp/server.bundle.mjs` + `assets/brief
 `plugin.json`. Inputs are committed (`mcpb/manifest.json` + `mcpb/build.mjs`); the packed `.mcpb`
 is a build artifact (gitignored), not source.
 
-**Distribution = the release workflow. There is nothing to do by hand.** Pushing a
-`verticalbar-agent-v<version>` tag runs `release-verticalbar-agent.yml`, which builds the `.mcpb`,
-checks its version against the tag, signs it, and attaches it to the **public mirror's** release
-(`verticalbarHQ/verticalbar-agent`) next to the desktop artifacts. `npm run build:mcpb` above is for
-inspecting a build locally, not for publishing.
+**Distribution: none.** The tag release publishes the desktop artifacts, `latest.json` and their
+minisig sidecars — and nothing else. `npm run build:mcpb` produces a file for local inspection that
+no workflow picks up. If a `.mcpb` is ever wanted again, the missing pieces are a build step, two
+asset slots in the publish list, and a line in the signing loop; `check-artifact-names.mjs` will not
+help, because it deliberately lost its two `.mcpb` slots when the steps came out.
 
 > **This used to be a manual step, and it stopped happening at a rename.** RND-2764 ran the
 > `gh release create` recipe exactly once — `lens-0.4.0.mcpb`, tag `lens-v0.4.0`, 2026-06-25, in this
@@ -229,11 +242,18 @@ inspecting a build locally, not for publishing.
 >
 > Two lessons, both cheap to forget: a release step that is not in the workflow will not run, and a
 > stale release does not sit quietly — GitHub promotes it.
+>
+> The first lesson then repeated in reverse. The automation these paragraphs described was added
+> (`1fdd7450b`, *"a manual step is a step that does not happen"*), removed four days later by
+> `ceb44db12`, and the documents kept describing it in the present tense — this section still said
+> "Automated 2026-08-05" about steps deleted on 2026-08-05. Corrected 2026-08-07.
 
-> **The version gate.** The workflow fails the release if `plugin.json` disagrees with the tag. The
-> `.mcpb` stamps its version from `plugin.json`, so a partial six-file bump would otherwise ship a
-> bundle labelled with a release it is not — the same class of drift that left `tauri.conf.json` at
-> 0.3.1 for a whole release.
+> **The version gate covers the binary, not the bundle.** The workflow's only version check compares
+> the TAG against `desktop/src-tauri/Cargo.toml`, because the client compares `latest.json`'s version
+> to its baked-in `CARGO_PKG_VERSION` and drift makes every install see "update available" forever.
+> `mcpb/manifest.json` is checked by nothing in the release — only by the plugin-version triad in
+> `artifact-name-gate.test.mjs`, which runs on PRs. This paragraph previously claimed the release
+> failed on a stale `.mcpb` version; it never did.
 
 > **Why this tag is safe.** `deploy-production.yml` fires on `release: published`. It used to gate on
 > `startsWith(release.tag_name, 'v')` — satisfied by any tag starting with the letter `v`, so
@@ -242,15 +262,16 @@ inspecting a build locally, not for publishing.
 > (a real semver app tag), so component tags are safe by rule rather than by luck. Product releases
 > stay `vX.Y.Z` / `vX.Y.Z-rc.N`.
 
-> **No auto-update.** A `.mcpb` installed via "Install Extension" has no update channel — each
-> plugin release ships a new `.mcpb` to re-install. (The Claude Code marketplace path *does*
-> auto-update via `claude plugin update`; Desktop does not.) `whoami` / the version in the
-> Extensions list shows what's installed.
+> **No auto-update.** A `.mcpb` installed via "Install Extension" has no update channel, and since
+> nothing publishes one there is no newer file to re-install from either. The marketplace path
+> auto-updates on both surfaces — `claude plugin update` in Claude Code, repository sync in Desktop.
+> That gap is a reason the `.mcpb` came off the release, not a caveat to work around.
 
-**Install** (end user): Claude Desktop → Settings → **데스크톱 앱 / Desktop App → 확장 프로그램 /
-Extensions** → **확장 프로그램 설치 / Install Extension** → pick `verticalbar-agent-<version>.mcpb` (or
-double-click the file). Claude Desktop ships its own Node runtime (≥18), so no system Node is
-needed.
+**Install** (only for a `.mcpb` you built yourself): Claude Desktop → Settings → **데스크톱 앱 /
+Desktop App → 확장 프로그램 / Extensions** → **확장 프로그램 설치 / Install Extension** → pick
+`verticalbar-agent-<version>.mcpb` (or double-click the file). Claude Desktop ships its own Node
+runtime (≥18), so no system Node is needed. **End users should not be sent here** — see §1 for the
+marketplace path, which is the one that carries the skills.
 
 **Auth in Desktop**: the extension exposes optional config fields (`CC_API_KEY`,
 `CC_WORKSPACE_ID`, `CC_ENV`) for the headless/API-key path; or just call the `login` tool after
