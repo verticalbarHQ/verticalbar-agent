@@ -67,14 +67,14 @@ it; no app is launched), but that is a consequence of the packaging, not a subst
 ## Read-only analysis paths and the governed deployment exception
 
 - The plugin **never holds a database connection or DB credentials**, and **never issues raw
-  SQL against a database**. `briefing_data_query` and `briefing_live_read` are **HTTP proxies the
+  SQL against a database**. `briefing_data_query` and `cc_live_read` are **HTTP proxies the
   CrossCheck platform runs server-side**; the caller sends a `SELECT`/`WITH` string and gets
   JSON back.
 - The landed-data proxy (`/api/v1/briefings-data`) is **SELECT/WITH only**, bound to an allowlist of
   `close_*` tables, and every allowlisted table is **CTE-shadowed with the auth-derived
   `workspace_id`** server-side — an arbitrary SELECT/JOIN can only ever see this workspace's
   rows. Write/DDL keywords are rejected.
-- The live read proxy (`/api/v1/live-read`, exposed as `briefing_live_read`) is **SELECT-only**,
+- The live read proxy (`/api/v1/live-read`, exposed as `cc_live_read`) is **SELECT-only**,
   enforced server-side and at the NetSuite RESTlet, rate-limited, audited, and row-capped. It is
   the **only** live path — there is no ungoverned, M2M-direct NetSuite access in the plugin.
 - The only deployment mutations are create Release Package, add package items, and start CI workflow

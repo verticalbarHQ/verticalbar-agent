@@ -32,7 +32,7 @@ see [SECURITY.md](./SECURITY.md).
   production). `http://localhost:14001` is a **dev-only** override.
 - **Auth**, one of:
   - a **workspace API key** (`CC_API_KEY`) — the headless path. Scope it for the tools you use:
-    `analysis:read` + `canvas:write` cover the core read/publish surface; **`briefing_live_read`
+    `analysis:read` + `canvas:write` cover the core read/publish surface; **`cc_live_read`
     additionally requires a `live:read` scope** (the governed live-NetSuite proxy is env-scoped).
   - **Cognito** operator credentials (`CC_EMAIL` / `CC_PASSWORD`, or the in-session `login`
     tool) — the same account as the CrossCheck / Vertical Bar web apps. Vertical Bar tools
@@ -141,7 +141,7 @@ A minimal end-to-end check (an API key with `analysis:read` + `canvas:write`, a 
 and a reachable `CC_API_URL`):
 
 1. **tools/list** — boot the server and drive a JSON-RPC `initialize` + `tools/list` over
-   stdin; confirm `briefing_publish`, `briefing_data_query`, `briefing_live_read`, `cc_*`, `vb_*` appear.
+   stdin; confirm `briefing_publish`, `briefing_data_query`, `cc_live_read`, `cc_*`, `vb_*` appear.
 2. **briefing_data_query** — `{"sql":"SELECT 1 AS n"}` (call `briefing_schema` for real table names) →
    expect `{ rows, rowCount }`.
 3. **briefing_publish** — a tiny `{title, account, html}` → expect `{ id, viewUrl, rawUrl }`.
