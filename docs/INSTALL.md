@@ -186,11 +186,14 @@ surfaced verbatim.
 > which also names the split cleanly: **커넥터 = MCP servers (tools), 플러그인 = skills + slash
 > commands**. A `.mcpb` is a Connector, so it can never carry the `briefing` skill.
 >
-> The plugin path is therefore intended to become the primary Desktop path (RND-3397). It is **not
-> live yet**: the mirror was publishing an invalid plugin `source` and Desktop rejected the whole
-> marketplace. That is fixed in this same change, but the mirror only publishes on merge to `main`,
-> so the fix has to land before the Desktop sync can be confirmed. Until it is confirmed, the
-> `.mcpb` below remains the working Desktop path and the README keeps pointing at it.
+> The plugin path is the primary Desktop path (RND-3397). What blocked it — the mirror publishing an
+> invalid plugin `source`, which made Desktop reject the whole marketplace — landed and is live: the
+> published catalog at `verticalbarHQ/verticalbar-agent` now carries
+> `{"source": "github", "repo": "verticalbarHQ/verticalbar-agent"}` (checked 2026-08-07 at 0.10.2),
+> and the README points Desktop users at **Add from repository**, not at a `.mcpb`. What is still
+> unrecorded is an end-to-end observation on a Desktop install — that the synced plugin attaches this
+> stdio MCP server and its skills appear. Until someone writes that down, treat Desktop sync as
+> "published, not yet witnessed" rather than either broken or proven.
 
 The `.mcpb` Desktop Extension runs this local stdio MCP server inside Claude Desktop, and remains
 the fallback for anyone who cannot use the plugin path.
