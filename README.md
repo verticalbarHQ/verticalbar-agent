@@ -14,7 +14,7 @@ marketplace and install from it. Nothing to download, no file to edit.
 | You use | Do this |
 |---|---|
 | **Claude Desktop** | Settings → **Customize → Plugins** → **Add plugin → Add marketplace → Add from repository** → `verticalbarHQ/verticalbar-agent` → **Install** |
-| **Claude Code** | `/plugin marketplace add verticalbarHQ/verticalbar-agent`<br>`/plugin install verticalbar-agent@verticalbar` |
+| **Claude Code** | `/plugin marketplace add verticalbarHQ/verticalbar-agent`<br>`/plugin install verticalbar-agent@verticalbar-agent` |
 
 Both give you the same thing: the **`/briefing`** skill, and the tools it needs. Type `/briefing` in
 a new chat to check it arrived.
@@ -37,11 +37,11 @@ the `verticalbar-agent` server under **Connectors**.
 
 ```
 /plugin marketplace add verticalbarHQ/verticalbar-agent
-/plugin install verticalbar-agent@verticalbar
+/plugin install verticalbar-agent@verticalbar-agent
 ```
 
 Then **restart Claude Code** — the MCP server loads at session start. Update later with
-`/plugin update verticalbar-agent@verticalbar`.
+`/plugin update verticalbar-agent@verticalbar-agent`.
 
 ### Signing in
 
@@ -62,7 +62,7 @@ launch checks a signed manifest, verifies the download against a pinned key, and
 older than the floor.
 
 The plugin itself follows its surface: **Claude Desktop** re-syncs from the repository when
-auto-sync is on; **Claude Code** updates with `/plugin update verticalbar-agent@verticalbar`.
+auto-sync is on; **Claude Code** updates with `/plugin update verticalbar-agent@verticalbar-agent`.
 
 ### The desktop app (optional)
 
