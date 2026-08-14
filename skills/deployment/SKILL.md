@@ -26,8 +26,9 @@ run does not.
 When a run is refused for identity, the fix is to sign in: use the **`setup`** skill, then retry. Do
 not report the refusal as a workflow problem.
 
-**This plugin has no approval capability.** If a workflow stage needs approval, that happens in
-CrossCheck, by a person. Never describe a run as blocked-on-you, and never imply you can approve it.
+`cc_start_ci_workflow_run` requires fresh human interaction in the MCP host before every call. This
+confirms creation of deployment intent; it does not approve a Pipeline stage. Stage approval still
+happens in CrossCheck, by a person. Never imply the plugin can approve that stage.
 
 ## The order, and why it is the order
 
@@ -46,7 +47,8 @@ CrossCheck, by a person. Never describe a run as blocked-on-you, and never imply
    way to confirm a promotion is aimed where the user thinks it is. Confirm the target environment
    with the user before step 5 whenever the workflow touches production.
 5. **`cc_start_ci_workflow_run`** `{workspaceId, workflowId, packageId}` — the request body is exactly
-   the package id. Returns the server response unchanged.
+   the package id. The host must ask a person immediately before this call. Returns the server
+   response unchanged; actual environment writes remain blocked on CrossCheck stage approval.
 6. **`cc_get_ci_workflow_run`** — poll for status. A started run is not a finished one; do not report
    a deployment as done from the start call's response.
 

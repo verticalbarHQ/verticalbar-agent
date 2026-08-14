@@ -157,14 +157,16 @@ The plugin exposes nine deployment tools. The read tools are
 tools are `cc_create_release_package`, `cc_add_release_package_items`, and
 `cc_start_ci_workflow_run`.
 
-Each mutation is a single direct server call — there is no client-side confirmation gate; the server
-enforces its own guards. A Cognito user (the demo owner/admin) has all needed scopes. An API key must
+Each mutation is a single direct server call. `cc_start_ci_workflow_run` declares mandatory fresh
+human interaction to Claude Code before the call; package creation and editing do not. CrossCheck
+still enforces every server guard, and its Pipeline stage approval is required before actual
+environment writes. A Cognito user (the demo owner/admin) has all needed scopes. An API key must
 carry `deploy:read` for workflow/package reads and closure, `sync:read` for Git source,
 `environments:read` for the workflow env-name join, and `deploy:write` for create/add; mutation scope
 does not grant read access. Create/add are not identity-gated. `cc_start_ci_workflow_run` additionally
 requires an identified Cognito user (OAuth or SRP), so every API key returns the server's
-`IDENTITY_REQUIRED` verbatim (use `login`). There is no approval-capable Briefing tool (approval stays a
-web action under server-enforced SoD).
+`IDENTITY_REQUIRED` verbatim (use `login`). Pipeline stage approval stays a web action under
+server-enforced SoD.
 
 Point VerticalBar Agent at the intended local, staging, or demo API with `CC_API_URL`. If it is
 unset, it targets production. The demo
