@@ -41,28 +41,42 @@ of the proprietary-IP boundary.
 
 Shipped today:
 
-- **Claude Code plugin**, two marketplaces — the repo-root private one (`verticalbarHQ/crosscheck`,
+- **Plugin**, two marketplaces — the repo-root private one (`verticalbarHQ/crosscheck`,
   for teammates) and the public safe-surface mirror (`verticalbarHQ/verticalbar-agent`, RND-2786).
   The mirror is an allowlist copy; `mcp/`, `desktop/`, `mcpb/`, `test/` and the denylist never leave
-  the monorepo.
+  the monorepo. The public mirror serves **Claude Desktop, Claude Code, the Codex CLI and the ChatGPT
+  desktop app**. The repository root IS the plugin, and each host reads its own two files: Claude
+  takes `.claude-plugin/{marketplace,plugin}.json`, Codex takes
+  `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json`. Both catalogs and the Codex
+  manifest are generated from the same source, so they cannot disagree about name, version or copy —
+  and that copy is deliberately surface-neutral, because it is read on both.
+- **Host confirmation is not a security boundary, and it is not uniform.**
+  `cc_start_ci_workflow_run` is published with `anthropic/requiresUserInteraction`, which makes
+  Claude Code ask a person on every call. Codex does not implement that marker and shows no such
+  prompt. The guarantees that hold on every surface are server-side: start-run requires an
+  identified Cognito user (no API key can start one), and environment writes happen only after
+  CrossCheck's Pipeline stage approval.
 - **Desktop app** — `.dmg` / `.tar.gz` / `.zip`, minisign-signed, on the public mirror's Releases.
-- **Claude Desktop `.mcpb`** — attached to the same releases by `release-verticalbar-agent.yml`.
 
-> This entry read "plus a Claude Desktop `.mcpb` bundle attached to GitHub releases" from the day the
-> `.mcpb` builder was written until 2026-08-05. It was true once and then quietly stopped being true:
-> RND-2764 attached exactly one, by hand, as `lens-0.4.0.mcpb` (tag `lens-v0.4.0`, 2026-06-25). The
-> Lens→VerticalBar Agent rename moved releases to the public mirror and the hand step did not follow,
-> so v0.9.4–v0.9.8 all shipped without one. The build is now part of the release workflow, so the
-> sentence describes the pipeline rather than an intention.
+**No `.mcpb` is published.** `release-verticalbar-agent.yml` attaches the desktop archives,
+`latest.json` and their signatures, and nothing else. Do not go looking for one.
+
+> This entry claimed a `.mcpb` ships, in three successive and successively wrong forms, from the day
+> the builder was written until 2026-08-15. First it said the bundle was attached to releases: true
+> once — RND-2764 attached exactly one, BY HAND, as `lens-0.4.0.mcpb` (tag `lens-v0.4.0`,
+> 2026-06-25) — and then quietly false, because the Lens→VerticalBar Agent rename moved releases to
+> the public mirror and the hand step did not follow, so v0.9.4–v0.9.8 shipped without one. It was
+> then rewritten to say the build had become part of the release workflow. That was false on the day
+> it was written: `ceb44db12` (RND-3397, 2026-08-05) had REMOVED the build/sign/attach steps in the
+> same change that made the marketplace the Desktop path, because a `.mcpb` is a Connector and so
+> ships the tools without the skills.
 >
-> Kept as a note because the failure mode is worth remembering, and it is not the obvious one. The doc
-> was not written carelessly — it described a real artifact. What changed was the **release path**, and
-> nothing tied the sentence to it. A claim about what ships needs a gate in the thing that ships, not a
-> careful author.
+> Kept because the failure mode is not the obvious one. Neither revision was careless — each
+> described a real artifact or a real intention. What changed was the **release path**, and nothing
+> tied the sentence to it. A claim about what ships needs a gate in the thing that ships.
 
 **Not shipped (RND-2794):** OS code-signing — no Apple Developer ID notarization, no Authenticode.
-macOS users clear quarantine by hand for the `.dmg`. The `.mcpb` sidesteps this (Claude Desktop runs
-it; no app is launched), but that is a consequence of the packaging, not a substitute for signing.
+macOS users clear quarantine by hand for the `.dmg`.
 
 ## Read-only analysis paths and the governed deployment exception
 

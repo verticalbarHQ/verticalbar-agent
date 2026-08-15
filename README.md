@@ -4,20 +4,21 @@ Turns an analysis goal into a **Briefing** — a self-contained, interactive HTM
 real CrossCheck and Vertical Bar data, published to the product surface where your team can read it.
 
 One binary, two modes: a desktop app for connecting NetSuite and CrossCheck, and a stdio MCP server
-that puts the same capabilities inside Claude.
+that puts the same capabilities inside your assistant.
 
 ## Install
 
-**One plugin, one repository, both surfaces.** You add `verticalbarHQ/verticalbar-agent` as a plugin
+**One plugin, one repository, every surface.** You add `verticalbarHQ/verticalbar-agent` as a plugin
 marketplace and install from it. Nothing to download, no file to edit.
 
 | You use | Do this |
 |---|---|
 | **Claude Desktop** | Settings → **Customize → Plugins** → **Add plugin → Add marketplace → Add from repository** → `verticalbarHQ/verticalbar-agent` → **Install** |
 | **Claude Code** | `/plugin marketplace add verticalbarHQ/verticalbar-agent`<br>`/plugin install verticalbar-agent@verticalbar-agent` |
+| **Codex CLI** | `codex plugin marketplace add verticalbarHQ/verticalbar-agent`<br>`codex plugin add verticalbar-agent@verticalbar-agent` |
 
-Both give you the same thing: the **`/briefing`** skill, and the tools it needs. Type `/briefing` in
-a new chat to check it arrived.
+All of them give you the same thing: the **`briefing`** skill, and the tools it needs. Ask for
+`/briefing` in a new chat to check it arrived.
 
 Then ask for something that needs your data — *"list my CrossCheck workspaces"* — and sign in when it
 prompts you.
@@ -43,6 +44,25 @@ the `verticalbar-agent` server under **Connectors**.
 Then **restart Claude Code** — the MCP server loads at session start. Update later with
 `/plugin update verticalbar-agent@verticalbar-agent`.
 
+### Codex CLI
+
+```
+codex plugin marketplace add verticalbarHQ/verticalbar-agent
+codex plugin add verticalbar-agent@verticalbar-agent
+```
+
+Then **start a new Codex session** — the MCP server loads at session start. `codex plugin list`
+shows the installed version. Refresh the catalog with
+`codex plugin marketplace upgrade verticalbar-agent`, then `codex plugin add` again to move to it.
+
+One thing works differently here, and it is worth knowing before you deploy anything: on Claude Code,
+starting a CI workflow run asks you to confirm **every time**, because the tool is published with
+Anthropic's `requiresUserInteraction` marker. Codex does not implement that marker — whether you are
+asked is decided by **your own Codex approval policy**, not by this plugin. Nothing about the server
+changes: starting a run still requires a signed-in CrossCheck user (never an API key), and the
+environment is written only after CrossCheck's own Pipeline stage approval. Treat the client prompt
+as a convenience, not the control.
+
 ### Signing in
 
 **Just ask for your data.** *"List my CrossCheck workspaces."* If you are not signed in, the plugin
@@ -62,7 +82,8 @@ launch checks a signed manifest, verifies the download against a pinned key, and
 older than the floor.
 
 The plugin itself follows its surface: **Claude Desktop** re-syncs from the repository when
-auto-sync is on; **Claude Code** updates with `/plugin update verticalbar-agent@verticalbar-agent`.
+auto-sync is on; **Claude Code** updates with `/plugin update verticalbar-agent@verticalbar-agent`;
+**Codex** refreshes with `codex plugin marketplace upgrade verticalbar-agent`.
 
 ### The desktop app (optional)
 
@@ -93,6 +114,8 @@ If `/briefing` is missing:
   enabled. If you registered the desktop app with **Connect to Claude Desktop** instead, you have the
   connector but not the plugin, so there is no skill — install the plugin.
 - **Claude Code** — restart the session; the plugin loads at session start.
+- **Codex** — `codex plugin list` should show `verticalbar-agent@verticalbar-agent` as *installed*;
+  start a new session afterwards.
 
 If `/briefing` is there but the tools fail, you are signed out — ask for your data again and
 finish signing in in the window that opens.
@@ -106,13 +129,14 @@ finish signing in in the window that opens.
 - **Read NetSuite live** through CrossCheck, for facts the landed snapshot cannot answer.
 - **Author CrossCheck Test Suites** against a connected environment.
 - **Deployment**: release packages and CI workflows. Every mutation is one direct server call — the
-  server is the sole authority, and this client adds no approval step of its own.
+  server is the sole authority, and this client adds no approval step of its own. On Claude Code the
+  host asks you to confirm before a run is started; on Codex it does not (see above).
 
 Analysis paths are read-only over HTTP. This client holds no database or NetSuite credentials.
 
 ## Requirements
 
-- **Claude Desktop or Claude Code.**
+- **Claude Desktop, Claude Code, or Codex CLI.**
 - **macOS on Apple silicon, or Windows x64** — the compiled client the plugin runs is native, and
   Intel Macs are not supported.
 - A CrossCheck account. Sign in interactively (browser, including Google), or set `CC_API_KEY` for

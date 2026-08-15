@@ -133,6 +133,43 @@ required env-var runtime pointer** — the cache copy boots as-is.
 
 `node plugins/verticalbar-agent/install.mjs` (step 2) automates both of these plus the login.
 
+### The PUBLIC mirror ships TWO catalogs, one per host
+
+`scripts/verticalbar-agent-public-mirror.mjs` publishes the repository root AS the plugin, with a
+separate catalog for each host:
+
+```text
+README.md, docs/                     ← prose; GitHub renders the README as the front page
+.claude-plugin/marketplace.json      ← Claude's catalog   — source {source:'github', repo}
+.claude-plugin/plugin.json           ← Claude's manifest  (copied)
+.agents/plugins/marketplace.json     ← Codex's catalog    — source './'   (generated)
+.codex-plugin/plugin.json            ← Codex's manifest   (generated; version inherited)
+.mcp.json                            (generated)
+skills/, launcher/
+```
+
+Two catalogs rather than one, because no single file serves both. Measured on codex-cli 0.147.0 +
+claude CLI, 2026-08-15:
+
+| catalogs present | Claude | Codex |
+|---|---|---|
+| `.claude-plugin` only, `{source:'github', repo}` | installs | adds the marketplace, then lists **zero plugins** — silently |
+| `.agents/plugins` only, `source: './'` | **fails**: "marketplace file not found at …/.claude-plugin/marketplace.json" | installs |
+| both | installs; `validate` names `.claude-plugin` as the file it read | installs |
+
+Row 2 is what makes this safe: **Claude never reads `.agents/`**, so the `./` source — the form that
+made Claude Desktop refuse the entire marketplace in RND-3397 — is invisible to it, and the
+Claude-facing catalog keeps the exact `source` shape that is live and installable today.
+
+OpenAI documents `$REPO_ROOT/.agents/plugins/marketplace.json` as the canonical repo-scoped list and
+`.claude-plugin/marketplace.json` only as legacy-compatible — and that legacy compatibility does not
+extend to the `github` source object, which is why the Claude catalog alone leaves Codex empty.
+
+An earlier revision of this change instead moved the plugin into a `verticalbar-agent/` subdirectory
+so one catalog could serve both. It worked on both hosts, but it rested on the false premise that
+Codex has no catalog of its own, and it paid for that premise by relocating the plugin path under
+every existing install.
+
 ---
 
 ## 6. Verify (smoke)

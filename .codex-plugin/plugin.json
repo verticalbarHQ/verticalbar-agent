@@ -1,0 +1,18 @@
+{
+  "name": "verticalbar-agent",
+  "version": "0.10.7",
+  "description": "VerticalBar Agent: author and publish self-contained, on-brand HTML analysis artifacts grounded in CrossCheck and Vertical Bar data, over a local stdio MCP server. Includes a governed deployment-mutation exception for workspace-scoped release-package and workflow tools (create/add require deploy:write; start-run additionally requires an identified Cognito user via OAuth or SRP; no API key can start a run; no approval capability; actual environment writes remain behind CrossCheck Pipeline stage approval); talks to CrossCheck only over HTTP.",
+  "author": {
+    "name": "Vertical Bar"
+  },
+  "skills": "./skills/",
+  "mcpServers": {
+    "verticalbar-agent": {
+      "cwd": ".",
+      "command": "node",
+      "args": [
+        "./launcher/launcher.mjs"
+      ]
+    }
+  }
+}
