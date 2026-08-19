@@ -118,7 +118,21 @@ bash ${CLAUDE_PLUGIN_ROOT}/bin/run.sh ${CLAUDE_PLUGIN_ROOT} mcp/server.bundle.mj
 
 ---
 
-## 5. Register the marketplace (discovery + `/plugin install`)
+## 5. Register the DEVELOPMENT marketplace (discovery + `/plugin install`)
+
+> **This section is for working on the plugin, not for installing it.** It registers your own checkout
+> by absolute path. To actually install VerticalBar Agent — on any surface, including Claude Code —
+> use the public mirror, which needs no GitHub access at all:
+>
+> ```text
+> /plugin marketplace add verticalbarHQ/verticalbar-agent
+> /plugin install verticalbar-agent@verticalbar-agent
+> ```
+>
+> The repo-root marketplace has never been published and must not be offered to a user: it would
+> require SSH access to the private monorepo and it runs a **different** MCP runtime
+> (`mcp/server.bundle.mjs`, web-UI login) than the mirror does (`launcher/launcher.mjs`, app-window
+> login) — the same two-sign-ins fork §7 rejected when it killed the `.mcpb`. *(Added 2026-08-16.)*
 
 The repo-root marketplace manifest (`.claude-plugin/marketplace.json`) points at this plugin.
 `/plugin install` copies the **whole** plugin dir into `~/.claude/plugins/cache/...` and

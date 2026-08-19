@@ -41,11 +41,18 @@ of the proprietary-IP boundary.
 
 Shipped today:
 
-- **Plugin**, two marketplaces — the repo-root private one (`verticalbarHQ/crosscheck`,
-  for teammates) and the public safe-surface mirror (`verticalbarHQ/verticalbar-agent`, RND-2786).
+- **Plugin**, ONE published marketplace — the public safe-surface mirror
+  (`verticalbarHQ/verticalbar-agent`, RND-2786). It serves **Claude Desktop, Claude Code, the Codex CLI
+  and the ChatGPT desktop app**, all from the same repository and the same runtime.
   The mirror is an allowlist copy; `mcp/`, `desktop/`, `mcpb/`, `test/` and the denylist never leave
-  the monorepo. The public mirror serves **Claude Desktop, Claude Code, the Codex CLI and the ChatGPT
-  desktop app**. The repository root IS the plugin, and each host reads its own two files: Claude
+  the monorepo.
+  The repo-root marketplace (`.claude-plugin/marketplace.json`, name `verticalbar`) is **development-only
+  and has never been published**: `install.mjs` registers it by absolute path so a monorepo checkout can
+  install its own working tree. It is not a teammate-facing route — pointing anyone at
+  `verticalbarHQ/crosscheck` would demand SSH access to a private repo AND hand Claude Code a different
+  runtime than every other surface. *(Corrected 2026-08-16; this paragraph described it as the
+  teammate marketplace.)*
+  The repository root IS the plugin, and each host reads its own two files: Claude
   takes `.claude-plugin/{marketplace,plugin}.json`, Codex takes
   `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json`. Both catalogs and the Codex
   manifest are generated from the same source, so they cannot disagree about name, version or copy —
