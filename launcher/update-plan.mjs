@@ -46,7 +46,10 @@ export function cmpVersion(a, b) {
 /**
  * @param {object} o
  * @param {string} o.target                e.g. "macos-arm64"
- * @param {{version?:string, counter?:number, usable:boolean}} o.state  installed binary state
+ * @param {{version?:string, counter?:number, installedCounter?:number, usable:boolean}} o.state
+ *   installed binary state. `counter` is the highest manifest counter ever OBSERVED (the anti-replay
+ *   floor); `installedCounter` is the counter of the manifest the cached binary was installed from.
+ *   They differ, and conflating them is what let a republished build go unnoticed.
  * @param {string} o.downloadBase          the CHANNEL's release base — see `channelBase()`.
  * @param {string} [o.channel]             which channel this base is expected to serve (default
  *   'stable'). The base says where the caller looked; it does not authenticate the response, so the
@@ -110,9 +113,27 @@ export async function planUpdate({ target, state, downloadBase, fetchBuf, channe
   const art = artifacts[target]
   if (!art || !art.file) return { decision: 'fail', reason: `no artifact for target ${target}` }
 
+  // A version is not the identity of the bytes. The next channel republishes its fixed tag on every
+  // staging build, so the same version legitimately names different artifacts — and comparing
+  // versions alone told a tester who had pulled the first staging build to keep it forever, through
+  // every build after it. The publish a payload came from is what identifies it, and that is the
+  // counter of the manifest it was installed from.
+  //
+  // Absent for state written before this existed: unknown, and unknown does not justify making every
+  // install in the world re-download. It records itself on the next real install.
+  //
+  // A newer counter says "different bytes", never "newer version" — the two channels advance their
+  // counters on their own schedule, so a republish can legitimately carry a version OLDER than what
+  // is installed. Letting the counter alone supersede the cache would walk straight past the
+  // anti-downgrade guard below and replace a newer binary with an older one, so a republish only
+  // supersedes when the manifest is not older than the cached payload.
+  const fromANewerPublish = state?.installedCounter != null && counter > state.installedCounter &&
+    (state.version == null || cmpVersion(version, state.version) >= 0)
+
   // Keep the cached binary iff it is usable AND at/above the floor AND not older than latest
-  // (never downgrade — spec-103 anti-downgrade).
-  if (state?.usable && state.version &&
+  // (never downgrade — spec-103 anti-downgrade) AND not superseded by a newer publish of the same
+  // version.
+  if (state?.usable && state.version && !fromANewerPublish &&
       cmpVersion(state.version, minGoodVersion) >= 0 &&
       cmpVersion(state.version, version) >= 0) {
     // Carry the observed counter so the caller can advance the anti-replay floor even though we are

@@ -245,7 +245,7 @@ export async function ensureBinary(dir, target, { channel = resolveChannel(), do
     if (verified && !usable) logErr(`verticalbar-agent: cache at ${dir} records channel ${st.channel ?? 'stable'}, not ${channel}; reinstalling`)
     const plan = await planUpdate({
       target,
-      state: { version: st.version, counter: channelCounter(st, channel), usable },
+      state: { version: st.version, counter: channelCounter(st, channel), installedCounter: st.installedCounter, usable },
       downloadBase: downloadBaseUrl,
       fetchBuf: fetch_,
       channel,
@@ -290,7 +290,9 @@ export async function ensureBinary(dir, target, { channel = resolveChannel(), do
     if (!verifyCachedBinary(dir, target, pubkey) || !existsSync(exePath(dir, target))) {
       throw new Error('post-install verification failed (fail closed)')
     }
-    writeState(dir, { ...st, version: plan.version, counter: plan.counter, target, channel, counters: mergeCounters(st, channel, plan.counter) })
+    // `installedCounter` is the publish these bytes came from — distinct from `counter`, which is the
+    // highest manifest ever observed. Only an actual install advances it.
+    writeState(dir, { ...st, version: plan.version, counter: plan.counter, installedCounter: plan.counter, target, channel, counters: mergeCounters(st, channel, plan.counter) })
     return exePath(dir, target)
   })
 }
