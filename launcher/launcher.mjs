@@ -13,9 +13,9 @@
 //  - offline taxonomy (AC12): usable cached binary + offline → run it; no usable binary + offline → fail loud.
 
 import { spawn, spawnSync } from 'node:child_process'
-import { mkdirSync, readFileSync, writeFileSync, existsSync, rmSync, renameSync, statSync } from 'node:fs'
+import { chmodSync, mkdirSync, readFileSync, writeFileSync, existsSync, rmSync, renameSync, statSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { join, dirname, basename } from 'node:path'
+import { join, dirname, basename, isAbsolute } from 'node:path'
 import { pathToFileURL, fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 import { verifyMinisign, PINNED_PUBKEY } from './minisign-verify.mjs'
@@ -107,22 +107,39 @@ export const diag = (event, outcome, detail) =>
  *  There is no supported Intel path. Say that, and stop inventing one: an error that names a
  *  nonexistent artifact costs the reader more than an error that admits the gap. */
 export const INTEL_MAC_UNSUPPORTED =
-  'VerticalBar Agent does not support Intel Macs — the compiled client it runs is Apple Silicon only, and there is currently no Intel build or alternative package. Supported: Apple Silicon macOS and Windows x64. If you need Intel support, please open an issue at https://github.com/verticalbarHQ/verticalbar-agent/issues.'
+  'VerticalBar Agent does not support Intel Macs — the compiled client it runs is Apple Silicon only, and there is currently no Intel build or alternative package. Supported: Apple Silicon macOS, Windows x64, and Linux x64. If you need Intel support, please open an issue at https://github.com/verticalbarHQ/verticalbar-agent/issues.'
 
-/** Apple Silicon macOS + Windows only (platform decision); everything else fails loud (covers WSL, R13). */
+/** The signed targets the launcher knows how to request. Linux v1 is musl x64 only. */
 export function resolveTarget(platform = process.platform, arch = process.arch) {
   if (platform === 'darwin') {
     if (arch === 'arm64') return 'macos-arm64'
     throw new Error(INTEL_MAC_UNSUPPORTED)
   }
   if (platform === 'win32') return 'win-x64'
-  throw new Error(`verticalbar-agent supports macOS and Windows only (got ${platform}/${arch}; note: Claude Code inside WSL resolves as linux)`)
+  if (platform === 'linux' && arch === 'x64') return 'linux-x64-musl'
+  throw new Error(`verticalbar-agent supports Apple Silicon macOS, Windows x64, and Linux x64 only (got ${platform}/${arch})`)
 }
 
-export function installDir() {
-  const base = process.platform === 'win32'
-    ? (process.env.LOCALAPPDATA || join(homedir(), 'AppData', 'Local'))
-    : join(homedir(), 'Library', 'Application Support')
+/** Platform-native user data root. Arguments are injectable so Linux layout is testable on macOS and
+ * Windows without mutating process globals. Stable's macOS/Windows paths remain byte-for-byte the
+ * historical values; Linux follows XDG_DATA_HOME, falling back to ~/.local/share. */
+export function installDir({ platform = process.platform, env = process.env, home = homedir() } = {}) {
+  let base
+  if (platform === 'win32') {
+    base = env.LOCALAPPDATA || join(home, 'AppData', 'Local')
+  } else if (platform === 'darwin') {
+    base = join(home, 'Library', 'Application Support')
+  } else if (platform === 'linux') {
+    const xdg = String(env.XDG_DATA_HOME ?? '').trim()
+    if (xdg && !isAbsolute(xdg)) {
+      throw new Error(`XDG_DATA_HOME must be an absolute path (got '${xdg}')`)
+    }
+    if (!xdg && !home) throw new Error('cannot resolve Linux install root: HOME is unavailable and XDG_DATA_HOME is unset')
+    if (!xdg && !isAbsolute(home)) throw new Error(`HOME must be an absolute path (got '${home}')`)
+    base = xdg || join(home, '.local', 'share')
+  } else {
+    throw new Error(`cannot resolve install root for unsupported platform '${platform}'`)
+  }
   return join(base, 'verticalbar-agent')
 }
 
@@ -133,10 +150,26 @@ export function installDir() {
 export const MAC_APP_BUNDLE = 'VerticalBar Agent.app'
 
 const targetDir = (dir, target) => join(dir, target)
-const artifactPath = (dir, target) => join(targetDir(dir, target), process.platform === 'win32' ? 'artifact.zip' : 'artifact.tar.gz')
-const exePath = (dir, target) => process.platform === 'win32'
-  ? join(targetDir(dir, target), 'app', 'verticalbar-agent.exe')
-  : join(targetDir(dir, target), 'app', MAC_APP_BUNDLE, 'Contents', 'MacOS', 'verticalbar-agent')
+
+/** Target-specific archive and executable layout. Key this from the signed target rather than the
+ * launcher's host OS: tests can exercise every layout, and a future cross-platform invocation cannot
+ * silently interpret a Linux tarball as a macOS .app. */
+export function payloadLayout(target) {
+  if (target === 'win-x64') {
+    return { artifactName: 'artifact.zip', exeInArchive: 'verticalbar-agent.exe', exeParts: ['verticalbar-agent.exe'], compressed: false, needsExecBit: false }
+  }
+  if (target === 'macos-arm64') {
+    const exeParts = [MAC_APP_BUNDLE, 'Contents', 'MacOS', 'verticalbar-agent']
+    return { artifactName: 'artifact.tar.gz', exeInArchive: exeParts.join('/'), exeParts, compressed: true, needsExecBit: false }
+  }
+  if (target === 'linux-x64-musl') {
+    return { artifactName: 'artifact.tar.gz', exeInArchive: 'verticalbar-agent', exeParts: ['verticalbar-agent'], compressed: true, needsExecBit: true }
+  }
+  throw new Error(`unknown payload layout for target '${target}'`)
+}
+
+export const artifactPath = (dir, target) => join(targetDir(dir, target), payloadLayout(target).artifactName)
+export const exePath = (dir, target) => join(targetDir(dir, target), 'app', ...payloadLayout(target).exeParts)
 
 export function readState(dir) {
   try { return JSON.parse(readFileSync(join(dir, 'state.json'), 'utf8')) } catch { return {} }
@@ -170,9 +203,7 @@ export function verifyCachedBinary(dir, target, pubkey = PINNED_PUBKEY) {
 }
 
 /** The executable's path WITHIN the artifact archive (the launcher extracts to `app/…`). */
-const exeArchivePath = () => process.platform === 'win32'
-  ? 'verticalbar-agent.exe'
-  : `${MAC_APP_BUNDLE}/Contents/MacOS/verticalbar-agent`
+export const exeArchivePath = (target) => payloadLayout(target).exeInArchive
 
 /** R3/AC5 (codex): confirm the ON-DISK exe matches the exe inside the (separately signature-verified)
  *  artifact, by extracting THAT ONE file to memory and comparing sha256 — a post-install overwrite of
@@ -184,8 +215,8 @@ export function verifyExtractedExe(dir, target) {
     const art = artifactPath(dir, target)
     const exe = exePath(dir, target)
     if (!existsSync(art) || !existsSync(exe)) return false
-    const flag = process.platform === 'win32' ? '-xOf' : '-xzOf'
-    const r = spawnSync('tar', [flag, art, exeArchivePath()], { maxBuffer: 512 * 1024 * 1024 })
+    const flag = payloadLayout(target).compressed ? '-xzOf' : '-xOf'
+    const r = spawnSync('tar', [flag, art, exeArchivePath(target)], { maxBuffer: 512 * 1024 * 1024 })
     if (r.error || r.status !== 0 || !r.stdout || r.stdout.length === 0) return false
     const fromArchive = createHash('sha256').update(r.stdout).digest('hex')
     const onDisk = createHash('sha256').update(readFileSync(exe)).digest('hex')
@@ -215,14 +246,19 @@ export async function withLock(dir, fn, { staleMs = 120_000, now = Date.now } = 
   finally { rmSync(lock, { recursive: true, force: true }) }
 }
 
-function extract(artifact, destAppDir) {
+export function extractArtifact(artifact, destAppDir, target) {
   rmSync(destAppDir, { recursive: true, force: true })
   mkdirSync(destAppDir, { recursive: true })
-  // bsdtar (win10+) handles .zip; GNU/bsd tar handles .tar.gz on mac.
-  const args = process.platform === 'win32' ? ['-xf', artifact, '-C', destAppDir] : ['-xzf', artifact, '-C', destAppDir]
+  const layout = payloadLayout(target)
+  // bsdtar (win10+) handles .zip; GNU/bsd tar handles .tar.gz on macOS and Linux.
+  const args = layout.compressed ? ['-xzf', artifact, '-C', destAppDir] : ['-xf', artifact, '-C', destAppDir]
   const r = spawnSync('tar', args, { stdio: ['ignore', 'ignore', 'inherit'] })
   if (r.error) throw new Error(`extract failed: could not run tar (${r.error.message})`)
   if (r.status !== 0) throw new Error(`extract failed (status ${r.status})`)
+  // GitHub release downloads do not give the executable bit an independent integrity identity; the
+  // signed tarball does. Apply the Linux execution permission only after that tarball was verified
+  // and extracted. macOS app and Windows layouts retain their established handling.
+  if (layout.needsExecBit) chmodSync(join(destAppDir, ...layout.exeParts), 0o755)
 }
 
 const fetchBuf = async (url) => {
@@ -286,7 +322,7 @@ export async function ensureBinary(dir, target, { channel = resolveChannel(), do
     writeFileSync(tmp, buf)
     renameSync(tmp, art) // atomic replace of the artifact
     writeFileSync(art + '.minisig', sig)
-    extract(art, join(targetDir(dir, target), 'app'))
+    extractArtifact(art, join(targetDir(dir, target), 'app'), target)
     if (!verifyCachedBinary(dir, target, pubkey) || !existsSync(exePath(dir, target))) {
       throw new Error('post-install verification failed (fail closed)')
     }
