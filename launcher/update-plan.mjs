@@ -10,6 +10,28 @@
 
 import { verifyMinisign, PINNED_PUBKEY } from './minisign-verify.mjs'
 
+/** The release channels a client may ask for. An unknown channel is an error, never a quiet fall
+ *  back to stable: someone who asked for a prerelease and silently got stable would believe they
+ *  were testing the new build. */
+export const CHANNELS = ['stable', 'next']
+
+/** A channel is a download BASE, not a filename.
+ *
+ *  `releases/latest/download` resolves to the most recently published NON-prerelease release. A next
+ *  build published normally would become that — every stable client would start resolving against a
+ *  prerelease, which is the accident this channel exists to prevent. Published as a prerelease it is
+ *  safe but unreachable under that path. So next gets its own fixed-tag prerelease base whose assets
+ *  are replaced per build, and both channels serve `latest.json` beneath their own base.
+ *
+ *  The protection is administrative, not cryptographic: an admin can convert a prerelease into a
+ *  full release. The publisher asserts it stayed a prerelease after every publish. */
+export const RELEASES = 'https://github.com/verticalbarHQ/verticalbar-agent/releases'
+export const NEXT_TAG = 'channel-next'
+export function channelBase(channel) {
+  if (!CHANNELS.includes(channel)) throw new Error(`unknown release channel '${channel}'`)
+  return channel === 'stable' ? `${RELEASES}/latest/download` : `${RELEASES}/download/${NEXT_TAG}`
+}
+
 /** Compare dotted numeric versions ("1.2.3"). Returns -1 / 0 / 1. Non-numeric parts compare as 0. */
 export function cmpVersion(a, b) {
   const pa = String(a).split('.').map((n) => parseInt(n, 10) || 0)
@@ -25,18 +47,27 @@ export function cmpVersion(a, b) {
  * @param {object} o
  * @param {string} o.target                e.g. "macos-arm64"
  * @param {{version?:string, counter?:number, usable:boolean}} o.state  installed binary state
- * @param {string} o.downloadBase          public mirror releases base (…/releases/latest/download)
+ * @param {string} o.downloadBase          the CHANNEL's release base — see `channelBase()`.
+ * @param {string} [o.channel]             which channel this base is expected to serve (default
+ *   'stable'). The base says where the caller looked; it does not authenticate the response, so the
+ *   manifest's own `channel` is still compared against this.
+ *   The caller must pass the anti-replay counter belonging to THIS channel: the channels advance
+ *   independently, so a stable counter used against a next manifest reads as a replay.
  * @param {(url:string)=>Promise<Buffer>} o.fetchBuf  fetch a URL → Buffer (throws on network/HTTP error)
  * @param {string} [o.pubkey]              pinned minisign pubkey (defaults to PINNED_PUBKEY)
  * @param {typeof verifyMinisign} [o.verify]
  * @returns {Promise<{decision:'use-cached'|'install'|'fail', version?:string, counter?:number,
  *   artifactUrl?:string, sigUrl?:string, sha256?:string, size?:number, reason?:string}>}
  */
-export async function planUpdate({ target, state, downloadBase, fetchBuf, pubkey = PINNED_PUBKEY, verify = verifyMinisign }) {
+export async function planUpdate({ target, state, downloadBase, fetchBuf, channel = 'stable', pubkey = PINNED_PUBKEY, verify = verifyMinisign }) {
+  if (!CHANNELS.includes(channel)) {
+    return { decision: 'fail', reason: `unknown release channel '${channel}' (known: ${CHANNELS.join(', ')})` }
+  }
+  const manifest = 'latest.json'
   let latestBuf, sigText
   try {
-    latestBuf = await fetchBuf(`${downloadBase}/latest.json`)
-    sigText = (await fetchBuf(`${downloadBase}/latest.json.minisig`)).toString('utf8')
+    latestBuf = await fetchBuf(`${downloadBase}/${manifest}`)
+    sigText = (await fetchBuf(`${downloadBase}/${manifest}.minisig`)).toString('utf8')
   } catch (e) {
     // Offline / fetch failure — AC12 taxonomy.
     if (state?.usable && state.version) return { decision: 'use-cached', version: state.version, reason: 'offline; using verified cached binary (best-effort)' }
@@ -44,19 +75,36 @@ export async function planUpdate({ target, state, downloadBase, fetchBuf, pubkey
   }
 
   // The signature over latest.json is what makes min_good_version / counter trustworthy.
-  if (!verify(latestBuf, sigText, pubkey)) return { decision: 'fail', reason: 'latest.json signature invalid (fail closed)' }
+  if (!verify(latestBuf, sigText, pubkey)) return { decision: 'fail', reason: `${manifest} signature invalid (fail closed)` }
 
   let latest
-  try { latest = JSON.parse(latestBuf.toString('utf8')) } catch { return { decision: 'fail', reason: 'latest.json is not valid JSON' } }
+  try { latest = JSON.parse(latestBuf.toString('utf8')) } catch { return { decision: 'fail', reason: `${manifest} is not valid JSON` } }
   const { version, minGoodVersion, counter, artifacts } = latest || {}
   if (!version || !minGoodVersion || typeof counter !== 'number' || !artifacts) {
-    return { decision: 'fail', reason: 'latest.json missing required fields (version/minGoodVersion/counter/artifacts)' }
+    return { decision: 'fail', reason: `${manifest} missing required fields (version/minGoodVersion/counter/artifacts)` }
+  }
+
+  // The channel a manifest belongs to is INSIDE the signed bytes. Both channels are signed by the
+  // same minisign key, so a valid signature says "we published this" and nothing about which channel
+  // it was published to — a filename or a URL is a claim anyone serving the file can make.
+  //
+  // Absent is read as stable, and only for stable. Every manifest published before this field
+  // existed is a stable one, and rejecting those would strand every install already running. A
+  // manifest with no channel is therefore not a `next` manifest, and asking for `next` must not
+  // accept one.
+  const declared = latest.channel
+  if (declared == null) {
+    if (channel !== 'stable') {
+      return { decision: 'fail', reason: `${manifest} declares no channel; only a stable manifest may omit it (fail closed)` }
+    }
+  } else if (declared !== channel) {
+    return { decision: 'fail', reason: `${manifest} declares channel '${declared}' but '${channel}' was requested (fail closed)` }
   }
 
   // Anti-replay (R10): a signed-but-stale manifest with a regressed counter must be rejected, else a
   // MITM/stale-CDN could re-permit a version ops meant to floor out.
   if (state?.counter != null && counter < state.counter) {
-    return { decision: 'fail', reason: `latest.json replay: counter ${counter} < last-seen ${state.counter}` }
+    return { decision: 'fail', reason: `${manifest} replay: counter ${counter} < last-seen ${state.counter}` }
   }
 
   const art = artifacts[target]
@@ -74,7 +122,7 @@ export async function planUpdate({ target, state, downloadBase, fetchBuf, pubkey
 
   // Refuse to "update" to something below the floor (defensive; a correct latest.json never does this).
   if (cmpVersion(version, minGoodVersion) < 0) {
-    return { decision: 'fail', reason: `latest.json version ${version} is below its own min_good_version ${minGoodVersion}` }
+    return { decision: 'fail', reason: `${manifest} version ${version} is below its own min_good_version ${minGoodVersion}` }
   }
 
   return {

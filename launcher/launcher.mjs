@@ -15,13 +15,47 @@
 import { spawn, spawnSync } from 'node:child_process'
 import { mkdirSync, readFileSync, writeFileSync, existsSync, rmSync, renameSync, statSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { join } from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { join, dirname } from 'node:path'
+import { pathToFileURL, fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 import { verifyMinisign, PINNED_PUBKEY } from './minisign-verify.mjs'
-import { planUpdate } from './update-plan.mjs'
+import { planUpdate, CHANNELS, channelBase } from './update-plan.mjs'
 
-const DOWNLOAD_BASE = 'https://github.com/verticalbarHQ/verticalbar-agent/releases/latest/download'
+/** Where this launcher was installed from. The channel marker ships beside it, so an install knows
+ *  which channel it IS without being told at run time. */
+const LAUNCHER_DIR = dirname(fileURLToPath(import.meta.url))
+
+/** Which channel this install asks for: `VBA_CHANNEL`, else a `channel` file shipped beside the
+ *  launcher, else stable.
+ *
+ *  This only chooses which manifest to REQUEST. Authority lives in the signed manifest, which names
+ *  its own channel and is compared against this — the same minisign key signs both channels, so
+ *  nothing outside the signed bytes can establish which channel a file belongs to.
+ *
+ *  An unrecognised value throws rather than defaulting. Quietly running stable for someone who asked
+ *  for a prerelease is the worst outcome available: they would believe they had tested it. */
+export function resolveChannel({ env = process.env, dir = LAUNCHER_DIR } = {}) {
+  const reject = (value, source) => {
+    throw new Error(`unknown release channel '${value}' from ${source} (known: ${CHANNELS.join(', ')})`)
+  }
+  const fromEnv = String(env.VBA_CHANNEL ?? '').trim()
+  if (fromEnv) return CHANNELS.includes(fromEnv) ? fromEnv : reject(fromEnv, 'VBA_CHANNEL')
+  let fromFile = ''
+  try { fromFile = readFileSync(join(dir, 'channel'), 'utf8').trim() } catch { /* absent → stable */ }
+  if (fromFile) return CHANNELS.includes(fromFile) ? fromFile : reject(fromFile, 'the channel file')
+  return 'stable'
+}
+
+/** Where a channel's cache lives. Stable keeps the historical location so every install that exists
+ *  today stays valid — including offline, where a moved cache would read as no cache at all. Next
+ *  goes underneath it.
+ *
+ *  The separation has to be physical. Sharing a directory would make "installed side by side" a lie:
+ *  one state file, one lock, one artifact, so alternating launches would overwrite each other and
+ *  re-download the whole binary every time. */
+export function channelRoot(dir, channel) {
+  return channel === 'stable' ? dir : join(dir, 'channels', channel)
+}
 
 /** stderr-only logger — a stray stdout byte corrupts the MCP JSON-RPC stream. */
 export const logErr = (...a) => process.stderr.write(a.join(' ') + '\n')
@@ -83,6 +117,24 @@ export function readState(dir) {
   try { return JSON.parse(readFileSync(join(dir, 'state.json'), 'utf8')) } catch { return {} }
 }
 function writeState(dir, state) { writeFileSync(join(dir, 'state.json'), JSON.stringify(state)) }
+
+/** The anti-replay floor for ONE channel. The channels advance their counters independently, so a
+ *  stable counter checked against a next manifest reads as a replay and would fail the install. */
+export function channelCounter(state, channel) {
+  const c = state?.counters?.[channel]
+  if (typeof c === 'number') return c
+  // State written before channels existed carries one flat counter, and it can only be stable's.
+  if (channel === 'stable' && typeof state?.counter === 'number') return state.counter
+  return undefined
+}
+
+/** Merge one channel's counter into the per-channel map, migrating a pre-channel flat counter. */
+export function mergeCounters(state, channel, counter) {
+  const counters = { ...(state?.counters ?? {}) }
+  if (counters.stable == null && typeof state?.counter === 'number') counters.stable = state.counter
+  if (typeof counter === 'number') counters[channel] = counter
+  return counters
+}
 
 /** R3: re-verify the cached artifact against the pinned key before trusting/executing it. */
 export function verifyCachedBinary(dir, target, pubkey = PINNED_PUBKEY) {
@@ -156,16 +208,22 @@ const fetchBuf = async (url) => {
 
 /** Ensure a verified binary exists at/above the floor; download+verify+install if needed. Returns exe path.
  *  Holds the install lock for the whole plan→download→install so two launchers can't race the cache. */
-export async function ensureBinary(dir, target, { downloadBaseUrl = DOWNLOAD_BASE, fetch_ = fetchBuf, pubkey = PINNED_PUBKEY } = {}) {
+export async function ensureBinary(dir, target, { channel = resolveChannel(), downloadBaseUrl = channelBase(channel), fetch_ = fetchBuf, pubkey = PINNED_PUBKEY } = {}) {
   mkdirSync(targetDir(dir, target), { recursive: true })
   return withLock(dir, async () => {
     const st = readState(dir)
-    const usable = verifyCachedBinary(dir, target, pubkey)
+    // `dir` is this channel's root, so a cache found here is this channel's by construction. The
+    // recorded channel is still checked: a mismatch means the directory was moved or hand-edited,
+    // and handing a stable build to a `next` request would report success for a build that never ran.
+    const verified = verifyCachedBinary(dir, target, pubkey)
+    const usable = verified && (st.channel ?? 'stable') === channel
+    if (verified && !usable) logErr(`verticalbar-agent: cache at ${dir} records channel ${st.channel ?? 'stable'}, not ${channel}; reinstalling`)
     const plan = await planUpdate({
       target,
-      state: { version: st.version, counter: st.counter, usable },
+      state: { version: st.version, counter: channelCounter(st, channel), usable },
       downloadBase: downloadBaseUrl,
       fetchBuf: fetch_,
+      channel,
       pubkey,
     })
     if (plan.decision === 'fail') { diag('plan', 'fail', plan.reason); throw new Error(`update plan failed (fail closed): ${plan.reason}`) }
@@ -178,8 +236,9 @@ export async function ensureBinary(dir, target, { downloadBaseUrl = DOWNLOAD_BAS
       if (!verifyExtractedExe(dir, target)) { diag('verify', 'fail', 'cached exe does not match the verified archive'); throw new Error('cached executable does not match the verified archive (fail closed)') }
       // Advance the anti-replay floor even without installing: a newer signed manifest we've observed
       // must raise the stored counter, else a later replay of an older manifest is accepted (codex P2, R10).
-      if (typeof plan.counter === 'number' && (st.counter == null || plan.counter > st.counter)) {
-        writeState(dir, { version: st.version, counter: plan.counter, target })
+      const seen = channelCounter(st, channel)
+      if (typeof plan.counter === 'number' && (seen == null || plan.counter > seen)) {
+        writeState(dir, { ...st, version: st.version, counter: plan.counter, target, channel, counters: mergeCounters(st, channel, plan.counter) })
       }
       if (plan.reason) logErr('verticalbar-agent:', plan.reason)
       return exePath(dir, target)
@@ -206,7 +265,7 @@ export async function ensureBinary(dir, target, { downloadBaseUrl = DOWNLOAD_BAS
     if (!verifyCachedBinary(dir, target, pubkey) || !existsSync(exePath(dir, target))) {
       throw new Error('post-install verification failed (fail closed)')
     }
-    writeState(dir, { version: plan.version, counter: plan.counter, target })
+    writeState(dir, { ...st, version: plan.version, counter: plan.counter, target, channel, counters: mergeCounters(st, channel, plan.counter) })
     return exePath(dir, target)
   })
 }
@@ -225,10 +284,12 @@ export function uninstall(dir = installDir()) {
 }
 
 export async function main(argv = process.argv.slice(2)) {
+  // Uninstall removes the whole install root, every channel with it.
   if (argv.includes('--uninstall')) { uninstall(); return }
-  const dir = installDir()
+  const channel = resolveChannel()
+  const dir = channelRoot(installDir(), channel)
   const target = resolveTarget()
-  const exe = await ensureBinary(dir, target)
+  const exe = await ensureBinary(dir, target, { channel })
   if (!verifyCachedBinary(dir, target)) { diag('verify', 'fail', 'cached binary failed re-verification before spawn'); throw new Error('cached binary failed re-verification before spawn (fail closed)') }
   // R3 "before each spawn": the artifact sig is valid AND the exe we're about to run matches it.
   if (!verifyExtractedExe(dir, target)) { diag('verify', 'fail', 'cached exe does not match the verified archive before spawn'); throw new Error('cached executable does not match the verified archive (fail closed)') }
