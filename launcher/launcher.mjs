@@ -15,7 +15,7 @@
 import { spawn, spawnSync } from 'node:child_process'
 import { mkdirSync, readFileSync, writeFileSync, existsSync, rmSync, renameSync, statSync } from 'node:fs'
 import { homedir } from 'node:os'
-import { join, dirname } from 'node:path'
+import { join, dirname, basename } from 'node:path'
 import { pathToFileURL, fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
 import { verifyMinisign, PINNED_PUBKEY } from './minisign-verify.mjs'
@@ -24,27 +24,6 @@ import { planUpdate, CHANNELS, channelBase } from './update-plan.mjs'
 /** Where this launcher was installed from. The channel marker ships beside it, so an install knows
  *  which channel it IS without being told at run time. */
 const LAUNCHER_DIR = dirname(fileURLToPath(import.meta.url))
-
-/** Which channel this install asks for: `VBA_CHANNEL`, else a `channel` file shipped beside the
- *  launcher, else stable.
- *
- *  This only chooses which manifest to REQUEST. Authority lives in the signed manifest, which names
- *  its own channel and is compared against this — the same minisign key signs both channels, so
- *  nothing outside the signed bytes can establish which channel a file belongs to.
- *
- *  An unrecognised value throws rather than defaulting. Quietly running stable for someone who asked
- *  for a prerelease is the worst outcome available: they would believe they had tested it. */
-export function resolveChannel({ env = process.env, dir = LAUNCHER_DIR } = {}) {
-  const reject = (value, source) => {
-    throw new Error(`unknown release channel '${value}' from ${source} (known: ${CHANNELS.join(', ')})`)
-  }
-  const fromEnv = String(env.VBA_CHANNEL ?? '').trim()
-  if (fromEnv) return CHANNELS.includes(fromEnv) ? fromEnv : reject(fromEnv, 'VBA_CHANNEL')
-  let fromFile = ''
-  try { fromFile = readFileSync(join(dir, 'channel'), 'utf8').trim() } catch { /* absent → stable */ }
-  if (fromFile) return CHANNELS.includes(fromFile) ? fromFile : reject(fromFile, 'the channel file')
-  return 'stable'
-}
 
 /** Where a channel's cache lives. Stable keeps the historical location so every install that exists
  *  today stays valid — including offline, where a moved cache would read as no cache at all. Next
@@ -55,6 +34,52 @@ export function resolveChannel({ env = process.env, dir = LAUNCHER_DIR } = {}) {
  *  re-download the whole binary every time. */
 export function channelRoot(dir, channel) {
   return channel === 'stable' ? dir : join(dir, 'channels', channel)
+}
+
+/** The marketplace entry a stable install is published under, and the one a prerelease install is. */
+export const STABLE_ENTRY = 'verticalbar-agent'
+export const NEXT_ENTRY = 'verticalbar-agent-next'
+
+/** Which channel this install asks for: `VBA_CHANNEL`, else the marketplace entry it was installed
+ *  as, else stable.
+ *
+ *  The channel cannot be a file in the tree. The mirror builds ONE tree; it lands on the public
+ *  `next` branch and promotion fast-forwards that same commit onto the default branch. A marker
+ *  inside it would therefore arrive on stable still saying `next`, and every stable install would
+ *  start asking for the prerelease base. Keeping the tree byte-identical is also what makes
+ *  promotion provable: stable receives the exact commit the gates ran against.
+ *
+ *  So the channel comes from the install identity instead. A host caches a plugin under the
+ *  marketplace ENTRY name — `<cache>/<marketplace>/<entry>/<version>/` — which differs between the
+ *  two entries even though the tree they carry does not.
+ *
+ *  This only chooses which manifest to REQUEST. Authority is the signed manifest, which names its
+ *  own channel and is compared against this; one minisign key signs both channels, so nothing
+ *  outside the signed bytes can establish where a file belongs.
+ *
+ *  An unrecognised value throws rather than defaulting. Quietly running stable for someone who
+ *  deliberately installed the prerelease is the worst outcome available: their dogfood evidence
+ *  would be about a build they never ran. */
+export function resolveChannel({ env = process.env, dir = LAUNCHER_DIR } = {}) {
+  const fromEnv = String(env.VBA_CHANNEL ?? '').trim()
+  if (fromEnv) {
+    if (!CHANNELS.includes(fromEnv)) {
+      throw new Error(`unknown release channel '${fromEnv}' from VBA_CHANNEL (known: ${CHANNELS.join(', ')})`)
+    }
+    return fromEnv
+  }
+  // `<cache>/<marketplace>/<entry>/<version>/launcher/launcher.mjs` — the entry is two levels above
+  // the launcher directory.
+  const entry = basename(dirname(dirname(dir)))
+  if (entry === NEXT_ENTRY) return 'next'
+  if (entry === STABLE_ENTRY) return 'stable'
+  // Outside a host cache — a checkout, a test fixture, a hand-placed tree — there is no entry to
+  // read and stable is the honest default. Inside one, an entry we do not recognise is not a thing
+  // to guess about: it is the shape a renamed or spoofed prerelease alias would take.
+  if (/[\\/]plugins[\\/]cache[\\/]/.test(dir)) {
+    throw new Error(`installed as unrecognised marketplace entry '${entry}' (expected ${STABLE_ENTRY} or ${NEXT_ENTRY})`)
+  }
+  return 'stable'
 }
 
 /** stderr-only logger — a stray stdout byte corrupts the MCP JSON-RPC stream. */
