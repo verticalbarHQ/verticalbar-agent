@@ -9,7 +9,7 @@
 > [SECURITY.md](./SECURITY.md) § Distribution). If you are reading this on the public repo and a path
 > is missing, that is why, and it is not a path you need.
 
-A **standalone, self-contained** Claude Code plugin. Unlike the close adapter, this plugin
+A **standalone, self-contained** local plugin for Claude and ChatGPT/Codex hosts. Unlike the close adapter, this plugin
 keeps its MCP server and its `lib/` **inside the plugin directory** and ships them as a single
 committed esbuild bundle (`mcp/server.bundle.mjs`) that inlines its three runtime deps —
 so a git-source install **boots with no `node_modules` and no `npm install` step**. There is no
@@ -245,9 +245,9 @@ surfaced verbatim.
 > published catalog at `verticalbarHQ/verticalbar-agent` now carries
 > `{"source": "github", "repo": "verticalbarHQ/verticalbar-agent"}` (checked 2026-08-07 at 0.10.2),
 > and the README points Desktop users at **Add from repository**, not at a `.mcpb`. What is still
-> unrecorded is an end-to-end observation on a Desktop install — that the synced plugin attaches this
-> stdio MCP server and its skills appear. Until someone writes that down, treat Desktop sync as
-> "published, not yet witnessed" rather than either broken or proven.
+> The repository install has since been observed end to end with both its skill and local STDIO MCP
+> attached. Exact-version regression rows belong in the installation compatibility evidence ledger;
+> this section documents the supported route rather than freezing one release's test result.
 
 > **Nothing publishes a `.mcpb`, and that is deliberate.** RND-3397 removed the build+sign+attach
 > steps from `release-verticalbar-agent.yml` on 2026-08-05 (`ceb44db12`), in the same change that
@@ -332,9 +332,9 @@ headless/API-key path; or just call the `login` tool after install for interacti
 browser-OAuth (loopback `:9876`). `whoami` shows auth and workspace routing mode. Cognito callers
 obtain workspace scope from `cc_workspaces`; API-key callers rely on the key's server-side binding.
 
-> Path note: if a future Claude Desktop build DOES expose "add a marketplace from a repository"
-> in the Plugins Directory, the existing Claude Code packaging would install directly there with
-> no `.mcpb` — at which point this section becomes the fallback rather than the primary path.
+> The current Claude Desktop build exposes **Add marketplace → Add from repository** in the Plugins
+> Directory. That marketplace route installs the plugin directly with no `.mcpb`; the local `.mcpb`
+> build below remains an inspection-only connector fallback and is not an end-user distribution.
 
 ## Diagnostics & support (evergreen self-bootstrap) — RND-2786
 
@@ -355,8 +355,9 @@ Failure **classes** to look for:
 | `verify`  | A downloaded or cached artifact failed **minisign** verification (tamper / wrong key). | Fail-closed; the binary is NOT run. Re-install; if it persists, the release may be mis-signed — report it. |
 | `download`| The artifact or `latest.json` could not be fetched. | Transient/offline; retry. A usable verified cached binary is still used (best-effort). |
 
-**Capture it**: run Claude Code / Claude Desktop from a terminal and copy the `verticalbar-agent …`
-stderr lines into your report. Nothing sensitive is logged (no keys/tokens).
+**Capture it**: run Claude Code, Claude Desktop, ChatGPT desktop, Codex CLI, or the Codex IDE host
+from a terminal and copy the `verticalbar-agent …` stderr lines into your report. Nothing sensitive
+is logged (no keys/tokens).
 
 **Rollback is a blind lever (known limitation, R12)**: there is **no fleet telemetry** on this
 auth-free channel — ops cannot see which clients adopted a version. The only rollback control is
@@ -367,6 +368,8 @@ Report install/verify issues with the captured stderr so a corrected manifest ca
 ## Files / state that change
 
 - Claude Code's plugin/marketplace registration (`~/.claude/plugins/...`).
+- ChatGPT desktop/Codex plugin registration and enabled state (`~/.codex/config.toml`) plus installed
+  marketplace copies (`~/.codex/plugins/cache/...`).
 - The launcher-managed binary cache + `state.json` (anti-replay counter) under the OS app-support dir.
 - Cognito tokens, if you use the `login` path, are cached at `~/tmp/verticalbar-agent/cc-mcp-token.json`.
 

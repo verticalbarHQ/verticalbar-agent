@@ -52,11 +52,14 @@ Shipped today:
   `verticalbarHQ/crosscheck` would demand SSH access to a private repo AND hand Claude Code a different
   runtime than every other surface. *(Corrected 2026-08-16; this paragraph described it as the
   teammate marketplace.)*
-  The repository root IS the plugin, and each host reads its own two files: Claude
-  takes `.claude-plugin/{marketplace,plugin}.json`, Codex takes
-  `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json`. Both catalogs and the Codex
-  manifest are generated from the same source, so they cannot disagree about name, version or copy —
-  and that copy is deliberately surface-neutral, because it is read on both.
+  The repository root is the canonical plugin. Claude takes
+  `.claude-plugin/{marketplace,plugin}.json`; stable Codex takes
+  `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json`. The Codex prerelease entry uses a
+  generated `codex-next/` declaration adapter in that same public commit so its materialized manifest
+  name matches `verticalbar-agent-next`. The adapter copies the canonical launcher and skills byte
+  for byte, keeps the same MCP server key, and selects the same signed runtime's next channel. The
+  catalogs and manifests are generated from the same source, so name, version, and surface-neutral
+  copy cannot drift without failing the mirror tests.
 - **Host confirmation is not a security boundary, and it is not uniform.**
   `cc_start_ci_workflow_run` is published with `anthropic/requiresUserInteraction`, which makes
   Claude Code ask a person on every call. Codex does not implement that marker and shows no such

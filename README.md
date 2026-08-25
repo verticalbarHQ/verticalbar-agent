@@ -15,7 +15,8 @@ marketplace and install from it. Nothing to download, no file to edit.
 |---|---|
 | **Claude Desktop** | Settings → **Customize → Plugins** → **Add plugin → Add marketplace → Add from repository** → `verticalbarHQ/verticalbar-agent` → **Install** |
 | **Claude Code** | `/plugin marketplace add verticalbarHQ/verticalbar-agent`<br>`/plugin install verticalbar-agent@verticalbar-agent` |
-| **Codex CLI** | `codex plugin marketplace add verticalbarHQ/verticalbar-agent`<br>`codex plugin add verticalbar-agent@verticalbar-agent` |
+| **ChatGPT desktop Work or Codex** | `codex plugin marketplace add verticalbarHQ/verticalbar-agent`, restart ChatGPT, then open **Plugins Directory** → `verticalbar-agent` → **Install** |
+| **Codex CLI or IDE** | `codex plugin marketplace add verticalbarHQ/verticalbar-agent`<br>`codex plugin add verticalbar-agent@verticalbar-agent`, then start a new session or restart the IDE extension |
 
 All of them give you the same thing: the **`briefing`** skill, and the tools it needs. Ask for
 `/briefing` in a new chat to check it arrived.
@@ -44,16 +45,32 @@ the `verticalbar-agent` server under **Connectors**.
 Then **restart Claude Code** — the MCP server loads at session start. Update later with
 `/plugin update verticalbar-agent@verticalbar-agent`.
 
-### Codex CLI
+### ChatGPT desktop Work and Codex
+
+Add the marketplace once from a terminal:
+
+```
+codex plugin marketplace add verticalbarHQ/verticalbar-agent
+```
+
+Restart the ChatGPT desktop app. In a local **Work** or **Codex** session, open **Plugins
+Directory**, select the `verticalbar-agent` source, and install *VerticalBar Agent*. Start a new chat
+after installing so the bundled skill and local STDIO server load together.
+
+This is a **local desktop** plugin. Hosted `chatgpt.com` does not read your local plugin cache or
+start its STDIO process; hosted web support requires a separately published remote MCP plugin.
+
+### Codex CLI and IDE
 
 ```
 codex plugin marketplace add verticalbarHQ/verticalbar-agent
 codex plugin add verticalbar-agent@verticalbar-agent
 ```
 
-Then **start a new Codex session** — the MCP server loads at session start. `codex plugin list`
-shows the installed version. Refresh the catalog with
-`codex plugin marketplace upgrade verticalbar-agent`, then `codex plugin add` again to move to it.
+Then **start a new Codex session** or **restart the IDE extension** — both use the same local Codex
+plugin/config state, and the MCP server loads at session start. `codex plugin list` shows the
+installed version. Refresh the catalog with `codex plugin marketplace upgrade verticalbar-agent`,
+then `codex plugin add` again to move to it.
 
 One thing works differently here, and it is worth knowing before you deploy anything: on Claude Code,
 starting a CI workflow run asks you to confirm **every time**, because the tool is published with
@@ -83,7 +100,22 @@ older than the floor.
 
 The plugin itself follows its surface: **Claude Desktop** re-syncs from the repository when
 auto-sync is on; **Claude Code** updates with `/plugin update verticalbar-agent@verticalbar-agent`;
-**Codex** refreshes with `codex plugin marketplace upgrade verticalbar-agent`.
+**ChatGPT desktop, Codex CLI, and the Codex IDE** refresh with
+`codex plugin marketplace upgrade verticalbar-agent`, followed by reinstalling the listed plugin and
+restarting the affected chat/session/extension.
+
+### Removing
+
+- **Claude Desktop or ChatGPT desktop** — open the installed plugin in **Plugins Directory** and
+  choose **Remove**. Restart the app.
+- **Claude Code** — `/plugin uninstall verticalbar-agent@verticalbar-agent`, then restart the session.
+- **Codex CLI or IDE** — `codex plugin remove verticalbar-agent@verticalbar-agent`. Remove the source
+  too with `codex plugin marketplace remove verticalbar-agent` only when no other install uses it,
+  then start a new session or restart the extension.
+
+Removing the plugin does not delete your CrossCheck account or server-side data. The signed runtime
+cache and Cognito token cache are local state; see [INSTALL](docs/INSTALL.md#files--state-that-change)
+before deleting either during troubleshooting.
 
 ### The desktop app (optional)
 
@@ -114,8 +146,10 @@ If `/briefing` is missing:
   enabled. If you registered the desktop app with **Connect to Claude Desktop** instead, you have the
   connector but not the plugin, so there is no skill — install the plugin.
 - **Claude Code** — restart the session; the plugin loads at session start.
-- **Codex** — `codex plugin list` should show `verticalbar-agent@verticalbar-agent` as *installed*;
-  start a new session afterwards.
+- **ChatGPT desktop Work/Codex** — confirm *VerticalBar Agent* is enabled in **Plugins Directory**,
+  then start a new chat.
+- **Codex CLI/IDE** — `codex plugin list` should show
+  `verticalbar-agent@verticalbar-agent` as *installed*; start a new session or restart the extension.
 
 If `/briefing` is there but the tools fail, you are signed out — ask for your data again and
 finish signing in in the window that opens.
@@ -136,9 +170,10 @@ Analysis paths are read-only over HTTP. This client holds no database or NetSuit
 
 ## Requirements
 
-- **Claude Desktop, Claude Code, or Codex CLI.**
-- **macOS on Apple silicon, or Windows x64** — the compiled client the plugin runs is native, and
-  Intel Macs are not supported.
+- **Claude Desktop/Code, ChatGPT desktop Work/Codex, or Codex CLI/IDE.** Hosted ChatGPT web is not a
+  local-plugin surface.
+- **macOS on Apple silicon, Windows x64, or Linux x64.** The compiled client is native. Linux uses
+  the headless `linux-x64-musl` payload and requires `CC_API_KEY`; Intel Macs are not supported.
 - A CrossCheck account. Sign in interactively (browser, including Google), or set `CC_API_KEY` for
   headless use.
 
