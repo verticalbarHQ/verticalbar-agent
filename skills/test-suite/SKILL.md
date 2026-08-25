@@ -25,8 +25,11 @@ is one tool call away — so a guessed identifier is not a shortcut, it is a sui
 Ask what breaking would look like, not what to test. "The close still works" becomes: the period can
 close, the approval workflow is active, the report saved-search still returns rows.
 
-`cc_workspaces` → a `workspaceId`. `cc_list_snapshots` / `cc_get_snapshot` → what this environment
-actually contains. Read before you propose.
+Resolve workspace routing from `runtime_info`. With Cognito, call `cc_workspaces`. Use the sole
+result automatically. If more than one is returned, ask the user to choose by safe name; never pick
+the first or invent an id. With `api-key-bound` routing, do not call `cc_workspaces` and omit
+`workspaceId`; the server derives it from the key. Then use `cc_list_snapshots` / `cc_get_snapshot`
+to read what this environment actually contains before you propose.
 
 ### 2. Learn what the runner can EXECUTE — not what the contract permits
 

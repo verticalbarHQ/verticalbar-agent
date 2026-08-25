@@ -9,7 +9,7 @@
 //    artifact before EACH spawn (R3) — fail closed on any verify failure.
 //  - single cross-process writer of the cache (lock) (R6/AC9).
 //  - NOTHING on stdout — the child owns the JSON-RPC stream; all launcher diagnostics go to stderr (AC11).
-//  - inherit the parent env VERBATIM so CC_API_KEY / CC_WORKSPACE_ID / CC_ENV / token-cache survive (R8).
+//  - inherit the parent env VERBATIM so CC_API_KEY / CC_ENV / token-cache survive (R8).
 //  - offline taxonomy (AC12): usable cached binary + offline → run it; no usable binary + offline → fail loud.
 
 import { spawn, spawnSync } from 'node:child_process'

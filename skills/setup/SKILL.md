@@ -18,6 +18,18 @@ runtime cannot; it can use a host-provided `CC_API_KEY` for CrossCheck only.
 
 2. If it reports `headless`, follow **Headless** below. Otherwise follow **Desktop**.
 
+3. Before any workspace-scoped CrossCheck call, follow `workspaceRouting`:
+   * `api-key-bound` → call the requested CrossCheck tool without `workspaceId`; do not call
+     `cc_workspaces` because API-key auth cannot enumerate Cognito workspaces.
+   * `discover` → if the current request has no workspace selected from an earlier authenticated
+     result, call `cc_workspaces`. Use its sole result automatically. If it returns more than one,
+     show the safe workspace names and ask the user to choose; never select the first or invent an
+     ID. Pass the returned `workspaceId` to the original tool and retry it at most once.
+   * `unavailable` → resolve authentication first as described below.
+
+   Vertical Bar follows the same rule through `vb_workspaces`; never substitute a CrossCheck
+   workspace list or an account/tenant number for its returned `workspaceId`.
+
 ## Headless
 
 * **Never call `login`, open a browser, or run the binary in GUI mode.** This runtime has no supported
@@ -34,23 +46,25 @@ runtime cannot; it can use a host-provided `CC_API_KEY` for CrossCheck only.
 
 ## Desktop compiled client
 
-`login` has a live-session fast path, and that is why it is not enough on its own. It opens the app
-window and blocks until a live token lands — but when a live token already exists it returns
-immediately and opens nothing. So "call `login`" satisfies "sign in" and does not satisfy "show me
-the app".
+`runtime_info` is authoritative about whether a live session already exists. Do not call `login`
+when the requested service already reports `cognito`; continue the original task. Opening the app
+window is a separate user request and does not require re-authentication.
 
 ### Do this
 
-1. **Call `login`** (no arguments).
-   * **No live token** → the branded window opens and the user signs in with Google or
-     email/password. The call returns when a token lands. The window is now on screen; you are done.
-   * **Live token** → returns at once, nothing opened. Continue to step 2.
+1. **If the needed auth is `none`, call `login`** (no arguments).
+   The branded window opens and the user signs in with Google or email/password. The call returns
+   when a token lands. Treat that as successful authentication and resume the user's original task.
+
+   **If the needed auth is already `cognito`, skip `login`.** Do not create an approval-bearing
+   authentication subflow merely to prove a session that `runtime_info` already reported.
 
    The managed Cognito Hosted UI is never shown; that path was removed. If `CC_API_KEY` is set, note
    that it covers CrossCheck only — Vertical Bar still needs this login, so do not report an API key
    as a substitute.
 
-2. **Open the window yourself** — the same binary in GUI mode, run with **no arguments**:
+2. **Only when the user asked to see/open the app, open the window yourself** — the same binary in
+   GUI mode, run with **no arguments**:
 
    ```
    macOS   ~/Library/Application Support/verticalbar-agent/<target>/app/VerticalBar Agent.app/Contents/MacOS/verticalbar-agent
@@ -65,9 +79,8 @@ the app".
    verification, and it re-verifies before every spawn. If the binary is not there, say so and stop:
    an unverified binary you fetched yourself is exactly what that design prevents.
 
-3. **Say which of the two happened.** "Signed you in and opened the app" and "You were already signed
-   in — here is the window" are different facts, and the second one is the one a user is about to be
-   confused by.
+3. **Resume the original task.** A successful `login` is a completed authentication subflow, not a
+   terminal answer when the user asked for a read or another tool action.
 
 ## Switching accounts on desktop
 
@@ -79,7 +92,7 @@ CrossCheck after a logout — mention it rather than letting the next call look 
 
 * Do not skip `runtime_info`; setup behavior is selected by the runtime surface it reports.
 * Do not call `login` or attempt to open a window when `runtime.mode` is `headless`.
-* Do not treat a returned token as proof the window is visible — step 1's fast path opens nothing.
+* Do not call `login` when `runtime_info` already reports the needed Cognito session.
 * Do not open the managed Cognito web UI, or send the user to a browser to sign in. The window is the
   only supported path.
 * Do not run the binary with `--mcp` here. That is the stdio server Claude Code already speaks to;

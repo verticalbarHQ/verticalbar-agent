@@ -76,7 +76,6 @@ launching `claude`:
 ```bash
 # CC_API_URL defaults to production — only set it for a dev override:
 # export CC_API_URL="http://localhost:14001"         # DEV-ONLY override of the prod default
-export CC_WORKSPACE_ID="<your-workspace-id>"            # resolved workspace for all tools
 # --- auth: pick ONE (or none → browser sign-in) ---
 # Default (no creds set): the `login` tool / installer opens a browser to sign in (incl. Google).
 export CC_API_KEY="<workspace-api-key>"                 # headless path (CrossCheck only)
@@ -89,7 +88,6 @@ export CC_EMAIL="you@example.com"; export CC_PASSWORD="…"   # Cognito SRP (CC 
 | `CC_API_URL` | `https://crosscheck-api.vertical.bar` | CrossCheck API base (prod). `http://localhost:14001` is a dev-only override |
 | `BRIEFING_DASHBOARD_URL` | `https://crosscheck.vertical.bar` | Dashboard base for the user-openable `viewUrl` (override for a local dashboard) |
 | `BRIEFING_AUTO_OPEN` | `1` | Auto-open the published `viewUrl` in the browser; set `0` to disable |
-| `CC_WORKSPACE_ID` | — | Workspace passed as `?workspaceId` (CC) / `X-Workspace-Id` (VB) |
 | `CC_API_KEY` | — | API-key auth: Bearer'd directly for CrossCheck. No Cognito needed |
 | `CC_EMAIL` / `CC_PASSWORD` | — | Cognito SRP auth (mints CC + VB tokens) |
 | `CC_ENV` | `production` | `production` \| `staging` (Cognito pool / API + dashboard defaults) |
@@ -188,8 +186,8 @@ every existing install.
 
 ## 6. Verify (smoke)
 
-A minimal end-to-end check (an API key with `analysis:read` + `canvas:write`, a workspace id,
-and a reachable `CC_API_URL`):
+A minimal end-to-end check (an API key with `analysis:read` + `canvas:write` and a reachable
+`CC_API_URL`; the server derives workspace scope from the key):
 
 1. **tools/list** — boot the server and drive a JSON-RPC `initialize` + `tools/list` over
    stdin; confirm `briefing_publish`, `briefing_data_query`, `cc_live_read`, `cc_*`, `vb_*` appear.
@@ -207,6 +205,9 @@ The plugin exposes nine deployment tools. The read tools are
 `cc_list_release_packages`, `cc_get_release_package`, and `cc_get_ci_workflow_run`. The mutation
 tools are `cc_create_release_package`, `cc_add_release_package_items`, and
 `cc_start_ci_workflow_run`.
+
+Workspace routing is auth-dependent across all nine tools. Cognito callers pass the result of
+`cc_workspaces`; API-key callers omit `workspaceId` and the server binds the key's workspace.
 
 Each mutation is a single direct server call. `cc_start_ci_workflow_run` declares mandatory fresh
 human interaction to Claude Code before the call; package creation and editing do not. CrossCheck
@@ -326,9 +327,10 @@ Desktop App → 확장 프로그램 / Extensions** → **확장 프로그램 설
 runtime (≥18), so no system Node is needed. **End users should not be sent here** — see §1 for the
 marketplace path, which is the one that carries the skills.
 
-**Auth in Desktop**: the extension exposes optional config fields (`CC_API_KEY`,
-`CC_WORKSPACE_ID`, `CC_ENV`) for the headless/API-key path; or just call the `login` tool after
-install for interactive Cognito browser-OAuth (loopback `:9876`). `whoami` shows the resolved auth.
+**Auth in Desktop**: the extension exposes optional config fields (`CC_API_KEY`, `CC_ENV`) for the
+headless/API-key path; or just call the `login` tool after install for interactive Cognito
+browser-OAuth (loopback `:9876`). `whoami` shows auth and workspace routing mode. Cognito callers
+obtain workspace scope from `cc_workspaces`; API-key callers rely on the key's server-side binding.
 
 > Path note: if a future Claude Desktop build DOES expose "add a marketplace from a repository"
 > in the Plugins Directory, the existing Claude Code packaging would install directly there with

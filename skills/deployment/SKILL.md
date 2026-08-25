@@ -32,12 +32,14 @@ happens in CrossCheck, by a person. Never imply the plugin can approve that stag
 
 ## The order, and why it is the order
 
-1. **`cc_workspaces`** — every tool below takes an explicit `workspaceId`. Never infer one from
-   context or reuse one across a conversation that changed workspace; a deploy aimed at the wrong
-   workspace is not a recoverable mistake.
-2. **`cc_create_release_package`** `{workspaceId, name, description?, environmentId?}` — returns the
+1. **Resolve workspace routing from `runtime_info`.** With Cognito, call `cc_workspaces`: use the
+   sole result automatically. If more than one is returned, ask the user to choose by safe name.
+   Never select the first, invent an id, or reuse one after the conversation changes workspace. With
+   `api-key-bound` routing, do **not** call `cc_workspaces` and omit `workspaceId` from every call; the
+   server derives the authoritative workspace from the key.
+2. **`cc_create_release_package`** `{workspaceId?, name, description?, environmentId?}` — returns the
    server response unchanged, including the package id you will need next.
-3. **`cc_add_release_package_items`** `{workspaceId, packageId, items[]}` — the response carries
+3. **`cc_add_release_package_items`** `{workspaceId?, packageId, items[]}` — the response carries
    `autoInclude.status`. **Read it.** CrossCheck may pull in dependencies you did not list, and that
    set is what will actually deploy. Report what `autoInclude` added, not what you asked for.
    Items can only be added while the package is a **draft**; a package past that state refuses, and
@@ -46,7 +48,7 @@ happens in CrossCheck, by a person. Never imply the plugin can approve that stag
    stages. `cc_get_ci_workflow` joins each stage to its environment name, which is the only readable
    way to confirm a promotion is aimed where the user thinks it is. Confirm the target environment
    with the user before step 5 whenever the workflow touches production.
-5. **`cc_start_ci_workflow_run`** `{workspaceId, workflowId, packageId}` — the request body is exactly
+5. **`cc_start_ci_workflow_run`** `{workspaceId?, workflowId, packageId}` — the request body is exactly
    the package id. The host must ask a person immediately before this call. Returns the server
    response unchanged; actual environment writes remain blocked on CrossCheck stage approval.
 6. **`cc_get_ci_workflow_run`** — poll for status. A started run is not a finished one; do not report

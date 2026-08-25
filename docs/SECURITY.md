@@ -113,12 +113,12 @@ macOS users clear quarantine by hand for the `.dmg`.
 
 ## Multi-tenant isolation (the non-negotiable floor)
 
-- `workspaceId` for every legacy read/publish comes from the **auth context server-side** (and is
-  sent as `?workspaceId` from the configured `CC_WORKSPACE_ID`). Deployment-pack tools instead take
-  an **explicit `workspaceId` argument** on every call (in API-key mode it must match the key's
-  workspace; the server validates either way). The plugin **fails loudly** when no
-  workspace is resolvable rather than fabricating a default (a wrong default would silently
-  cross tenants). All `briefing_*` / `cc_*` reads and the publish are workspace-fenced by the API.
+- Workspace scope never comes from ambient client configuration. With Cognito, the agent calls
+  `cc_workspaces`, uses the sole authorized result or asks the user to choose among multiple results,
+  and passes that explicit `workspaceId` to CrossCheck calls. With a workspace API key, the server binds
+  the credential and the client omits the argument for every CrossCheck tool, including the
+  deployment pack. The plugin **fails loudly** when Cognito scope is missing rather than
+  fabricating a default. All `briefing_*` / `cc_*` reads and the publish are workspace-fenced by the API.
 
 ## Credentials
 
@@ -151,6 +151,6 @@ macOS users clear quarantine by hand for the `.dmg`.
 ## Production data note
 
 - Reads may touch **production** CrossCheck/NetSuite data depending on `CC_API_URL` and the
-  configured workspace/credentials. The read-only + workspace-fenced + SELECT-only floors
+  authenticated/discovered workspace scope. The read-only + workspace-fenced + SELECT-only floors
   above hold regardless, but treat published Briefings as potentially containing real customer
   data and govern access to the Briefing surface accordingly.
