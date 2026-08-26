@@ -76,7 +76,7 @@ One thing works differently here, and it is worth knowing before you deploy anyt
 starting a CI workflow run asks you to confirm **every time**, because the tool is published with
 Anthropic's `requiresUserInteraction` marker. Codex does not implement that marker — whether you are
 asked is decided by **your own Codex approval policy**, not by this plugin. Nothing about the server
-changes: starting a run still requires a signed-in CrossCheck user (never an API key), and the
+changes: starting a run still requires a signed-in CrossCheck user, and the
 environment is written only after CrossCheck's own Pipeline stage approval. Treat the client prompt
 as a convenience, not the control.
 
@@ -90,7 +90,10 @@ That window is the same app as the `.dmg` below; the plugin already has it and l
 needed. Install the `.dmg` separately only if you want to open the app yourself, e.g. to connect a
 NetSuite environment.
 
-For headless use, set `CC_API_KEY` instead and no window appears.
+The compiled Linux payload is intentionally non-interactive: local `login` fails immediately. A
+hosted MCP endpoint is the planned remote/headless route, but it is not part of this installed
+release yet. Compiled desktop stdio opens the VerticalBar Agent sign-in window; Node-compatible
+stdio opens browser OAuth.
 
 ### Updating
 
@@ -173,9 +176,10 @@ Analysis paths are read-only over HTTP. This client holds no database or NetSuit
 - **Claude Desktop/Code, ChatGPT desktop Work/Codex, or Codex CLI/IDE.** Hosted ChatGPT web is not a
   local-plugin surface.
 - **macOS on Apple silicon, Windows x64, or Linux x64.** The compiled client is native. Linux uses
-  the headless `linux-x64-musl` payload and requires `CC_API_KEY`; Intel Macs are not supported.
-- A CrossCheck account. Sign in interactively (browser, including Google), or set `CC_API_KEY` for
-  headless use.
+  the non-interactive `linux-x64-musl` payload; Intel Macs are not supported.
+- A CrossCheck account. Compiled desktop stdio opens the VerticalBar Agent sign-in window;
+  Node-compatible stdio opens explicit browser OAuth. Compiled Linux cannot start local login. A
+  separately hosted remote/headless MCP endpoint is planned but is not part of this release yet.
 
 ## Verifying a download
 

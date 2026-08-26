@@ -27,9 +27,9 @@ close, the approval workflow is active, the report saved-search still returns ro
 
 Resolve workspace routing from `runtime_info`. With Cognito, call `cc_workspaces`. Use the sole
 result automatically. If more than one is returned, ask the user to choose by safe name; never pick
-the first or invent an id. With `api-key-bound` routing, do not call `cc_workspaces` and omit
-`workspaceId`; the server derives it from the key. Then use `cc_list_snapshots` / `cc_get_snapshot`
-to read what this environment actually contains before you propose.
+the first or invent an id. Pass that discovered `workspaceId` to every CrossCheck tool. Then use
+`cc_list_snapshots` / `cc_get_snapshot` to read what this environment actually contains before you
+propose.
 
 ### 2. Learn what the runner can EXECUTE — not what the contract permits
 
@@ -80,9 +80,8 @@ read away. `cc_get_snapshot` answers the same questions as of the last capture.
 A registered suite belongs to the customer. It appears in their list of what they check, it runs
 when they run it, and one written to fail on purpose — an assertion aimed at a value you are trying
 to discover, so the evidence prints it back — is a lie sitting in that list. **Do not do it, on any
-auth path.** If a read is refused (an API key without `live:read` is the usual reason; a signed-in
-user is not subject to that check), say what you could not see and let the person decide, rather
-than turning the harness into a query tool.
+auth path.** If a read is refused, say what you could not see and let the person decide, rather than
+turning the harness into a query tool.
 
 ### 4. Write assertions that can FAIL
 

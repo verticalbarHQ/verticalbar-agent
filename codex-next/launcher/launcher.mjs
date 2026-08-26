@@ -9,7 +9,7 @@
 //    artifact before EACH spawn (R3) — fail closed on any verify failure.
 //  - single cross-process writer of the cache (lock) (R6/AC9).
 //  - NOTHING on stdout — the child owns the JSON-RPC stream; all launcher diagnostics go to stderr (AC11).
-//  - inherit the parent env VERBATIM so CC_API_KEY / CC_ENV / token-cache survive (R8).
+//  - preserve normal OS/host environment while stripping retired identity/deployment overrides.
 //  - offline taxonomy (AC12): usable cached binary + offline → run it; no usable binary + offline → fail loud.
 
 import { spawn, spawnSync } from 'node:child_process'
@@ -333,9 +333,21 @@ export async function ensureBinary(dir, target, { channel = resolveChannel(), do
   })
 }
 
-/** Exec the binary as `--mcp`: child owns stdio, env inherited verbatim, launcher exits with child code. */
+export const RETIRED_RUNTIME_ENV = Object.freeze([
+  'CC_API_KEY', 'CC_WORKSPACE_ID', 'CC_EMAIL', 'CC_PASSWORD', 'CC_ENV',
+  'CC_API_URL', 'VB_API_URL', 'BRIEFING_DASHBOARD_URL',
+  'VBA_TOKEN_FILE', 'VBA_MCP_READINESS_FILE',
+])
+
+export function sanitizeChildEnv(env = process.env) {
+  const clean = { ...env }
+  for (const name of RETIRED_RUNTIME_ENV) delete clean[name]
+  return clean
+}
+
+/** Exec the binary as `--mcp`: child owns stdio; retired ambient inputs are stripped. */
 export function spawnBinary(exe, argv = ['--mcp'], env = process.env) {
-  const child = spawn(exe, argv, { stdio: 'inherit', env })
+  const child = spawn(exe, argv, { stdio: 'inherit', env: sanitizeChildEnv(env) })
   child.on('exit', (code, signal) => process.exit(signal ? 1 : (code ?? 0)))
   child.on('error', (e) => { logErr('verticalbar-agent: failed to spawn binary:', e.message); process.exit(1) })
   return child

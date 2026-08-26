@@ -3,8 +3,8 @@
 VerticalBar Agent's analysis and data paths are **read-only**. One narrow, governed exception exposes
 three workspace-scoped deployment mutations — create a Release Package, add package items, and start
 a CI workflow run — each a single direct server call (no client-side gate). Create and add-items
-require `deploy:write` only and are not identity-gated; start-run additionally requires an identified
-Cognito user (OAuth or SRP), so every API key gets `IDENTITY_REQUIRED`. It exposes no approval
+require the server-authorized mutation scope; start-run additionally requires an identified
+Cognito user. It exposes no approval
 capability. Deployment reads require their own per-tool scopes; mutation scope does not grant read
 access. It is self-contained and talks to CrossCheck **only over HTTP** (no
 `@vb-crosscheck/*` imports, no in-process DB access). See `docs/briefing-boundary.adr.md`.
@@ -17,7 +17,7 @@ observe its traffic, and that is expected. The proprietary CrossCheck × Vertica
 join-key / detector knowledge is protected by two things, **neither of which is obfuscation**:
 
 1. **Server-side, auth-gated reads.** Every data read is an HTTP proxy the CrossCheck platform runs
-   server-side behind auth (workspace API key or Cognito), read-only, SELECT-only, workspace-fenced
+   server-side behind Cognito auth, read-only, SELECT-only, workspace-fenced
    (the floors below). The client never holds DB / NetSuite credentials.
 2. **Runtime schema delivery — never plaintext in the public tree.** The schema / join / detector
    map is served at runtime from an auth-gated endpoint (`briefing_schema`, requires `analysis:read`); it
@@ -64,7 +64,7 @@ Shipped today:
   `cc_start_ci_workflow_run` is published with `anthropic/requiresUserInteraction`, which makes
   Claude Code ask a person on every call. Codex does not implement that marker and shows no such
   prompt. The guarantees that hold on every surface are server-side: start-run requires an
-  identified Cognito user (no API key can start one), and environment writes happen only after
+  identified Cognito user, and environment writes happen only after
   CrossCheck's Pipeline stage approval.
 - **Desktop app** — `.dmg` / `.tar.gz` / `.zip`, minisign-signed, on the public mirror's Releases.
 
@@ -103,11 +103,8 @@ macOS users clear quarantine by hand for the `.dmg`.
   the **only** live path — there is no ungoverned, M2M-direct NetSuite access in the plugin.
 - The only deployment mutations are create Release Package, add package items, and start CI workflow
   run. Each is a single direct server call (no client-side confirm gate). Auth is server-side. A
-  Cognito user (the demo owner/admin) has all needed scopes. API-key reads require `deploy:read` for
-  workflow/package reads and closure, `sync:read` for Git source, and `environments:read` for the
-  workflow env-name join; create/add require `deploy:write` only and are not identity-gated. Mutation
-  scope does not cover reads. Start-run additionally requires an identified Cognito user (OAuth or
-  SRP), so every API key gets `IDENTITY_REQUIRED`. Approval is intentionally excluded and remains in
+  signed-in Cognito user must have the server-authorized scope for each operation. Start-run
+  additionally requires an identified Cognito user. Approval is intentionally excluded and remains in
   the web UI under server-enforced separation of duties. See `docs/briefing-boundary.adr.md`.
 - It exposes no other source-data or deployment-control write path. Its only other mutation is
   publishing an HTML artifact (`POST /api/v1/briefings`), which writes a workspace-scoped Briefing row —
@@ -116,23 +113,19 @@ macOS users clear quarantine by hand for the `.dmg`.
 
 ## Multi-tenant isolation (the non-negotiable floor)
 
-- Workspace scope never comes from ambient client configuration. With Cognito, the agent calls
+- Workspace scope never comes from ambient client configuration. The agent calls
   `cc_workspaces`, uses the sole authorized result or asks the user to choose among multiple results,
-  and passes that explicit `workspaceId` to CrossCheck calls. With a workspace API key, the server binds
-  the credential and the client omits the argument for every CrossCheck tool, including the
-  deployment pack. The plugin **fails loudly** when Cognito scope is missing rather than
+  and passes that explicit `workspaceId` to CrossCheck calls. The plugin **fails loudly** when scope is missing rather than
   fabricating a default. All `briefing_*` / `cc_*` reads and the publish are workspace-fenced by the API.
 
 ## Credentials
 
-- Auth is either a **workspace API key** (`CC_API_KEY`, Bearer'd to CrossCheck) or **Cognito**
-  — via **browser OAuth** (the `login` tool with no args, or the installer default: opens the
+- Auth is **Cognito** via **browser OAuth** (the `login` tool with no args, or the installer default: opens the
   Hosted UI, incl. Google, Authorization Code + PKCE, loopback callback on `localhost:9876`,
-  backup `localhost:9877` — both registered on the Cognito client) or
-  **SRP** (`CC_EMAIL`/`CC_PASSWORD`). The Cognito token is minted on the CrossCheck app-client and
-  is accepted by **both** the CrossCheck and Vertical Bar APIs. The API key covers CrossCheck
-  only; Vertical Bar tools require a Cognito login.
-- Credentials are read from the environment / the `login` tool. They are **never** written into
+  backup `localhost:9877` — both registered on the Cognito client), or explicit email/password
+  arguments on the Node compatibility surface. The Cognito token is minted on the CrossCheck
+  app-client and is accepted by **both** the CrossCheck and Vertical Bar APIs.
+- Credentials come only from an explicit login flow. They are **never** written into
   `.mcp.json`, `.claude/settings*.json`, or a repository `.env`, and **never** echoed to
   stdout/stderr or pasted into the conversation. Cognito tokens (if used) are cached at
   `~/tmp/verticalbar-agent/cc-mcp-token.json`, outside any repo.
@@ -153,7 +146,7 @@ macOS users clear quarantine by hand for the `.dmg`.
 
 ## Production data note
 
-- Reads may touch **production** CrossCheck/NetSuite data depending on `CC_API_URL` and the
+- The installed runtime targets **production** CrossCheck/NetSuite data within the
   authenticated/discovered workspace scope. The read-only + workspace-fenced + SELECT-only floors
   above hold regardless, but treat published Briefings as potentially containing real customer
   data and govern access to the Briefing surface accordingly.

@@ -11,17 +11,15 @@ performs against CrossCheck, and they are governed differently from everything e
 | Tool | Kind | Requires |
 | --- | --- | --- |
 | `cc_list_release_packages`, `cc_get_release_package` | read | workspace scope |
-| `cc_list_ci_workflows`, `cc_get_ci_workflow`, `cc_get_ci_workflow_run` | read | workspace scope; API-key mode fine |
+| `cc_list_ci_workflows`, `cc_get_ci_workflow`, `cc_get_ci_workflow_run` | read | Cognito identity + workspace scope |
 | `cc_create_release_package` | **MUTATES** | `deploy:write` |
 | `cc_add_release_package_items` | **MUTATES** | `deploy:write`, package still a draft |
-| `cc_start_ci_workflow_run` | **MUTATES** | an **identified Cognito user** — an API key cannot start a run |
+| `cc_start_ci_workflow_run` | **MUTATES** | an **identified Cognito user** |
 
 ## The authorization rule that trips people
 
-`cc_start_ci_workflow_run` needs a real signed-in human. **No API key can start a run**, however
-broad its scope — this is a server guard, not a client check, so you cannot work around it and should
-not try. If `CC_API_KEY` is all that is set, creating and filling a package works and starting the
-run does not.
+`cc_start_ci_workflow_run` needs a real signed-in human. This is a server guard, not a client check,
+so you cannot work around it and should not try.
 
 When a run is refused for identity, the fix is to sign in: use the **`setup`** skill, then retry. Do
 not report the refusal as a workflow problem.
@@ -32,11 +30,9 @@ happens in CrossCheck, by a person. Never imply the plugin can approve that stag
 
 ## The order, and why it is the order
 
-1. **Resolve workspace routing from `runtime_info`.** With Cognito, call `cc_workspaces`: use the
+1. **Resolve workspace routing from `runtime_info`.** Call `cc_workspaces`: use the
    sole result automatically. If more than one is returned, ask the user to choose by safe name.
-   Never select the first, invent an id, or reuse one after the conversation changes workspace. With
-   `api-key-bound` routing, do **not** call `cc_workspaces` and omit `workspaceId` from every call; the
-   server derives the authoritative workspace from the key.
+   Never select the first, invent an id, or reuse one after the conversation changes workspace.
 2. **`cc_create_release_package`** `{workspaceId?, name, description?, environmentId?}` — returns the
    server response unchanged, including the package id you will need next.
 3. **`cc_add_release_package_items`** `{workspaceId?, packageId, items[]}` — the response carries
