@@ -21,12 +21,17 @@ performs against CrossCheck, and they are governed differently from everything e
 `cc_start_ci_workflow_run` needs a real signed-in human. This is a server guard, not a client check,
 so you cannot work around it and should not try.
 
-When a run is refused for identity, the fix is to sign in: use the **`setup`** skill, then retry. Do
-not report the refusal as a workflow problem.
+When a run is refused for identity, call `runtime_info` before choosing the recovery path. On an
+installed local surface, use the **`setup`** skill to sign in, then retry. On a hosted remote surface,
+`setup` and `login` do not exist: ask the user to reconnect or reauthorize the MCP connector in the
+host, then retry only after `runtime_info` / `whoami` reports verified request identity. Do not report
+an identity refusal as a workflow problem.
 
-`cc_start_ci_workflow_run` requires fresh human interaction in the MCP host before every call. This
-confirms creation of deployment intent; it does not approve a Pipeline stage. Stage approval still
-happens in CrossCheck, by a person. Never imply the plugin can approve that stage.
+Call `cc_start_ci_workflow_run` only for the deployment intent the user explicitly requested in the
+current conversation. Some hosts additionally require fresh human interaction for every call; that
+host prompt is a safety aid, not authorization authority. It does not approve a Pipeline stage.
+Stage approval still happens in CrossCheck, by a person. Never imply the plugin can approve that
+stage.
 
 ## The order, and why it is the order
 
