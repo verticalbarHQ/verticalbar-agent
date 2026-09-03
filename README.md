@@ -158,4 +158,32 @@ manifests remain signed GitHub Release assets.
 See [SECURITY](docs/SECURITY.md) for the public security boundary.
 Marketplace reviewers and operators can inspect the public [submission dossier](marketplace/).
 
+## Downloadable package ZIPs
+
+Each stable GitHub Release also carries four exact plugin archives and
+`PACKAGE-SHA256SUMS`:
+
+- `VerticalBarAgent-openai-hosted.zip`
+- `VerticalBarAgent-openai-desktop.zip`
+- `VerticalBarAgent-anthropic-hosted.zip`
+- `VerticalBarAgent-anthropic-desktop.zip`
+
+Use the Hosted archive for cloud/web submission or upload and the Desktop archive only where a
+local host can run the signed companion launcher. Every ZIP opens directly at its vendor manifest;
+there is no extra wrapping folder. Verify its SHA-256 against `PACKAGE-SHA256SUMS` from the same
+release before extracting or uploading it.
+
+Claude web's private upload surface accepts the Anthropic Hosted ZIP. OpenAI's public directory
+submission instead receives the production MCP and final skill bundle in the portal; the OpenAI ZIP
+is the exact auditable package source and local-test payload, not a bypass around review. Routine
+Codex/Claude CLI installs should continue to use the repository marketplace commands above so host
+updates track the promoted stable branch.
+
+For a one-session Claude Code smoke test without installing a marketplace entry, Claude Code 2.1.128
+or later can load the stable Desktop archive directly:
+
+```sh
+claude --plugin-url https://github.com/verticalbarHQ/verticalbar-agent/releases/latest/download/VerticalBarAgent-anthropic-desktop.zip
+```
+
 [latest]: https://github.com/verticalbarHQ/verticalbar-agent/releases/latest

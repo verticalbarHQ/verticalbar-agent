@@ -23,10 +23,9 @@
   "tests": "test-cases.json",
   "humanGates": [
     "Choose the owning Claude organization or Console identity.",
-    "Upload or submit the exact validated hosted package.",
-    "Submit the Desktop package to claude-community review.",
+    "Submit the exact validated Hosted and Desktop package surfaces through claude.ai/settings/plugins/submit or platform.claude.com/plugins/submit.",
     "Answer reviewer and directory-policy questions.",
     "Publish or enable the approved entries."
   ],
-  "directoryBoundary": "Third-party Claude Code plugins can be submitted to claude-community. Inclusion in Anthropic's curated official marketplace is discretionary and has no application process."
+  "directoryBoundary": "Official submission and independent GitHub marketplace distribution are separate paths. Submission starts review; the public repository remains the directly installable and updateable fallback while review is pending."
 }

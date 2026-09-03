@@ -20,8 +20,9 @@ credentials and grants no publishing authority.
   connector.
 - Desktop package: `packages/anthropic-desktop`, preserving the existing Claude plugin identity and
   using the local signed launcher.
-- Claude web/Desktop Chat/Cowork distribution and the Claude Code community marketplace are
-  separate review surfaces even though both packages share canonical skills.
+- Submit the exact Hosted and Desktop package surfaces through Anthropic's official plugin form at
+  `claude.ai/settings/plugins/submit` or `platform.claude.com/plugins/submit`. Independent GitHub
+  marketplace distribution remains available before and after review.
 - Machine-readable form preparation: [`anthropic-submission.json`](anthropic-submission.json).
 
 ## Human gates
@@ -47,3 +48,4 @@ exact package digest; no package is rebuilt between candidate verification and s
 - [Anthropic plugin authoring](https://code.claude.com/docs/en/plugins)
 - [Anthropic plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces)
 - [Anthropic hosted plugin surfaces](https://support.claude.com/en/articles/13837440-use-plugins-in-claude)
+- [Anthropic official plugin submission](https://code.claude.com/docs/en/plugins#submit-your-plugin-to-the-official-marketplace)
