@@ -1,190 +1,161 @@
 # VerticalBar Agent
 
-Turns an analysis goal into a **Briefing** — a self-contained, interactive HTML analysis grounded in
-real CrossCheck and Vertical Bar data, published to the product surface where your team can read it.
+Use CrossCheck and Vertical Bar from ChatGPT, Codex, and Claude with grounded skills and governed
+MCP tools. The distribution has two products because a cloud host cannot install or launch a local
+desktop application.
 
-One binary, two modes: a desktop app for connecting NetSuite and CrossCheck, and a stdio MCP server
-that puts the same capabilities inside your assistant.
+## Choose the right product
 
-## Install
+| Product | Use it in | MCP connection | Separate app |
+| --- | --- | --- | --- |
+| **VerticalBar Agent** | ChatGPT web/desktop, Codex cloud, Claude web/Desktop Chat/Cowork | Production remote MCP | Not required |
+| **VerticalBar Agent Desktop** | ChatGPT desktop Work, Codex CLI/IDE, Claude Code and local Claude Desktop | Local stdio bridge | Required for interactive sign-in and NetSuite onboarding |
 
-**One plugin, one repository, every surface.** You add `verticalbarHQ/verticalbar-agent` as a plugin
-marketplace and install from it. Nothing to download, no file to edit.
+Both products are generated from the same canonical `briefing`, `deployment`, and `test-suite`
+skills. Desktop additionally includes `setup`, because only an installed runtime can open the
+companion or perform local onboarding.
 
-| You use | Do this |
-|---|---|
-| **Claude Desktop** | Settings → **Customize → Plugins** → **Add plugin → Add marketplace → Add from repository** → `verticalbarHQ/verticalbar-agent` → **Install** |
-| **Claude Code** | `/plugin marketplace add verticalbarHQ/verticalbar-agent`<br>`/plugin install verticalbar-agent@verticalbar-agent` |
-| **ChatGPT desktop Work or Codex** | `codex plugin marketplace add verticalbarHQ/verticalbar-agent`, restart ChatGPT, then open **Plugins Directory** → `verticalbar-agent` → **Install** |
-| **Codex CLI or IDE** | `codex plugin marketplace add verticalbarHQ/verticalbar-agent`<br>`codex plugin add verticalbar-agent@verticalbar-agent`, then start a new session or restart the IDE extension |
+Do not install a hosted and local registration of the same MCP server in one host session. That
+creates duplicate tools. Pick the row that matches where the assistant is running.
 
-All of them give you the same thing: the **`briefing`** skill, and the tools it needs. Ask for
-`/briefing` in a new chat to check it arrived.
+## Hosted product
 
-Then ask for something that needs your data — *"list my CrossCheck workspaces"* — and sign in when it
-prompts you.
+Install **VerticalBar Agent** from the platform's plugin directory when it becomes publicly listed.
+During next/private validation, use the package or workspace draft supplied by your Vertical Bar
+operator.
 
-### Claude Desktop
+1. Install or enable **VerticalBar Agent**.
+2. Start a new chat.
+3. Ask: *“List the CrossCheck workspaces I can access.”*
+4. Complete the host's OAuth flow when the first protected tool is used.
 
-1. **Settings** (⌘,) → **Customize → Plugins**.
-2. **Add plugin → Add marketplace → Add from repository**.
-3. Enter `verticalbarHQ/verticalbar-agent`. Leave **Auto-sync** on if you want updates to arrive on
-   their own.
-4. **Sync**, then **Install** on the *Verticalbar agent* card.
+Tool names and descriptions may be discovered before authentication. Tool execution, skill content,
+downstream token exchange, and workspace data remain authenticated and server-authorized.
 
-The plugin's detail page lists exactly what it brings: the `/briefing` skill under **Skills**, and
-the `verticalbar-agent` server under **Connectors**.
+Hosted packages never install, launch, or depend on the Tauri desktop companion. NetSuite connection
+onboarding remains a Desktop capability.
+
+## Desktop Companion product
+
+Install **VerticalBar Agent Desktop** when the assistant runs locally and needs the local stdio
+bridge or NetSuite onboarding.
 
 ### Claude Code
 
-```
+```text
 /plugin marketplace add verticalbarHQ/verticalbar-agent
 /plugin install verticalbar-agent@verticalbar-agent
 ```
 
-Then **restart Claude Code** — the MCP server loads at session start. Update later with
-`/plugin update verticalbar-agent@verticalbar-agent`.
+Restart Claude Code after installation. Existing `verticalbar-agent` installs retain this technical
+identity so updates do not silently strand current Desktop users.
 
-### ChatGPT desktop Work and Codex
+### ChatGPT desktop Work, Codex CLI, and Codex IDE
 
-Add the marketplace once from a terminal:
-
-```
-codex plugin marketplace add verticalbarHQ/verticalbar-agent
-```
-
-Restart the ChatGPT desktop app. In a local **Work** or **Codex** session, open **Plugins
-Directory**, select the `verticalbar-agent` source, and install *VerticalBar Agent*. Start a new chat
-after installing so the bundled skill and local STDIO server load together.
-
-This is a **local desktop** plugin. Hosted `chatgpt.com` does not read your local plugin cache or
-start its STDIO process; hosted web support requires a separately published remote MCP plugin.
-
-### Codex CLI and IDE
-
-```
+```sh
 codex plugin marketplace add verticalbarHQ/verticalbar-agent
 codex plugin add verticalbar-agent@verticalbar-agent
 ```
 
-Then **start a new Codex session** or **restart the IDE extension** — both use the same local Codex
-plugin/config state, and the MCP server loads at session start. `codex plugin list` shows the
-installed version. Refresh the catalog with `codex plugin marketplace upgrade verticalbar-agent`,
-then `codex plugin add` again to move to it.
+Restart the ChatGPT app, Codex session, or IDE extension after installation. Hosted `chatgpt.com`
+does not read the local plugin cache or start its stdio process; use the Hosted product there. The
+Hosted package has the separate technical ID `verticalbar-agent-hosted` while its user-facing name
+remains **VerticalBar Agent**.
 
-One thing works differently here, and it is worth knowing before you deploy anything: on Claude Code,
-starting a CI workflow run asks you to confirm **every time**, because the tool is published with
-Anthropic's `requiresUserInteraction` marker. Codex does not implement that marker — whether you are
-asked is decided by **your own Codex approval policy**, not by this plugin. Nothing about the server
-changes: starting a run still requires a signed-in CrossCheck user, and the
-environment is written only after CrossCheck's own Pipeline stage approval. Treat the client prompt
-as a convenience, not the control.
+### Install the companion app
 
-### Signing in
+Download the correct signed native artifact from [GitHub Releases][latest]. The current native
+matrix is macOS Apple silicon, Windows x64, and Linux x64 musl. Intel macOS is not supported.
 
-**Just ask for your data.** *"List my CrossCheck workspaces."* If you are not signed in, the plugin
-opens the **VerticalBar Agent sign-in window** for you — Google or email/password — and continues as
-soon as you finish. There is nothing to install first and no command to remember.
+The plugin and companion are coordinated but separately installed artifacts. A marketplace plugin
+cannot install Tauri on behalf of ChatGPT or Claude.
 
-That window is the same app as the `.dmg` below; the plugin already has it and launches it when it is
-needed. Install the `.dmg` separately only if you want to open the app yourself, e.g. to connect a
-NetSuite environment.
+### Verify a native download
 
-The compiled Linux payload is intentionally non-interactive: local `login` fails immediately. A
-hosted MCP endpoint is the planned remote/headless route, but it is not part of this installed
-release yet. Compiled desktop stdio opens the VerticalBar Agent sign-in window; Node-compatible
-stdio opens browser OAuth.
-
-### Updating
-
-Nothing to download here either. The compiled client the plugin runs **updates itself** — every
-launch checks a signed manifest, verifies the download against a pinned key, and refuses anything
-older than the floor.
-
-The plugin itself follows its surface: **Claude Desktop** re-syncs from the repository when
-auto-sync is on; **Claude Code** updates with `/plugin update verticalbar-agent@verticalbar-agent`;
-**ChatGPT desktop, Codex CLI, and the Codex IDE** refresh with
-`codex plugin marketplace upgrade verticalbar-agent`, followed by reinstalling the listed plugin and
-restarting the affected chat/session/extension.
-
-### Removing
-
-- **Claude Desktop or ChatGPT desktop** — open the installed plugin in **Plugins Directory** and
-  choose **Remove**. Restart the app.
-- **Claude Code** — `/plugin uninstall verticalbar-agent@verticalbar-agent`, then restart the session.
-- **Codex CLI or IDE** — `codex plugin remove verticalbar-agent@verticalbar-agent`. Remove the source
-  too with `codex plugin marketplace remove verticalbar-agent` only when no other install uses it,
-  then start a new session or restart the extension.
-
-Removing the plugin does not delete your CrossCheck account or server-side data. The signed runtime
-cache and Cognito token cache are local state; see [INSTALL](docs/INSTALL.md#files--state-that-change)
-before deleting either during troubleshooting.
-
-### The desktop app (optional)
-
-**You do not need to install this to sign in** — the plugin opens its window for you. Install it
-separately only to open the app on its own, which is how you connect a NetSuite environment.
-
-1. Download `VerticalBarAgent-macos-arm64.dmg` from the [latest release][latest], open it, and drag
-   **VerticalBar Agent** to `/Applications`.
-2. It is **unsigned**, so the first launch needs **right-click → Open** (or
-   `xattr -dr com.apple.quarantine "/Applications/VerticalBar Agent.app"`).
-3. Open it and sign in.
-
-The app can also register itself with Claude Desktop directly, via **Connect to Claude Desktop**.
-That is a **fallback** — it gives Claude the tools but **not** the `/briefing` skill, because it
-registers a connector rather than installing a plugin. Use the plugin path above unless something
-prevents it, and do not use both: two registrations of the same server is one too many.
-
-[latest]: https://github.com/verticalbarHQ/verticalbar-agent/releases/latest
-
-## Verifying it worked
-
-Type **`/briefing`** in a new chat. If it is there, the skill installed. Then ask for something that
-needs your data — *"list my CrossCheck workspaces"* — to confirm the tools reach your account.
-
-If `/briefing` is missing:
-
-- **Claude Desktop** — Settings → Customize → Plugins, confirm *Verticalbar agent* is installed and
-  enabled. If you registered the desktop app with **Connect to Claude Desktop** instead, you have the
-  connector but not the plugin, so there is no skill — install the plugin.
-- **Claude Code** — restart the session; the plugin loads at session start.
-- **ChatGPT desktop Work/Codex** — confirm *VerticalBar Agent* is enabled in **Plugins Directory**,
-  then start a new chat.
-- **Codex CLI/IDE** — `codex plugin list` should show
-  `verticalbar-agent@verticalbar-agent` as *installed*; start a new session or restart the extension.
-
-If `/briefing` is there but the tools fail, you are signed out — ask for your data again and
-finish signing in in the window that opens.
-
-## What it can do
-
-- **Read** CrossCheck and Vertical Bar: snapshots, customizations, dependency graphs, SuiteScript
-  source, script telemetry, process cases and variants.
-- **Publish a Briefing** — `briefing_publish` — and record *why*: the prompt that asked for it and the
-  session's tool activity travel with it, so a reader can see what the analysis rests on.
-- **Read NetSuite live** through CrossCheck, for facts the landed snapshot cannot answer.
-- **Author CrossCheck Test Suites** against a connected environment.
-- **Deployment**: release packages and CI workflows. Every mutation is one direct server call — the
-  server is the sole authority, and this client adds no approval step of its own. On Claude Code the
-  host asks you to confirm before a run is started; on Codex it does not (see above).
-
-Analysis paths are read-only over HTTP. This client holds no database or NetSuite credentials.
-
-## Requirements
-
-- **Claude Desktop/Code, ChatGPT desktop Work/Codex, or Codex CLI/IDE.** Hosted ChatGPT web is not a
-  local-plugin surface.
-- **macOS on Apple silicon, Windows x64, or Linux x64.** The compiled client is native. Linux uses
-  the non-interactive `linux-x64-musl` payload; Intel Macs are not supported.
-- A CrossCheck account. Compiled desktop stdio opens the VerticalBar Agent sign-in window;
-  Node-compatible stdio opens explicit browser OAuth. Compiled Linux cannot start local login. A
-  separately hosted remote/headless MCP endpoint is planned but is not part of this release yet.
-
-## Verifying a download
-
-Every release asset is signed with minisign against a pinned key:
+Every native release asset has a detached minisign signature. Verify the archive before running it
+with the public key pinned by both the launcher and the companion updater:
 
 ```sh
 minisign -Vm VerticalBarAgent-macos-arm64.tar.gz -P RWRKzVE+208a7cjnPi9jtqylZDIGOP8TrdmjS3AuJCaCX1XlltTlqgDo
 ```
+
+Use the matching archive name for Windows or Linux. A missing or invalid signature is a hard stop.
+
+## Authentication and workspace routing
+
+- Hosted: the MCP request carries the host OAuth token. Reconnect the plugin if the host reports an
+  expired or invalid session.
+- Desktop: the companion opens interactive Cognito sign-in where supported; the Node compatibility
+  runtime can open browser OAuth.
+- Linux headless local binaries do not attempt interactive login; use the hosted remote product for
+  cloud sessions.
+- Always discover authorization with `cc_workspaces` or `vb_workspaces`. There is no ambient
+  workspace fallback.
+- No plugin package requires or accepts a distributed API-key environment variable.
+
+The CrossCheck server remains authoritative for organization, workspace, environment, and mutation
+authorization. Client prompts are usability aids, not approval authority.
+
+## Verify the installation
+
+In a new chat:
+
+1. Confirm the `briefing`, `deployment`, and `test-suite` skills are visible or naturally selected.
+2. Ask for `runtime_info`.
+3. Ask for the CrossCheck workspaces you can access.
+4. Select only a workspace returned by discovery.
+
+Desktop installs also expose `setup`. Hosted installs intentionally do not.
+
+If skills are missing, refresh the plugin information and start a new chat. If skills are present
+but a tool returns `401`, reconnect OAuth; do not paste credentials into the conversation.
+
+## Updating and removing
+
+- Hosted plugins update through the OpenAI or Anthropic directory/workspace release.
+- Claude Code repository installs update with
+  `/plugin marketplace update verticalbar-agent` followed by
+  `/plugin update verticalbar-agent@verticalbar-agent`.
+- Codex repository installs update with `codex plugin marketplace upgrade verticalbar-agent`, then
+  reinstall the listed plugin and start a new session.
+- The Desktop launcher downloads only signed native manifests and refuses a version below the
+  signed floor.
+
+Remove the plugin from the host's plugin directory or CLI. Removing a plugin does not delete the
+CrossCheck account or server-side data. See [INSTALL](docs/INSTALL.md) for local cache cleanup.
+
+## Channels and provenance
+
+- **stable** is the public, promoted package and signed native payload.
+- **next** is the prerelease candidate used for validation.
+- **dev/candidate** is a generated local marketplace bound to one source tree; it is never a public
+  fallback channel.
+- Promotion moves the exact candidate already tested; it does not rebuild it.
+
+| Product | stable technical ID | next technical ID |
+| --- | --- | --- |
+| VerticalBar Agent (Hosted) | `verticalbar-agent-hosted` | `verticalbar-agent-hosted-next` |
+| VerticalBar Agent Desktop | `verticalbar-agent` | `verticalbar-agent-next` |
+
+Public directories may choose to show only the stable listing. The repository catalog keeps the
+next IDs explicit so a candidate can be installed and verified without changing an existing stable
+installation.
+
+The generated [`releases/`](releases/) surface binds the source commit, plugin version, canonical
+skill digest, package digests, compatibility matrix, and file checksums. Native stable and next
+manifests remain signed GitHub Release assets.
+
+## Capabilities
+
+- Read authorized CrossCheck snapshots, customizations, SuiteScript source, dependency graphs, and
+  telemetry.
+- Read authorized Vertical Bar process projects, variants, cases, and episode summaries.
+- Build and publish grounded interactive Briefings.
+- Author and run CrossCheck Test Suites.
+- Inspect release packages and CI workflows, with mutations remaining behind server-side scopes and
+  Pipeline approval.
+
+See [SECURITY](docs/SECURITY.md) for the public security boundary.
+Marketplace reviewers and operators can inspect the public [submission dossier](marketplace/).
+
+[latest]: https://github.com/verticalbarHQ/verticalbar-agent/releases/latest

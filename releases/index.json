@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "repository": "verticalbarHQ/crosscheck",
+    "commit": "c5e849a76b0f8f0d60bb28cb08aa591e0ab1a8d8"
+  },
+  "pluginVersion": "0.12.0",
+  "canonicalSkillDigest": "bc0b7de8b351aa2eaf775e48ae429f65f266d2cb09865ee327d3ff5fda00a12f",
+  "channels": {
+    "stableManifest": "https://github.com/verticalbarHQ/verticalbar-agent/releases/latest/download/latest.json",
+    "nextManifest": "https://github.com/verticalbarHQ/verticalbar-agent/releases/download/channel-next/next.json"
+  },
+  "packages": [
+    {
+      "id": "openai-hosted",
+      "pluginName": "verticalbar-agent-hosted",
+      "digest": "0e83d376700e3de7b9a9e7e51327fd0dc43714c7ee147c48c41d6d13e09adb31",
+      "files": 10,
+      "path": "packages/openai-hosted"
+    },
+    {
+      "id": "openai-desktop",
+      "pluginName": "verticalbar-agent",
+      "digest": "5b0c09b75fe419f811ff297869ea6f1febaef764f8c63f5a1edf8b7b473545f0",
+      "files": 15,
+      "path": "packages/openai-desktop"
+    },
+    {
+      "id": "anthropic-hosted",
+      "pluginName": "verticalbar-agent-hosted",
+      "digest": "04244e519bba31c210b3074cf4a4a39c05deffb44195d6ec1daddefdbfbc8168",
+      "files": 6,
+      "path": "packages/anthropic-hosted"
+    },
+    {
+      "id": "anthropic-desktop",
+      "pluginName": "verticalbar-agent",
+      "digest": "0fbb8c3723125189ef1883c0073c070b2f2c7c1779f2883e5069207e654b1b8b",
+      "files": 12,
+      "path": "packages/anthropic-desktop"
+    }
+  ]
+}

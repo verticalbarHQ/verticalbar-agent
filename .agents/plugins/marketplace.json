@@ -11,7 +11,7 @@
       "name": "verticalbar-agent",
       "version": "0.12.0",
       "description": "VerticalBar Agent: local stdio MCP tools and skills for grounded CrossCheck and Vertical Bar work. Identity comes from explicit Cognito login and workspace scope from authorized discovery; deployment effects remain behind CrossCheck's server-side scopes and Pipeline stage approval.",
-      "source": "./",
+      "source": "./packages/openai-desktop",
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_USE"
@@ -26,6 +26,33 @@
         "source": "git-subdir",
         "url": "https://github.com/verticalbarHQ/verticalbar-agent.git",
         "path": "codex-next",
+        "ref": "next"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "verticalbar-agent-hosted",
+      "version": "0.12.0",
+      "description": "Grounded CrossCheck and Vertical Bar workflows through the production MCP service.",
+      "source": "./packages/openai-hosted",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "verticalbar-agent-hosted-next",
+      "version": "0.12.0",
+      "description": "Grounded CrossCheck and Vertical Bar workflows through the production MCP service. (prerelease channel — staged for verification before promotion)",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/verticalbarHQ/verticalbar-agent.git",
+        "path": "codex-hosted-next",
         "ref": "next"
       },
       "policy": {

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "status": "prepared-not-submitted",
+  "hosted": {
+    "package": "packages/anthropic-hosted",
+    "displayName": "VerticalBar Agent",
+    "connector": "https://mcp.vertical.bar/mcp",
+    "surfaces": ["Claude web", "Claude Desktop Chat", "Cowork"]
+  },
+  "desktop": {
+    "package": "packages/anthropic-desktop",
+    "displayName": "VerticalBar Agent Desktop",
+    "technicalName": "verticalbar-agent",
+    "surfaces": ["Claude Code", "Claude Desktop local"]
+  },
+  "listing": {
+    "publisher": "Vertical Bar",
+    "website": "https://vertical.bar",
+    "support": "https://vertical.bar/contact",
+    "privacyPolicy": "https://vertical.bar/privacy",
+    "termsOfService": "https://vertical.bar/terms-of-service"
+  },
+  "tests": "test-cases.json",
+  "humanGates": [
+    "Choose the owning Claude organization or Console identity.",
+    "Upload or submit the exact validated hosted package.",
+    "Submit the Desktop package to claude-community review.",
+    "Answer reviewer and directory-policy questions.",
+    "Publish or enable the approved entries."
+  ],
+  "directoryBoundary": "Third-party Claude Code plugins can be submitted to claude-community. Inclusion in Anthropic's curated official marketplace is discretionary and has no application process."
+}

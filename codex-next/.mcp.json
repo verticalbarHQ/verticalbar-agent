@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "verticalbar-agent": {
+      "cwd": ".",
+      "command": "node",
+      "args": [
+        "./launcher/launcher.mjs"
+      ]
+    }
+  }
+}

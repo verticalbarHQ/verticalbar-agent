@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "status": "prepared-not-submitted",
+  "submissionType": "with-mcp-and-skills",
+  "listing": {
+    "name": "VerticalBar Agent",
+    "shortDescription": "Grounded CrossCheck and Vertical Bar workflows through a governed MCP service.",
+    "category": "Productivity",
+    "website": "https://vertical.bar",
+    "support": "https://vertical.bar/contact",
+    "privacyPolicy": "https://vertical.bar/privacy",
+    "termsOfService": "https://vertical.bar/terms-of-service",
+    "logo": "packages/openai-hosted/assets/logo.png",
+    "screenshots": [
+      "packages/openai-hosted/assets/authentication.png"
+    ]
+  },
+  "mcp": {
+    "urlType": "Universal",
+    "url": "https://mcp.vertical.bar/mcp",
+    "authentication": "OAuth 2.1",
+    "domainChallengeBase": "https://mcp.vertical.bar",
+    "toolAnnotationsGate": "plugins/verticalbar-agent/test/tool-annotations.test.mjs"
+  },
+  "skills": {
+    "delivery": "uploaded-static-bundle",
+    "path": "packages/openai-hosted/skills",
+    "runtimeMcpExtensionRequired": false,
+    "rescanRequiredWhenDigestChanges": true
+  },
+  "starterPrompts": [
+    "List the CrossCheck workspaces I can access.",
+    "Create a grounded Briefing from my latest snapshot.",
+    "Review the deployment status for my workspace."
+  ],
+  "tests": "test-cases.json",
+  "humanGates": [
+    "Select the verified Vertical Bar business identity.",
+    "Use an account with Apps Management write permission.",
+    "Provide reviewer credentials out of band without MFA or private-network dependency.",
+    "Serve the exact portal-issued domain challenge token.",
+    "Accept policy and legal attestations.",
+    "Submit for review and publish only after approval."
+  ]
+}

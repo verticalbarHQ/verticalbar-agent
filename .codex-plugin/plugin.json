@@ -5,7 +5,38 @@
   "author": {
     "name": "Vertical Bar"
   },
+  "homepage": "https://github.com/verticalbarHQ/verticalbar-agent#readme",
+  "repository": "https://github.com/verticalbarHQ/verticalbar-agent",
+  "keywords": [
+    "crosscheck",
+    "netsuite",
+    "process-mining",
+    "briefing"
+  ],
   "skills": "./skills/",
+  "interface": {
+    "displayName": "VerticalBar Agent Desktop",
+    "shortDescription": "Local CrossCheck and Vertical Bar workflows with the VerticalBar Agent desktop companion.",
+    "longDescription": "Use the same VerticalBar Agent skills through a local stdio bridge. The separately installed desktop companion adds interactive sign-in and NetSuite onboarding that a hosted plugin cannot install.",
+    "developerName": "Vertical Bar",
+    "category": "Productivity",
+    "capabilities": [
+      "Local MCP",
+      "Skills"
+    ],
+    "websiteURL": "https://vertical.bar",
+    "privacyPolicyURL": "https://vertical.bar/privacy",
+    "termsOfServiceURL": "https://vertical.bar/terms-of-service",
+    "defaultPrompt": [
+      "List the CrossCheck workspaces I can access.",
+      "Create a grounded Briefing from my latest snapshot.",
+      "Review the deployment status for my workspace."
+    ],
+    "brandColor": "#15191E",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
+    "logoDark": "./assets/logo-dark.png"
+  },
   "mcpServers": {
     "verticalbar-agent": {
       "cwd": ".",

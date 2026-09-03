@@ -1,5 +1,5 @@
 {
-  "name": "verticalbar-agent-next",
+  "name": "verticalbar-agent",
   "version": "0.12.0",
   "description": "Local CrossCheck and Vertical Bar workflows with the VerticalBar Agent desktop companion.",
   "author": {

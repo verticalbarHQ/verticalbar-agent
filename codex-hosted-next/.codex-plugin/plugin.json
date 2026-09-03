@@ -1,7 +1,7 @@
 {
-  "name": "verticalbar-agent-next",
+  "name": "verticalbar-agent-hosted-next",
   "version": "0.12.0",
-  "description": "Local CrossCheck and Vertical Bar workflows with the VerticalBar Agent desktop companion.",
+  "description": "Grounded CrossCheck and Vertical Bar workflows through the production MCP service.",
   "author": {
     "name": "Vertical Bar",
     "url": "https://vertical.bar"
@@ -16,13 +16,13 @@
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "VerticalBar Agent Desktop",
-    "shortDescription": "Local CrossCheck and Vertical Bar workflows with the VerticalBar Agent desktop companion.",
-    "longDescription": "Use the same VerticalBar Agent skills through a local stdio bridge. The separately installed desktop companion adds interactive sign-in and NetSuite onboarding that a hosted plugin cannot install.",
+    "displayName": "VerticalBar Agent",
+    "shortDescription": "Grounded CrossCheck and Vertical Bar workflows through the production MCP service.",
+    "longDescription": "Analyze authorized CrossCheck and Vertical Bar data, create Briefings, inspect NetSuite customizations, and work with governed deployment and test-suite workflows through the production MCP service.",
     "developerName": "Vertical Bar",
     "category": "Productivity",
     "capabilities": [
-      "Local MCP",
+      "Remote MCP",
       "Skills"
     ],
     "websiteURL": "https://vertical.bar",
@@ -36,7 +36,10 @@
     "brandColor": "#15191E",
     "composerIcon": "./assets/icon.png",
     "logo": "./assets/logo.png",
-    "logoDark": "./assets/logo-dark.png"
+    "logoDark": "./assets/logo-dark.png",
+    "screenshots": [
+      "./assets/authentication.png"
+    ]
   },
-  "mcpServers": "./.mcp.json"
+  "apps": "./.app.json"
 }

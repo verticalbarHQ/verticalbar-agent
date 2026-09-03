@@ -1,0 +1,19 @@
+{
+  "name": "verticalbar-agent-hosted",
+  "displayName": "VerticalBar Agent",
+  "version": "0.12.0",
+  "description": "Grounded CrossCheck and Vertical Bar workflows through the production MCP service.",
+  "author": {
+    "name": "Vertical Bar",
+    "url": "https://vertical.bar"
+  },
+  "homepage": "https://github.com/verticalbarHQ/verticalbar-agent#readme",
+  "repository": "https://github.com/verticalbarHQ/verticalbar-agent",
+  "keywords": [
+    "crosscheck",
+    "netsuite",
+    "process-mining",
+    "briefing"
+  ],
+  "skills": "./skills/"
+}

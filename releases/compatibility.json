@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "packages": [
+    {
+      "id": "openai-hosted",
+      "vendor": "openai",
+      "surface": "hosted",
+      "pluginName": "verticalbar-agent-hosted",
+      "displayName": "VerticalBar Agent",
+      "transport": "remote-http",
+      "desktopCompanionRequired": false,
+      "skills": [
+        "briefing",
+        "deployment",
+        "test-suite"
+      ],
+      "supportedHosts": [
+        "ChatGPT web",
+        "ChatGPT desktop",
+        "Codex cloud"
+      ]
+    },
+    {
+      "id": "openai-desktop",
+      "vendor": "openai",
+      "surface": "desktop-companion",
+      "pluginName": "verticalbar-agent",
+      "displayName": "VerticalBar Agent Desktop",
+      "transport": "local-stdio",
+      "desktopCompanionRequired": true,
+      "skills": [
+        "briefing",
+        "deployment",
+        "test-suite",
+        "setup"
+      ],
+      "supportedHosts": [
+        "ChatGPT desktop Work",
+        "Codex CLI",
+        "Codex IDE"
+      ]
+    },
+    {
+      "id": "anthropic-hosted",
+      "vendor": "anthropic",
+      "surface": "hosted",
+      "pluginName": "verticalbar-agent-hosted",
+      "displayName": "VerticalBar Agent",
+      "transport": "remote-http",
+      "desktopCompanionRequired": false,
+      "skills": [
+        "briefing",
+        "deployment",
+        "test-suite"
+      ],
+      "supportedHosts": [
+        "Claude web",
+        "Claude Desktop Chat",
+        "Cowork",
+        "Claude cloud sessions"
+      ]
+    },
+    {
+      "id": "anthropic-desktop",
+      "vendor": "anthropic",
+      "surface": "desktop-companion",
+      "pluginName": "verticalbar-agent",
+      "displayName": "VerticalBar Agent Desktop",
+      "transport": "local-stdio",
+      "desktopCompanionRequired": true,
+      "skills": [
+        "briefing",
+        "deployment",
+        "test-suite",
+        "setup"
+      ],
+      "supportedHosts": [
+        "Claude Code",
+        "Claude Desktop local"
+      ]
+    }
+  ]
+}
