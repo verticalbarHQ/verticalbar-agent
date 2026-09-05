@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "source": {
     "repository": "verticalbarHQ/crosscheck",
-    "commit": "15bcddd0b1ec0ae16efa9c788c949e4bf6975a07"
+    "commit": "b37a33814988ef563625a6c9e9f5013db9a0da49"
   },
   "pluginVersion": "0.12.0",
-  "canonicalSkillDigest": "bc0b7de8b351aa2eaf775e48ae429f65f266d2cb09865ee327d3ff5fda00a12f",
+  "canonicalSkillDigest": "aadb857787a71d09af2325d5e7912c6436433715cb9cd1754282eda3466393aa",
   "channels": {
     "stableManifest": "https://github.com/verticalbarHQ/verticalbar-agent/releases/latest/download/latest.json",
     "nextManifest": "https://github.com/verticalbarHQ/verticalbar-agent/releases/download/channel-next/latest.json"
