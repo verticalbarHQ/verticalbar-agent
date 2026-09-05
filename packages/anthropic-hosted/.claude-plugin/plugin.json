@@ -1,7 +1,7 @@
 {
   "name": "verticalbar-agent-hosted",
   "displayName": "VerticalBar Agent",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "description": "Grounded CrossCheck and Vertical Bar workflows through the production MCP service.",
   "author": {
     "name": "Vertical Bar",
