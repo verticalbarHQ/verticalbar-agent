@@ -3,13 +3,13 @@
   "status": "prepared-not-submitted",
   "hosted": {
     "package": "packages/anthropic-hosted",
-    "displayName": "VerticalBar Agent",
+    "displayName": "Vertical Bar Agent",
     "connector": "https://mcp.vertical.bar/mcp",
     "surfaces": ["Claude web", "Claude Desktop Chat", "Cowork"]
   },
   "desktop": {
     "package": "packages/anthropic-desktop",
-    "displayName": "VerticalBar Agent Desktop",
+    "displayName": "Vertical Bar Agent Desktop",
     "technicalName": "verticalbar-agent",
     "surfaces": ["Claude Code", "Claude Desktop local"]
   },

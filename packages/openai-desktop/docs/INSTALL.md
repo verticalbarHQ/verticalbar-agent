@@ -1,6 +1,6 @@
-# VerticalBar Agent installation
+# Vertical Bar Agent installation
 
-VerticalBar Agent has separate Hosted and Desktop Companion packages. Hosted web clients connect to
+Vertical Bar Agent has separate Hosted and Desktop Companion packages. Hosted web clients connect to
 the Production remote MCP endpoint and never start local processes. Installed clients can use the
 Desktop Companion package and its local stdio bridge.
 
@@ -28,7 +28,7 @@ app, CLI session, or IDE extension after installation so the MCP catalog and ski
 
 1. Call `runtime_info`.
 2. On a desktop compiled runtime, call `login` with no arguments and finish sign-in in the
-   VerticalBar Agent window.
+   Vertical Bar Agent window.
 3. On the Node compatibility runtime, call `login` with no arguments and finish browser OAuth.
 4. Call `cc_workspaces`. Use the only returned workspace automatically; if more than one is
    available, choose by the safe display name. Pass the returned `workspaceId` to CrossCheck tools.

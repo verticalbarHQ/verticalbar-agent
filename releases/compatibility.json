@@ -6,7 +6,7 @@
       "vendor": "openai",
       "surface": "hosted",
       "pluginName": "verticalbar-agent-hosted",
-      "displayName": "VerticalBar Agent",
+      "displayName": "Vertical Bar Agent",
       "transport": "remote-http",
       "desktopCompanionRequired": false,
       "skills": [
@@ -25,7 +25,7 @@
       "vendor": "openai",
       "surface": "desktop-companion",
       "pluginName": "verticalbar-agent",
-      "displayName": "VerticalBar Agent Desktop",
+      "displayName": "Vertical Bar Agent Desktop",
       "transport": "local-stdio",
       "desktopCompanionRequired": true,
       "skills": [
@@ -46,7 +46,7 @@
       "vendor": "anthropic",
       "surface": "hosted",
       "pluginName": "verticalbar-agent-hosted",
-      "displayName": "VerticalBar Agent",
+      "displayName": "Vertical Bar Agent",
       "transport": "remote-http",
       "desktopCompanionRequired": false,
       "skills": [
@@ -66,7 +66,7 @@
       "vendor": "anthropic",
       "surface": "desktop-companion",
       "pluginName": "verticalbar-agent",
-      "displayName": "VerticalBar Agent Desktop",
+      "displayName": "Vertical Bar Agent Desktop",
       "transport": "local-stdio",
       "desktopCompanionRequired": true,
       "skills": [

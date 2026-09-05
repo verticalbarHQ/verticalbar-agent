@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Prepare the current VerticalBar Agent runtime for use. Inspect runtime_info, establish Cognito identity only when needed, and discover authorized workspaces without guessing. Use for setup, sign in, login, opening the app, or a tool that lacks identity.
+description: Prepare the current Vertical Bar Agent runtime for use. Inspect runtime_info, establish Cognito identity only when needed, and discover authorized workspaces without guessing. Use for setup, sign in, login, opening the app, or a tool that lacks identity.
 ---
 
 # Setup — prepare this runtime
@@ -14,7 +14,7 @@ workspace, deployment, or endpoint source.
 1. **Call `runtime_info` before `login` or any attempt to open the app.** Use `runtime.surface`,
    `runtime.mode`, `runtime.canOpenWindow`, `runtime.canOpenBrowser`, and `auth` as facts.
 2. Follow the reported surface:
-   * `desktop` — compiled app login can open the VerticalBar Agent window.
+   * `desktop` — compiled app login can open the Vertical Bar Agent window.
    * `local-node` — the Node compatibility surface is GUI-less, but no-argument `login` can open
      browser OAuth.
    * `headless` — compiled runtime has no interactive local login. Do not call `login` or start a GUI

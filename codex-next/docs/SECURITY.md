@@ -1,6 +1,6 @@
-# VerticalBar Agent — Security
+# Vertical Bar Agent — Security
 
-VerticalBar Agent's analysis and data paths are **read-only**. One narrow, governed exception exposes
+Vertical Bar Agent's analysis and data paths are **read-only**. One narrow, governed exception exposes
 three workspace-scoped deployment mutations — create a Release Package, add package items, and start
 a CI workflow run — each a single direct server call (no client-side gate). Create and add-items
 require the server-authorized mutation scope; start-run additionally requires an identified
@@ -74,7 +74,7 @@ Shipped today:
 > This entry claimed a `.mcpb` ships, in three successive and successively wrong forms, from the day
 > the builder was written until 2026-08-15. First it said the bundle was attached to releases: true
 > once — RND-2764 attached exactly one, BY HAND, as `lens-0.4.0.mcpb` (tag `lens-v0.4.0`,
-> 2026-06-25) — and then quietly false, because the Lens→VerticalBar Agent rename moved releases to
+> 2026-06-25) — and then quietly false, because the Lens→Vertical Bar Agent rename moved releases to
 > the public mirror and the hand step did not follow, so v0.9.4–v0.9.8 shipped without one. It was
 > then rewritten to say the build had become part of the release workflow. That was false on the day
 > it was written: `ceb44db12` (RND-3397, 2026-08-05) had REMOVED the build/sign/attach steps in the

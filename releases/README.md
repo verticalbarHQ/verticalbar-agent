@@ -1,4 +1,4 @@
-# VerticalBar Agent release surface
+# Vertical Bar Agent release surface
 
 The public mirror generates the machine-readable release surface from the same exact CrossCheck
 commit as its plugin packages. Do not hand-edit generated files in the public repository.

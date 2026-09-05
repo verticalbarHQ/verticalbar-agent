@@ -1,4 +1,4 @@
-# VerticalBar Agent
+# Vertical Bar Agent
 
 Grounded CrossCheck and Vertical Bar workflows through the production MCP service.
 

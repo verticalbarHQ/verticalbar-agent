@@ -1,7 +1,7 @@
 {
   "name": "verticalbar-agent",
-  "version": "0.13.1",
-  "description": "VerticalBar Agent: local stdio MCP tools and skills for grounded CrossCheck and Vertical Bar work. Identity comes from explicit Cognito login and workspace scope from authorized discovery; deployment effects remain behind CrossCheck's server-side scopes and Pipeline stage approval.",
+  "version": "0.13.2",
+  "description": "Vertical Bar Agent: local stdio MCP tools and skills for grounded CrossCheck and Vertical Bar work. Identity comes from explicit Cognito login and workspace scope from authorized discovery; deployment effects remain behind CrossCheck's server-side scopes and Pipeline stage approval.",
   "author": {
     "name": "Vertical Bar"
   },
@@ -15,9 +15,9 @@
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "VerticalBar Agent Desktop",
-    "shortDescription": "Local CrossCheck and Vertical Bar workflows with the VerticalBar Agent desktop companion.",
-    "longDescription": "Use the same VerticalBar Agent skills through a local stdio bridge. The separately installed desktop companion adds interactive sign-in and NetSuite onboarding that a hosted plugin cannot install.",
+    "displayName": "Vertical Bar Agent Desktop",
+    "shortDescription": "Local CrossCheck and Vertical Bar workflows with the Vertical Bar Agent desktop companion.",
+    "longDescription": "Use the same Vertical Bar Agent skills through a local stdio bridge. The separately installed desktop companion adds interactive sign-in and NetSuite onboarding that a hosted plugin cannot install.",
     "developerName": "Vertical Bar",
     "category": "Productivity",
     "capabilities": [

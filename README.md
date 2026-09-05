@@ -1,4 +1,4 @@
-# VerticalBar Agent
+# Vertical Bar Agent
 
 Use CrossCheck and Vertical Bar from ChatGPT, Codex, and Claude with grounded skills and governed
 MCP tools. The distribution has two products because a cloud host cannot install or launch a local
@@ -8,8 +8,8 @@ desktop application.
 
 | Product | Use it in | MCP connection | Separate app |
 | --- | --- | --- | --- |
-| **VerticalBar Agent** | ChatGPT web/desktop, Codex cloud, Claude web/Desktop Chat/Cowork | Production remote MCP | Not required |
-| **VerticalBar Agent Desktop** | ChatGPT desktop Work, Codex CLI/IDE, Claude Code and local Claude Desktop | Local stdio bridge | Required for interactive sign-in and NetSuite onboarding |
+| **Vertical Bar Agent** | ChatGPT web/desktop, Codex cloud, Claude web/Desktop Chat/Cowork | Production remote MCP | Not required |
+| **Vertical Bar Agent Desktop** | ChatGPT desktop Work, Codex CLI/IDE, Claude Code and local Claude Desktop | Local stdio bridge | Required for interactive sign-in and NetSuite onboarding |
 
 Both products are generated from the same canonical `briefing`, `deployment`, and `test-suite`
 skills. Desktop additionally includes `setup`, because only an installed runtime can open the
@@ -20,11 +20,11 @@ creates duplicate tools. Pick the row that matches where the assistant is runnin
 
 ## Hosted product
 
-Install **VerticalBar Agent** from the platform's plugin directory when it becomes publicly listed.
+Install **Vertical Bar Agent** from the platform's plugin directory when it becomes publicly listed.
 During next/private validation, use the package or workspace draft supplied by your Vertical Bar
 operator.
 
-1. Install or enable **VerticalBar Agent**.
+1. Install or enable **Vertical Bar Agent**.
 2. Start a new chat.
 3. Ask: *“List the CrossCheck workspaces I can access.”*
 4. Complete the host's OAuth flow when the first protected tool is used.
@@ -37,7 +37,7 @@ onboarding remains a Desktop capability.
 
 ## Desktop Companion product
 
-Install **VerticalBar Agent Desktop** when the assistant runs locally and needs the local stdio
+Install **Vertical Bar Agent Desktop** when the assistant runs locally and needs the local stdio
 bridge or NetSuite onboarding.
 
 ### Claude Code
@@ -60,7 +60,7 @@ codex plugin add verticalbar-agent@verticalbar-agent
 Restart the ChatGPT app, Codex session, or IDE extension after installation. Hosted `chatgpt.com`
 does not read the local plugin cache or start its stdio process; use the Hosted product there. The
 Hosted package has the separate technical ID `verticalbar-agent-hosted` while its user-facing name
-remains **VerticalBar Agent**.
+remains **Vertical Bar Agent**.
 
 ### Install the companion app
 
@@ -134,8 +134,8 @@ CrossCheck account or server-side data. See [INSTALL](docs/INSTALL.md) for local
 
 | Product | stable technical ID | next technical ID |
 | --- | --- | --- |
-| VerticalBar Agent (Hosted) | `verticalbar-agent-hosted` | `verticalbar-agent-hosted-next` |
-| VerticalBar Agent Desktop | `verticalbar-agent` | `verticalbar-agent-next` |
+| Vertical Bar Agent (Hosted) | `verticalbar-agent-hosted` | `verticalbar-agent-hosted-next` |
+| Vertical Bar Agent Desktop | `verticalbar-agent` | `verticalbar-agent-next` |
 
 Public directories may choose to show only the stable listing. The repository catalog keeps the
 next IDs explicit so a candidate can be installed and verified without changing an existing stable

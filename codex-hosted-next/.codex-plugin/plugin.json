@@ -1,6 +1,6 @@
 {
   "name": "verticalbar-agent-hosted-next",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "description": "Grounded CrossCheck and Vertical Bar workflows through the production MCP service.",
   "author": {
     "name": "Vertical Bar",
@@ -16,7 +16,7 @@
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "VerticalBar Agent",
+    "displayName": "Vertical Bar Agent",
     "shortDescription": "Grounded CrossCheck and Vertical Bar workflows through the production MCP service.",
     "longDescription": "Analyze authorized CrossCheck and Vertical Bar data, create Briefings, inspect NetSuite customizations, and work with governed deployment and test-suite workflows through the production MCP service.",
     "developerName": "Vertical Bar",

@@ -1,8 +1,8 @@
 {
   "name": "verticalbar-agent",
-  "displayName": "VerticalBar Agent Desktop",
-  "version": "0.13.1",
-  "description": "Local CrossCheck and Vertical Bar workflows with the VerticalBar Agent desktop companion.",
+  "displayName": "Vertical Bar Agent Desktop",
+  "version": "0.13.2",
+  "description": "Local CrossCheck and Vertical Bar workflows with the Vertical Bar Agent desktop companion.",
   "author": {
     "name": "Vertical Bar",
     "url": "https://vertical.bar"

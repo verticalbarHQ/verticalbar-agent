@@ -107,7 +107,7 @@ export const diag = (event, outcome, detail) =>
  *  There is no supported Intel path. Say that, and stop inventing one: an error that names a
  *  nonexistent artifact costs the reader more than an error that admits the gap. */
 export const INTEL_MAC_UNSUPPORTED =
-  'VerticalBar Agent does not support Intel Macs — the compiled client it runs is Apple Silicon only, and there is currently no Intel build or alternative package. Supported: Apple Silicon macOS, Windows x64, and Linux x64. If you need Intel support, please open an issue at https://github.com/verticalbarHQ/verticalbar-agent/issues.'
+  'Vertical Bar Agent does not support Intel Macs — the compiled client it runs is Apple Silicon only, and there is currently no Intel build or alternative package. Supported: Apple Silicon macOS, Windows x64, and Linux x64. If you need Intel support, please open an issue at https://github.com/verticalbarHQ/verticalbar-agent/issues.'
 
 /** The signed targets the launcher knows how to request. Linux v1 is musl x64 only. */
 export function resolveTarget(platform = process.platform, arch = process.arch) {
@@ -147,7 +147,7 @@ export function installDir({ platform = process.platform, env = process.env, hom
  *  must equal `productName` in `src-tauri/tauri.conf.json`. Exported as the SINGLE literal (the on-disk
  *  path and the in-archive path both derive from it) so the two can never drift from each other, and so
  *  `desktop/scripts/check-artifact-names.mjs` can assert its VALUE rather than grep for its text. */
-export const MAC_APP_BUNDLE = 'VerticalBar Agent.app'
+export const MAC_APP_BUNDLE = 'Vertical Bar Agent.app'
 
 const targetDir = (dir, target) => join(dir, target)
 

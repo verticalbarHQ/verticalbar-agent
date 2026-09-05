@@ -1,7 +1,7 @@
 {
   "name": "verticalbar-agent",
-  "version": "0.13.1",
-  "description": "Local CrossCheck and Vertical Bar workflows with the VerticalBar Agent desktop companion.",
+  "version": "0.13.2",
+  "description": "Local CrossCheck and Vertical Bar workflows with the Vertical Bar Agent desktop companion.",
   "author": {
     "name": "Vertical Bar",
     "url": "https://vertical.bar"
@@ -16,9 +16,9 @@
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "VerticalBar Agent Desktop",
-    "shortDescription": "Local CrossCheck and Vertical Bar workflows with the VerticalBar Agent desktop companion.",
-    "longDescription": "Use the same VerticalBar Agent skills through a local stdio bridge. The separately installed desktop companion adds interactive sign-in and NetSuite onboarding that a hosted plugin cannot install.",
+    "displayName": "Vertical Bar Agent Desktop",
+    "shortDescription": "Local CrossCheck and Vertical Bar workflows with the Vertical Bar Agent desktop companion.",
+    "longDescription": "Use the same Vertical Bar Agent skills through a local stdio bridge. The separately installed desktop companion adds interactive sign-in and NetSuite onboarding that a hosted plugin cannot install.",
     "developerName": "Vertical Bar",
     "category": "Productivity",
     "capabilities": [

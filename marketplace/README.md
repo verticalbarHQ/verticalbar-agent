@@ -1,6 +1,6 @@
 # Marketplace submission dossier
 
-This directory records the public, reviewer-facing contract for VerticalBar Agent. It contains no
+This directory records the public, reviewer-facing contract for Vertical Bar Agent. It contains no
 credentials and grants no publishing authority.
 
 ## OpenAI
