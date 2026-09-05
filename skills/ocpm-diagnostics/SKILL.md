@@ -20,14 +20,22 @@ workspace data; the only thing a cancel changes is the job itself.
 
 1. **Scope.** Resolve `workspaceId` with `cc_workspaces` and pick the environment the user means
    (`environmentId`). Never guess either; ask when more than one fits.
-2. **Capabilities.** Call `cc_ocpm_capabilities`. Read `populations` and `budget_classes`. If an
-   analysis you need is not listed, say so — do not improvise a request shape.
+2. **Capabilities.** Call `cc_ocpm_capabilities`. Read `population_shapes`, `budget_classes`, and
+   `source`: `source.window` is a ready-made half-open window over the whole corpus
+   (`start_epoch_nanos_utc`, `end_exclusive_epoch_nanos_utc`), `source.coverage` the same bounds as
+   ISO timestamps (its `max_timestamp` is inclusive — never use it directly as `end`), and
+   `source.backbone_types` the object types the corpus was built around (the analysis defaults to
+   the first one). Stop and report when `source` is null (`source_error`: nothing bound) or
+   `source.usable` is false (`unusable_reason`: the manifest lacks backbone facts); do not
+   improvise a request.
 3. **Population.** Build `population` in the exact wire shape that `cc_ocpm_capabilities` returns
    under `population_shapes` — never invent field names. Two shapes exist:
    - Time window (`kind` is `event_time`, `leading_object_start`, or `execution_contained`):
      `{ "kind": "event_time", "start": { "epoch_nanos_utc": "1767225600000000000" }, "end": { "epoch_nanos_utc": "1769904000000000000" } }`.
      Timestamps are UTC epoch **nanoseconds as decimal strings** (seconds x 1 000 000 000), and the
-     window is half-open `[start, end)`. Default choice for "last month / quarter".
+     window is half-open `[start, end)`. For the whole corpus use `source.window` verbatim; for a
+     sub-period keep `start >= source.window.start_epoch_nanos_utc` and
+     `end <= source.window.end_exclusive_epoch_nanos_utc`. Default choice for "last month / quarter".
    - Case set: `{ "kind": "case_set", "object_ids": [1234, 5678] }` — non-negative integer object
      ids the user already has (max 10 000).
    Start narrow (one period, or a small case set). A first run over everything is how a job hits
