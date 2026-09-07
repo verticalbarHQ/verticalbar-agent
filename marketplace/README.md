@@ -41,6 +41,27 @@ The repository projection exposes separate stable/next IDs for Hosted and Deskto
 checks use the generated `verticalbar-agent-candidate` catalog. A marketplace reviewer receives one
 exact package digest; no package is rebuilt between candidate verification and submission.
 
+## RND-3859 resubmission contract
+
+- The repository-root `chatgpt-app-submission.json` is the sole OpenAI portal import artifact and
+  the canonical OpenAI test set. [`test-cases.json`](test-cases.json) remains the shared package
+  security/workflow verification set used by the Anthropic dossier; it is not a second OpenAI
+  submission input. In particular, its N1 and N2 intentionally invoke protected tools, while the
+  OpenAI import contract requires negative prompts for which the app must not trigger.
+- The source catalogs currently declare no `outputSchema` (0/51 hosted tools and 0/53 desktop
+  tools). This is a separate, non-blocking follow-up: the MCP SDK rejects a successful result when
+  `outputSchema` is declared but `structuredContent` is absent, while the shared response helper
+  currently returns text content only. Adding schemas therefore requires an end-to-end response
+  contract migration, not a descriptor-only edit.
+- The candidate hosted projection is 51 tools: the 53-tool desktop catalog minus local-only
+  `login` and `logout`. After merge, verify the deployed staging `tools/list` response is exactly 51
+  and excludes both local-only tools before any marketplace resubmission.
+- `cc_ocpm_cancel_job.destructiveHint` is `true` because an active job transitions to the terminal
+  `cancelled` state and its running task is stopped, so that selected execution cannot resume or
+  produce its result; a new request is required to run the analysis again.
+- Do not promote this change to production while Anthropic review is in progress. After merge,
+  staging validation is allowed; marketplace resubmission still requires explicit owner approval.
+
 ## Official references
 
 - [OpenAI plugin structure](https://developers.openai.com/plugins/build/plugins)

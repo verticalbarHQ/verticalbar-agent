@@ -33,7 +33,11 @@
     "Create a grounded Briefing from my latest snapshot.",
     "Review the deployment status for my workspace."
   ],
-  "tests": "test-cases.json",
+  "tests": {
+    "sourceOfTruth": "repository-root chatgpt-app-submission.json",
+    "positive": 5,
+    "negative": 3
+  },
   "humanGates": [
     "Select the verified Vertical Bar business identity.",
     "Use an account with Apps Management write permission.",
