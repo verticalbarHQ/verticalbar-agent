@@ -14,7 +14,7 @@ performs against CrossCheck, and they are governed differently from everything e
 | `cc_list_ci_workflows`, `cc_get_ci_workflow`, `cc_get_ci_workflow_run` | read | Cognito identity + workspace scope |
 | `cc_create_release_package` | **MUTATES** | `deploy:write` |
 | `cc_add_release_package_items` | **MUTATES** | `deploy:write`, package still a draft |
-| `cc_start_ci_workflow_run` | **MUTATES** | an **identified Cognito user** |
+| `cc_start_ci_workflow_run` | **MUTATES** | an **identified Cognito user**, and a package already **Validated** in the CrossCheck UI |
 
 ## The authorization rule that trips people
 
@@ -43,16 +43,25 @@ stage.
 3. **`cc_add_release_package_items`** `{workspaceId?, packageId, items[]}` — the response carries
    `autoInclude.status`. **Read it.** CrossCheck may pull in dependencies you did not list, and that
    set is what will actually deploy. Report what `autoInclude` added, not what you asked for.
+   The response also carries `validation`: the server validates AFTER committing the write, so
+   deployment blockers arrive as data on a successful call, not as a failure. Report them; do not
+   re-send the items. A `validation` that is not `available` means the check did not run — say the
+   items are saved but unvalidated.
    Items can only be added while the package is a **draft**; a package past that state refuses, and
    the refusal is the server's, so surface it verbatim rather than retrying.
 4. **`cc_list_ci_workflows`** / **`cc_get_ci_workflow`** — pick the workflow and read its ordered
    stages. `cc_get_ci_workflow` joins each stage to its environment name, which is the only readable
    way to confirm a promotion is aimed where the user thinks it is. Confirm the target environment
-   with the user before step 5 whenever the workflow touches production.
-5. **`cc_start_ci_workflow_run`** `{workspaceId?, workflowId, packageId}` — the request body is exactly
+   with the user before step 6 whenever the workflow touches production.
+5. **Have a person Validate the package in the CrossCheck UI.** This is a real step, not paperwork,
+   and no MCP tool performs it. Validate binds the package to the pipeline AND qualifies it, which is
+   what publishes the immutable artifact revision a run consumes. Skip it and step 6 refuses with
+   `409 GOVERNED_QUALIFICATION_REQUIRED` — the same refusal you get when the package changed after
+   its last Validate, so anything added in step 3 means Validate again.
+6. **`cc_start_ci_workflow_run`** `{workspaceId?, workflowId, packageId}` — the request body is exactly
    the package id. The host must ask a person immediately before this call. Returns the server
    response unchanged; actual environment writes remain blocked on CrossCheck stage approval.
-6. **`cc_get_ci_workflow_run`** — poll for status. A started run is not a finished one; do not report
+7. **`cc_get_ci_workflow_run`** — poll for status. A started run is not a finished one; do not report
    a deployment as done from the start call's response.
 
 ## Reporting
