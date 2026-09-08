@@ -14,8 +14,8 @@
     },
     {
       "id": "P3",
-      "prompt": "Analyze episode variants for Sales Order and Item Fulfillment in my selected reviewer workspace from 2026-08-01 through 2026-08-31.",
-      "expected": "Before invocation, ChatGPT shows an approval confirmation because the call starts or replays a private analysis job. After approval, it returns variants, edges, exceptions, and truncation metadata."
+      "prompt": "Show the top Sales Order process variants in my selected reviewer workspace from 2026-08-01 through 2026-08-31.",
+      "expected": "Returns corpus-backed variant paths with case count, frequency, and average duration, scoped to the selected reviewer workspace and requested date range."
     },
     {
       "id": "P4",
