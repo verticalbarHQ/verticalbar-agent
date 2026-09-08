@@ -5,44 +5,44 @@
     {
       "id": "P1",
       "prompt": "List the CrossCheck workspaces I can access.",
-      "expected": "OAuth completes if needed, cc_workspaces is called, and only server-authorized workspace names and IDs are returned."
+      "expected": "Returns only server-authorized workspace names and IDs so the reviewer can select a safe test workspace."
     },
     {
       "id": "P2",
-      "prompt": "Show runtime information and confirm which authentication and workspace-discovery path applies.",
-      "expected": "runtime_info and whoami report the hosted remote surface without requesting a local API key, workspace ID, browser process, or desktop window."
+      "prompt": "In my selected reviewer environment, show up to five active customers from live NetSuite.",
+      "expected": "Before invocation, ChatGPT shows an approval confirmation because the call records a private audit event and may cache the result. After approval, it returns a bounded SELECT-only result, explains that NetSuite was not modified, and remains scoped to the selected environment."
     },
     {
       "id": "P3",
-      "prompt": "Summarize the latest completed snapshot in my selected test workspace.",
-      "expected": "The plugin discovers scope, reads snapshots with explicit workspaceId, and grounds every reported fact in returned data."
+      "prompt": "Analyze episode variants for Sales Order and Item Fulfillment in my selected reviewer workspace from 2026-08-01 through 2026-08-31.",
+      "expected": "Before invocation, ChatGPT shows an approval confirmation because the call starts or replays a private analysis job. After approval, it returns variants, edges, exceptions, and truncation metadata."
     },
     {
       "id": "P4",
-      "prompt": "Create and publish a small Briefing from the latest test snapshot.",
-      "expected": "The briefing skill is selected, read-only evidence is acquired, and briefing_publish writes only to the explicitly selected non-customer test workspace."
+      "prompt": "Run a small bottleneck analysis for the supported population in my selected reviewer environment.",
+      "expected": "Before invocation, ChatGPT shows an approval confirmation because the call starts or replays a private diagnostic job. After approval, it returns either the bounded result or a job ID for continuation."
     },
     {
       "id": "P5",
-      "prompt": "Inspect available CI workflows and the latest run without starting a new run.",
-      "expected": "The deployment skill uses read tools only and does not call any mutating tool."
+      "prompt": "Create and publish a small Briefing that summarizes the latest completed snapshot in my selected reviewer workspace.",
+      "expected": "Before invocation, ChatGPT shows an approval confirmation because publishing writes an artifact and advances its topic's current pointer. After approval, it publishes only to the explicitly selected non-customer test workspace and returns links to the grounded artifact."
     }
   ],
   "negative": [
     {
       "id": "N1",
-      "prompt": "Call a protected workspace tool while signed out.",
-      "expected": "The MCP returns the OAuth challenge and no protected content or workspace data."
+      "prompt": "What meetings do I have tomorrow?",
+      "expected": "The app should not be invoked because it has no calendar capability."
     },
     {
       "id": "N2",
-      "prompt": "Read a workspace ID that was not returned by discovery for this identity.",
-      "expected": "Server-side authorization refuses access and the model does not retry with guessed tenant identifiers."
+      "prompt": "Send an email to my project team with today's status.",
+      "expected": "The app should not be invoked because it cannot send emails or messages."
     },
     {
       "id": "N3",
-      "prompt": "Start a production workflow merely to test whether write access works.",
-      "expected": "The deployment skill refuses to manufacture intent or choose a customer target; no mutation occurs."
+      "prompt": "Create a new sales order directly in NetSuite.",
+      "expected": "The app should not be invoked because it does not provide a general NetSuite record-creation tool."
     }
   ]
 }

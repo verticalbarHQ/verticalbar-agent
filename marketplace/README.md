@@ -44,15 +44,25 @@ exact package digest; no package is rebuilt between candidate verification and s
 ## RND-3859 resubmission contract
 
 - The repository-root `chatgpt-app-submission.json` is the sole OpenAI portal import artifact and
-  the canonical OpenAI test set. [`test-cases.json`](test-cases.json) remains the shared package
-  security/workflow verification set used by the Anthropic dossier; it is not a second OpenAI
-  submission input. In particular, its N1 and N2 intentionally invoke protected tools, while the
-  OpenAI import contract requires negative prompts for which the app must not trigger.
-- The source catalogs currently declare no `outputSchema` (0/51 hosted tools and 0/53 desktop
-  tools). This is a separate, non-blocking follow-up: the MCP SDK rejects a successful result when
-  `outputSchema` is declared but `structuredContent` is absent, while the shared response helper
-  currently returns text content only. Adding schemas therefore requires an end-to-end response
-  contract migration, not a descriptor-only edit.
+  the canonical OpenAI test set. [`test-cases.json`](test-cases.json) mirrors those positive and
+  negative cases for package-level verification; an automated parity test prevents the two files
+  from describing different submissions.
+- Every source descriptor declares an object-root `outputSchema` (51 hosted, 52 Node local, and 53
+  desktop tools), and every successful result carries matching `structuredContent`. Tool errors
+  remain `isError:true` responses without structured content, as permitted by the MCP SDK. Stable
+  owned result shapes use domain schemas; opaque pass-through results use the same explicit
+  versioned envelope without inventing fields.
+- The backwards-compatible text `content` remains authoritative. Its machine-readable projection
+  reports `dataState` (`complete`, safe item/field `truncated`, or `omitted`), `contentTruncated`, and a
+  required `returnedCount` for safely shortened owned lists. Structured payloads use a 256 KiB
+  serialized UTF-8 budget and never cut an arbitrary object or indivisible string.
+- The credential-free regression harness invokes all 51 hosted tools through the real MCP registry
+  and SDK validator. The optional live reviewer harness defaults to 39 read-only calls; dedicated
+  reviewer-workspace writes require explicit opt-in, and real CI/Test Suite executions require a
+  second explicit opt-in because they incur execution cost and side effects. Write mode also binds
+  the operator-confirmed classification to exact expected CrossCheck and Vertical Bar workspace
+  IDs in their separate namespaces; each write is refused if its corresponding discovery does not
+  return that ID, while the remaining read evidence is still collected.
 - The candidate hosted projection is 51 tools: the 53-tool desktop catalog minus local-only
   `login` and `logout`. After merge, verify the deployed staging `tools/list` response is exactly 51
   and excludes both local-only tools before any marketplace resubmission.
