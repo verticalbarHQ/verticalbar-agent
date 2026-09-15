@@ -124,7 +124,7 @@ macOS users clear quarantine by hand for the `.dmg`.
   Hosted UI, incl. Google, Authorization Code + PKCE, loopback callback on `localhost:9876`,
   backup `localhost:9877` — both registered on the Cognito client), or explicit email/password
   arguments on the Node compatibility surface. The Cognito token is minted on the CrossCheck
-  app-client and is accepted by **both** the CrossCheck and Vertical Bar APIs.
+  app-client and is used only for the CrossCheck API.
 - Credentials come only from an explicit login flow. They are **never** written into
   `.mcp.json`, `.claude/settings*.json`, or a repository `.env`, and **never** echoed to
   stdout/stderr or pasted into the conversation. Cognito tokens (if used) are cached at

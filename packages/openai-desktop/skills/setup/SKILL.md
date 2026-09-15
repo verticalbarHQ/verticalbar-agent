@@ -46,7 +46,7 @@ signed launcher owns installation and verification.
 
 ## Switching accounts
 
-`logout` clears the shared CrossCheck and Vertical Bar Cognito session. Run it before `login`, then
+`logout` clears the cached CrossCheck Cognito session. Run it before `login`, then
 repeat workspace discovery. Never reuse a workspace choice across identities.
 
 ## Do not
