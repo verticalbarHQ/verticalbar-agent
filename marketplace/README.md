@@ -60,15 +60,15 @@ exact package digest; no package is rebuilt between candidate verification and s
   and SDK validator. The optional live reviewer harness defaults to 39 read-only calls; dedicated
   reviewer-workspace writes require explicit opt-in, and real CI/Test Suite executions require a
   second explicit opt-in because they incur execution cost and side effects. Write mode also binds
-  the operator-confirmed classification to exact expected CrossCheck and Vertical Bar workspace
-  IDs in their separate namespaces; each write is refused if its corresponding discovery does not
-  return that ID, while the remaining read evidence is still collected.
+  the operator-confirmed classification to the exact expected CrossCheck workspace ID; each write
+  is refused if discovery does not return that ID, while the remaining read evidence is still
+  collected.
 - The candidate hosted projection is 50 tools: the 52-tool desktop catalog minus local-only
   `login` and `logout`. After merge, verify the deployed staging `tools/list` response is exactly 50
   and excludes both local-only tools before any marketplace resubmission.
-- `vb_episode_variants` is retired from hosted and installed surfaces. Its process-local PoC jobs
-  were non-durable and duplicated the corpus-backed `vb_variants`; reviewers and agents now have one
-  authoritative process-variant tool instead of choosing a backend themselves.
+- The process-data surface is the Environment-scoped `cc_process_*` family. Legacy `vb_*` tools are
+  absent from hosted and installed catalogs, so reviewers and agents cannot select the sunset
+  Vertical Bar workspace route.
 - `cc_ocpm_cancel_job.destructiveHint` is `true` because an active job transitions to the terminal
   `cancelled` state and its running task is stopped, so that selected execution cannot resume or
   produce its result; a new request is required to run the analysis again.

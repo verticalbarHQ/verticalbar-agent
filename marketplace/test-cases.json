@@ -14,8 +14,8 @@
     },
     {
       "id": "P3",
-      "prompt": "Show the top Sales Order process variants in my selected reviewer workspace from 2026-08-01 through 2026-08-31.",
-      "expected": "Returns corpus-backed variant paths with case count, frequency, and average duration, scoped to the selected reviewer workspace and requested date range."
+      "prompt": "Show the top Sales Order process variants in my selected reviewer environment from 2026-08-01 through 2026-08-31.",
+      "expected": "Returns corpus-backed variant paths with case count, frequency, and average duration, scoped to the selected reviewer environment and requested date range."
     },
     {
       "id": "P4",

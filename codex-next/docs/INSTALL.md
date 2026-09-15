@@ -32,7 +32,8 @@ app, CLI session, or IDE extension after installation so the MCP catalog and ski
 3. On the Node compatibility runtime, call `login` with no arguments and finish browser OAuth.
 4. Call `cc_workspaces`. Use the only returned workspace automatically; if more than one is
    available, choose by the safe display name. Pass the returned `workspaceId` to CrossCheck tools.
-5. Call `vb_workspaces` independently before using Vertical Bar tools and pass its returned UUID.
+5. Call `cc_environments` before environment-scoped process tools and pass its returned
+   `environmentId`; never pass a legacy Vertical Bar workspace UUID.
 
 Identity, workspace, deployment, endpoint, and token-cache paths are not read from host environment
 configuration. The installed runtime targets production. The shared Cognito token cache lives at

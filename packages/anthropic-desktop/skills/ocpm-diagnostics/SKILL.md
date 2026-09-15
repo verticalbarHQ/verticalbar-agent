@@ -1,6 +1,6 @@
 ---
 name: ocpm-diagnostics
-description: Run an OCPM bottleneck diagnostic over a CrossCheck environment's published process corpus and read it back. Use when the user asks where a process is slow or stuck, which activities or resources cause waiting, why cases pile up, or says bottleneck / 병목 / 지연 원인 / process diagnostic for a NetSuite environment that CrossCheck already snapshots. Not for live NetSuite queries, for changing data, or for the Vertical Bar process-map tools (vb_*), which read the same corpus without running a diagnostic.
+description: Run an OCPM bottleneck diagnostic over a CrossCheck environment's published process corpus and read it back. Use when the user asks where a process is slow or stuck, which activities or resources cause waiting, why cases pile up, or says bottleneck / 병목 / 지연 원인 / process diagnostic for a NetSuite environment that CrossCheck already snapshots. Not for live NetSuite queries, for changing data, or for the cc_process_* read tools, which read the same corpus without running a diagnostic.
 ---
 
 # OCPM diagnostics — bounded bottleneck analysis
@@ -18,8 +18,8 @@ workspace data; the only thing a cancel changes is the job itself.
 
 ## Procedure
 
-1. **Scope.** Resolve `workspaceId` with `cc_workspaces` and pick the environment the user means
-   (`environmentId`). Never guess either; ask when more than one fits.
+1. **Scope.** Resolve `workspaceId` with `cc_workspaces`, then call `cc_environments` and pick the
+   environment the user means (`environmentId`). Never guess either; ask when more than one fits.
 2. **Capabilities.** Call `cc_ocpm_capabilities`. Read `population_shapes`, `budget_classes`, and
    `source`: `source.window` is a ready-made half-open window over the whole corpus
    (`start_epoch_nanos_utc`, `end_exclusive_epoch_nanos_utc`), `source.coverage` the same bounds as
@@ -63,5 +63,5 @@ workspace data; the only thing a cancel changes is the job itself.
 - The service is available only where CrossCheck runs it. A `503 OCPM_UNAVAILABLE` means this
   environment's deployment has no diagnostic service; report that plainly.
 - API-key sessions cannot run diagnostics; an identified user is required.
-- Do not compare its output with `vb_process_overview` as if one validated the other: both read the
+- Do not compare its output with `cc_process_overview` as if one validated the other: both read the
   same corpus, but this runs a different analysis.

@@ -89,8 +89,8 @@ Use the matching archive name for Windows or Linux. A missing or invalid signatu
   runtime can open browser OAuth.
 - Linux headless local binaries do not attempt interactive login; use the hosted remote product for
   cloud sessions.
-- Always discover authorization with `cc_workspaces` or `vb_workspaces`. There is no ambient
-  workspace fallback.
+- Always discover authorization with `cc_workspaces`, then use `cc_environments` for an
+  environment-scoped operation. There is no ambient workspace or environment fallback.
 - No plugin package requires or accepts a distributed API-key environment variable.
 
 The CrossCheck server remains authoritative for organization, workspace, environment, and mutation
@@ -149,7 +149,8 @@ manifests remain signed GitHub Release assets.
 
 - Read authorized CrossCheck snapshots, customizations, SuiteScript source, dependency graphs, and
   telemetry.
-- Read authorized Vertical Bar process projects, variants, cases, and episode summaries.
+- Discover authorized environments with `cc_environments`, then read their published process
+  context, map, variants, and cases through the `cc_process_*` tools.
 - Build and publish grounded interactive Briefings.
 - Author and run CrossCheck Test Suites.
 - Inspect release packages and CI workflows, with mutations remaining behind server-side scopes and

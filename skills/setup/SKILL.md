@@ -26,8 +26,9 @@ workspace, deployment, or endpoint source.
      retry it at most once.
    * `unavailable` → establish authentication, then discover.
 
-Vertical Bar follows the parallel rule through `vb_workspaces`; never substitute a CrossCheck
-workspace list or an account/tenant number for its returned `workspaceId`.
+For environment-scoped tools, call `cc_environments` after selecting the CrossCheck workspace and
+pass its returned `environmentId`. Never substitute a workspace id, account id, or legacy Vertical
+Bar workspace UUID.
 
 ## Establish authentication
 
