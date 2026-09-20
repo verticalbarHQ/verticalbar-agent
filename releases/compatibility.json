@@ -12,7 +12,8 @@
       "skills": [
         "briefing",
         "deployment",
-        "test-suite"
+        "test-suite",
+        "stress-test"
       ],
       "supportedHosts": [
         "ChatGPT web",
@@ -32,6 +33,7 @@
         "briefing",
         "deployment",
         "test-suite",
+        "stress-test",
         "setup",
         "ocpm-diagnostics"
       ],
@@ -52,7 +54,8 @@
       "skills": [
         "briefing",
         "deployment",
-        "test-suite"
+        "test-suite",
+        "stress-test"
       ],
       "supportedHosts": [
         "Claude web",
@@ -73,6 +76,7 @@
         "briefing",
         "deployment",
         "test-suite",
+        "stress-test",
         "setup",
         "ocpm-diagnostics"
       ],

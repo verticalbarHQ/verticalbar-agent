@@ -6,6 +6,6 @@ Local CrossCheck and Vertical Bar workflows with the Vertical Bar Agent desktop 
 - Surface: desktop-companion
 - MCP transport: local-stdio
 - Desktop companion required: yes
-- Skills: briefing, deployment, test-suite, setup, ocpm-diagnostics
+- Skills: briefing, deployment, test-suite, stress-test, setup, ocpm-diagnostics
 
 Install the signed Vertical Bar Agent companion before using local-only onboarding. Do not install this package together with another local registration of the same MCP server.
