@@ -5,13 +5,20 @@
     "package": "packages/anthropic-hosted",
     "displayName": "Vertical Bar Agent",
     "connector": "https://mcp.vertical.bar/mcp",
-    "surfaces": ["Claude web", "Claude Desktop Chat", "Cowork"]
+    "surfaces": [
+      "Claude web",
+      "Claude Desktop Chat",
+      "Cowork"
+    ]
   },
   "desktop": {
     "package": "packages/anthropic-desktop",
     "displayName": "Vertical Bar Agent Desktop",
     "technicalName": "verticalbar-agent",
-    "surfaces": ["Claude Code", "Claude Desktop local"]
+    "surfaces": [
+      "Claude Code",
+      "Claude Desktop local"
+    ]
   },
   "listing": {
     "publisher": "Vertical Bar",
@@ -22,10 +29,38 @@
   },
   "tests": "test-cases.json",
   "humanGates": [
-    "Choose the owning Claude organization or Console identity.",
-    "Submit the exact validated Hosted and Desktop package surfaces through claude.ai/settings/plugins/submit or platform.claude.com/plugins/submit.",
-    "Answer reviewer and directory-policy questions.",
-    "Publish or enable the approved entries."
+    "Use the existing authorized Claude browser session and resolve any account or directory-role access refusal.",
+    "Complete any non-delegable legal attestations with the owner after the concrete submission is prepared.",
+    "Submit the remote MCP connector only after production rollout and dogfood pass; retain the receipt."
   ],
-  "directoryBoundary": "Official submission and independent GitHub marketplace distribution are separate paths. Submission starts review; the public repository remains the directly installable and updateable fallback while review is pending."
+  "directoryBoundary": "Official submission and independent GitHub marketplace distribution are separate paths. Submission starts review; the public repository remains the directly installable and updateable fallback while review is pending.",
+  "remoteConnector": {
+    "type": "remote-mcp",
+    "submissionPortal": "https://claude.ai/admin-settings/directory/submissions/new",
+    "managementPortal": "https://claude.ai/directory/manage",
+    "serverUrl": "https://mcp.vertical.bar/mcp",
+    "transport": "streamable-http",
+    "urlConfiguration": "universal",
+    "authentication": "OAuth 2.0 with PKCE; credentials are entered only on the CrossCheck identity-provider page.",
+    "toolTitleSource": "mcp/tool-titles.json",
+    "expectedRemoteToolCount": 66,
+    "skillDistribution": "The remote connector exposes tools; skills are distributed by the separate hosted plugin package.",
+    "releaseGate": [
+      "Merged patch candidate",
+      "Core and MCP production deployments verified at the candidate SHA",
+      "Production OAuth dogfood passed in a dedicated non-customer sandbox",
+      "Production tools/list titles, hints, output schemas and hosted skills verified",
+      "Submit and retain the receipt; do not claim external review approval"
+    ],
+    "listing": {
+      "name": "Vertical Bar Agent",
+      "tagline": "Analyze and test NetSuite operations",
+      "description": "Inspect authorized NetSuite snapshots and process data, publish grounded Briefings, manage Test Suites and governed release workflows, and author Stress Test contracts. Start Stress Tests asynchronously, follow live CrossCheck Run links, read progress and bounded reports, and request graceful cancellation. Execution can create real NetSuite records; smoke runs also write records and do not clean them up automatically.",
+      "documentationUrl": "https://github.com/verticalbarHQ/verticalbar-agent",
+      "privacyPolicyUrl": "https://vertical.bar/privacy",
+      "supportUrl": "https://vertical.bar/contact"
+    },
+    "testPolicy": "Use a populated dedicated non-customer reviewer account. Record successful live tool exercises and authorization refusals truthfully; fixture checks alone are not live dogfood.",
+    "requirementsReference": "https://claude.com/docs/connectors/building/submission"
+  }
 }

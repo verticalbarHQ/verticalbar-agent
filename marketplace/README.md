@@ -47,7 +47,7 @@ exact package digest; no package is rebuilt between candidate verification and s
   the canonical OpenAI test set. [`test-cases.json`](test-cases.json) mirrors those positive and
   negative cases for package-level verification; an automated parity test prevents the two files
   from describing different submissions.
-- Every source descriptor declares an object-root `outputSchema` (50 hosted, 51 Node local, and 52
+- Every source descriptor declares an object-root `outputSchema` (66 hosted, 67 Node local, and 68
   desktop tools), and every successful result carries matching `structuredContent`. Tool errors
   remain `isError:true` responses without structured content, as permitted by the MCP SDK. Stable
   owned result shapes use domain schemas; opaque pass-through results use the same explicit
@@ -56,15 +56,16 @@ exact package digest; no package is rebuilt between candidate verification and s
   reports `dataState` (`complete`, safe item/field `truncated`, or `omitted`), `contentTruncated`, and a
   required `returnedCount` for safely shortened owned lists. Structured payloads use a 256 KiB
   serialized UTF-8 budget and never cut an arbitrary object or indivisible string.
-- The credential-free regression harness invokes all 50 hosted tools through the real MCP registry
-  and SDK validator. The optional live reviewer harness defaults to 39 read-only calls; dedicated
-  reviewer-workspace writes require explicit opt-in, and real CI/Test Suite executions require a
+- The credential-free regression harness invokes all 66 hosted tools through the real MCP registry
+  and SDK validator. The optional live reviewer harness permits 48 read-only tools by default and
+  explicitly skips tools without discovered inputs; this is not proof of full live coverage. Dedicated
+  reviewer-workspace writes require explicit opt-in, and real CI/Test Suite/Stress Test executions require a
   second explicit opt-in because they incur execution cost and side effects. Write mode also binds
   the operator-confirmed classification to the exact expected CrossCheck workspace ID; each write
   is refused if discovery does not return that ID, while the remaining read evidence is still
   collected.
-- The candidate hosted projection is 50 tools: the 52-tool desktop catalog minus local-only
-  `login` and `logout`. After merge, verify the deployed staging `tools/list` response is exactly 50
+- The candidate hosted projection is 66 tools: the 68-tool desktop catalog minus local-only
+  `login` and `logout`. After merge, verify the deployed staging `tools/list` response is exactly 66
   and excludes both local-only tools before any marketplace resubmission.
 - The process-data surface is the Environment-scoped `cc_process_*` family. Legacy `vb_*` tools are
   absent from hosted and installed catalogs, so reviewers and agents cannot select the sunset

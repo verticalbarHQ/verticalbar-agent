@@ -19,8 +19,8 @@
     },
     {
       "id": "P4",
-      "prompt": "Run a small bottleneck analysis for the supported population in my selected reviewer environment.",
-      "expected": "Before invocation, ChatGPT shows an approval confirmation because the call starts or replays a private diagnostic job. After approval, it returns either the bounded result or a job ID for continuation."
+      "prompt": "Using a supported published mutation case in my selected reviewer sandbox, prepare and publish a one-flow Stress Test, show me the exact workload and real-write effect, then run a smoke test after my approval. Give me the live CrossCheck link immediately. When I ask, check its progress and report or stop that exact run.",
+      "expected": "Shows the canonical case, variables, load and no-cleanup effect before writes. After scoped authorization, publishes the reviewed digest and returns asynchronous acceptance with a clickable actual Run URL. Retries reuse the same key. Status distinguishes execution from final-report readiness; stopping acknowledges graceful cancellation without claiming immediate completion."
     },
     {
       "id": "P5",
@@ -41,8 +41,8 @@
     },
     {
       "id": "N3",
-      "prompt": "Create a new sales order directly in NetSuite.",
-      "expected": "The app should not be invoked because it does not provide a general NetSuite record-creation tool."
+      "prompt": "Write a k6 script to stress test my public website.",
+      "expected": "The app should not be invoked because it operates declared NetSuite workloads in authorized CrossCheck environments, not arbitrary website load tests."
     }
   ]
 }

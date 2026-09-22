@@ -100,12 +100,19 @@ authorization. Client prompts are usability aids, not approval authority.
 
 In a new chat:
 
-1. Confirm the `briefing`, `deployment`, and `test-suite` skills are visible or naturally selected.
+1. Confirm the `briefing`, `deployment`, `test-suite`, and `stress-test` skills are visible or naturally selected.
 2. Ask for `runtime_info`.
 3. Ask for the CrossCheck workspaces you can access.
 4. Select only a workspace returned by discovery.
 
 Desktop installs also expose `setup`. Hosted installs intentionally do not.
+
+The `stress-test` skill covers contract authoring, preview, publish, asynchronous execution, progress,
+reports, and graceful stop. It reuses published canonical Test Suite mutation cases. Execution
+returns an actual CrossCheck Run link immediately so you can follow live results in CrossCheck.
+Smoke runs also create real NetSuite records; neither smoke nor full runs clean them up automatically.
+Authoring a contract does not start a run. A remote MCP connector exposes the tools; install the
+hosted plugin as well to receive its skills.
 
 If skills are missing, refresh the plugin information and start a new chat. If skills are present
 but a tool returns `401`, reconnect OAuth; do not paste credentials into the conversation.

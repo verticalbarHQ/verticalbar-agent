@@ -1,22 +1,55 @@
 ---
 name: stress-test
-description: Create, inspect, revise, validate, publish, or archive CrossCheck Stress Test contracts. Do not use this skill to run load tests.
+description: Author, revise, preview, publish, run, inspect, and stop CrossCheck Stress Tests against NetSuite. Use for load curves, traffic-volume experiments, Stress Test contracts, smoke/full runs, run progress, results, or cancellation. Execution is asynchronous and returns a CrossCheck Run link immediately. For regression assertions without load use test-suite; for writing application unit tests use neither.
 ---
 
-# Stress Test contracts
+# Stress Test — from workload intent to a live Run
 
-This skill is for Stress Test contract management only. It has no run-start or run-cancel tool.
+The platform owns execution and evidence. You turn the user's workload into a reviewed contract,
+then perform only the operations they requested. Authoring does not imply execution. Smoke writes
+real NetSuite records too; neither mode cleans them up.
 
-Resolve the workspace first. For a read, call `cc_list_stress_tests`, `cc_get_stress_test`, or `cc_diff_stress_test_revisions` immediately. Validation is read-only: call `cc_validate_stress_test_definition` without asking for confirmation.
+## Route the intent first
 
-For a read, `cc_get_stress_run` reads one run by `runRef`; `cc_get_stress_report` reads its sealed report and may return the server's exact not-ready refusal. For a mutation, read the exact target revision and preserve every existing flow, data pool, load stage, and tag unless the user explicitly asks to change it. Validate the complete candidate, then show exactly once:
+| Request | Route |
+| --- | --- |
+| Create or revise a contract | [Authoring](references/authoring.md): discover, resolve cases, draft, validate and preview, review, persist |
+| Publish | Read the exact revision, review its digest and effect, publish |
+| Run | [Operations](references/operations.md): identify published revision and environment, summarize effects, start asynchronously |
+| Progress or results | List runs if needed, then read status or bounded report; no mutation approval |
+| Stop | Resolve one exact Run, request cancellation; explain acknowledgement versus completed stop |
 
-```
-Target: <workspace / testRef / revisionRef / current status>
-Change: <normalized structural diff summary>
-Effect: <create | draft update | immutable publish | draft archive>
-```
+Resolve `workspaceId` with `cc_workspaces` and the target environment with `cc_environments`.
+Reuse an unambiguous selection already made in this conversation. Ask only when multiple candidates
+remain; never choose the first match or invent identifiers. Use the same authorized workspace on
+every related call. Do not copy a Run reference from a different workspace.
 
-Ask for one confirmation immediately before each requested mutation. The `ready` then `publish` calls are one publish operation and use that single confirmation. Direct MCP tool calls have no confirmation state machine; if a mutation fails, report the Core error and stop.
+Before each logical mutation, summarize target, concrete change and effect once. If the user already
+authorized that exact scope, proceed; otherwise ask once. Creating a contract never authorizes a run.
+Ready + publish is one operation. An explicit stop request authorizes stopping the identified Run;
+do not add another approval loop. Core authorization remains authoritative.
 
-Use a caller-provided idempotency key for every mutation. Never infer success: report the Core response or its error code. `cc_publish_stress_test_revision` performs the adjacent ready-to-published lifecycle transition; do not create a separate ready goal.
+## Non-negotiable behavior
+
+- Arrival rate is the default authoring model. Ask for traffic volume and duration; don't ask for
+  concurrency unless the user explicitly needs a concurrent-worker experiment.
+- Read `cc_stress_test_capabilities` before authoring. Flows reference published canonical Test Suite
+  cases; no scripts, duplicated step language, guessed record IDs, or guessed unsupported actions.
+- Preserve unrelated flows, pools, stages and tags when editing. Use the current definition digest
+  for updates and the exact reviewed digest for publishing.
+- Show whether variables come from supplied rows, generated values, or verified account reads.
+  Generated business IDs are not verified IDs. Do not put secrets or credentials in data pools.
+- Generate a unique idempotency key for each new mutation intent and retain it. Reuse it after a
+  timeout or uncertain response; never turn a retry into a new run. Changed intent needs a new key.
+- After start acceptance, immediately show the server's **runUrl** as a clickable link and identify
+  environment, revision and smoke/full mode. Say "accepted" or the returned state, not "finished".
+  End the response without waiting for completion. Poll only if the user asked you to watch; respect
+  `suggestedPollAfterSeconds`, and still send the link before polling.
+- Use returned **runUrl/resultUrl** verbatim. Never compose URLs from guessed slugs, internal IDs or
+  the MCP host. If the server supplies no link, say it is unavailable and preserve the Run reference.
+- A terminal Run may still be collecting its final report. Report these states separately. Missing
+  account observations are unavailable/unobserved, not zero. There is no performance pass/fail verdict.
+- Do not introduce schedules, automatic stops, thresholds, automatic cleanup, or extra backend
+  approval fields. Do not silently lower, raise, or reinterpret a requested load curve.
+- On a refusal, report the code and actionable paths/reasons. Read and repair a conflicting draft;
+  do not overwrite or publish a newer definition under an older authorization.
