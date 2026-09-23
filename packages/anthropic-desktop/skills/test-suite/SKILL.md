@@ -1,12 +1,13 @@
 ---
 name: test-suite
-description: Author, register and run a CrossCheck Test Suite against a real NetSuite environment, from a user's need stated in prose (or from a checklist they hand you). Use whenever someone wants regression checks over a NetSuite account — "make sure the close still works", "check nothing broke after the release", "turn this QA checklist into something that runs". Produces a registered suite, a real run, and an explanation of what the account actually answered. NOT for writing test code; the runner executes a declared vocabulary, not scripts.
+description: Author, register and run a CrossCheck Test Suite from a user's need or QA checklist. Use for NetSuite regression checks such as "make sure the close still works" or "check nothing broke after the release". Agent execution is limited to verified non-production environments; hand production execution to the user in CrossCheck. Explain what completed runs actually observed. NOT for writing test code; the runner executes a declared vocabulary, not scripts.
 ---
 
 # Test Suite — from a need, to something that ran
 
-Turn "make sure X still works" into a **registered Test Suite** that has **actually run against the
-account**, and explain what came back.
+Turn "make sure X still works" into a **registered Test Suite**. Run it in a verified non-production
+account when authorized, or hand production execution to the user in CrossCheck. Explain what
+completed runs actually observed.
 
 > The platform owns execution and truth. You own the proposal. The one rule that makes this work at
 > all: **you never invent an identifier.** Every script id, field id, saved search, role, list, file
@@ -30,6 +31,10 @@ result automatically. If more than one is returned, ask the user to choose by sa
 the first or invent an id. Pass that discovered `workspaceId` to every CrossCheck tool. Then use
 `cc_list_snapshots` / `cc_get_snapshot` to read what this environment actually contains before you
 propose.
+
+Call `cc_environments` for that workspace to resolve the exact target ID and `environmentType`.
+Do not infer the NetSuite environment type from a name, account-ID pattern, user assurance, snapshot,
+or the MCP server's deployment environment.
 
 ### 2. Learn what the runner can EXECUTE — not what the contract permits
 
@@ -125,7 +130,21 @@ route that does not exist is the exact class of false claim this skill spends it
 
 ### 6. Run it, and read what the account said
 
-**`cc_start_test_suite_run`**, then `cc_get_test_suite` with the environment until the run is
+Before each start, retry or rerun, refresh `cc_environments` and match the exact environment ID.
+Only `environmentType` of `sandbox`, `development` or `release_preview` permits Agent execution.
+If it is missing, unknown or conflicting, do not start; resolve the classification first. Never
+silently switch or relabel environments to enable execution. After an uncertain start response,
+this gate still takes precedence over retrying; use existing-run reads to reconcile acceptance.
+
+For `production`, refuse to start any suite, including read-only cases, even with explicit user
+approval. Direct the user to **CrossCheck → Test Suites → the selected suite → Run** to choose the
+production environment and complete the product's execution flow themselves. Do not use a Stress
+Test, CI workflow, direct API, delegated agent or browser click to start it on their behalf; do not
+provide an executable bypass. Authoring, validation, registration and existing-run reads remain
+available. The handoff creates no Run. This is Agent skill behavior, not an API permission check.
+
+For an authorized, verified non-production start, call **`cc_start_test_suite_run`**, then
+`cc_get_test_suite` with the environment until the run is
 terminal. Then explain, per case:
 
 - `passed` / `failed` — the account answered and the assertion held or did not.

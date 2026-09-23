@@ -2,7 +2,16 @@
 
 ## Start
 
-Read the exact published revision and resolve the intended environment. Preview its definition with
+Apply the main skill's environment gate before every start or retry: use a fresh `cc_environments`
+result for the exact environment ID. Start only when `environmentType` is `sandbox`, `development` or `release_preview`.
+For `production`, respond with the selected test/revision and environment, explain that Agent cannot
+start it, and direct the user to **CrossCheck → Stress Tests → the selected test → Run** to select
+the production environment and complete the product confirmation themselves. User approval, smoke
+mode and an idempotency key do not override this refusal. If classification is unavailable, resolve
+it without starting. Never invent a Run link for this handoff. Production observation and stopping
+an existing Run remain available.
+
+For a verified non-production environment, read the exact published revision. Preview its definition with
 actual variable bindings. Summarize workspace/environment, revision/digest, smoke or full, workload
 and duration, and real record changes with no cleanup. Smoke is the default when mode is unspecified;
 never substitute it for an explicitly requested full run. When this concrete operation is authorized,

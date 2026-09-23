@@ -1,6 +1,6 @@
 ---
 name: stress-test
-description: Author, revise, preview, publish, run, inspect, and stop CrossCheck Stress Tests against NetSuite. Use for load curves, traffic-volume experiments, Stress Test contracts, smoke/full runs, run progress, results, or cancellation. Execution is asynchronous and returns a CrossCheck Run link immediately. For regression assertions without load use test-suite; for writing application unit tests use neither.
+description: Author, revise, preview, publish, run, inspect, and stop CrossCheck Stress Tests against NetSuite. Use for load curves, traffic-volume experiments, Stress Test contracts, smoke/full runs, run progress, results, or cancellation. Agent execution is limited to verified non-production environments; hand production execution to the user in CrossCheck. Accepted runs are asynchronous with an immediate Run link. For regression assertions without load use test-suite; for writing application unit tests use neither.
 ---
 
 # Stress Test — from workload intent to a live Run
@@ -15,7 +15,7 @@ real NetSuite records too; neither mode cleans them up.
 | --- | --- |
 | Create or revise a contract | [Authoring](references/authoring.md): discover, resolve cases, draft, validate and preview, review, persist |
 | Publish | Read the exact revision, review its digest and effect, publish |
-| Run | [Operations](references/operations.md): identify published revision and environment, summarize effects, start asynchronously |
+| Run | [Operations](references/operations.md): verify environment type; hand production to the user in CrossCheck, otherwise review and start asynchronously |
 | Progress or results | List runs if needed, then read status or bounded report; no mutation approval |
 | Stop | Resolve one exact Run, request cancellation; explain acknowledgement versus completed stop |
 
@@ -28,6 +28,28 @@ Before each logical mutation, summarize target, concrete change and effect once.
 authorized that exact scope, proceed; otherwise ask once. Creating a contract never authorizes a run.
 Ready + publish is one operation. An explicit stop request authorizes stopping the identified Run;
 do not add another approval loop. Core authorization remains authoritative.
+
+## Production execution belongs to the user in CrossCheck
+
+Before any start, retry or rerun, call `cc_environments` for the selected workspace and match the
+exact environment ID. Only an explicitly returned `environmentType` of `sandbox`, `development`
+or `release_preview` permits Agent execution. Names, account-ID patterns, user assurances and the MCP server's own
+deployment environment are not proof. Missing, conflicting or unknown classification means do not
+start; resolve it first. Do not relabel an environment to make execution eligible.
+
+For `production`, refuse both smoke and full starts even when the user approves or requests an
+exception. Explain that they must open the Stress Test in CrossCheck and start the Run themselves
+using the product's confirmation flow. Do not call another execution tool, delegate the start,
+provide an executable API workaround, or click the product's Run controls on their behalf.
+Do not substitute a different environment without the user's selection.
+
+Authoring, validation, preview, publishing, status/report reads and an explicitly requested stop
+remain available for production. No Run is created by the handoff, so do not invent a Run URL.
+After the user starts it, resolve the actual Run and return its server-provided link. This is a
+skill instruction governing Agent behavior; do not describe it as an API permission restriction.
+This gate takes precedence over retry guidance: if a start timed out and the refreshed type is
+production or unknown, inspect existing Runs to reconcile acceptance without resending the start.
+Keep the original idempotency key; an uncertain response never proves that no Run was created.
 
 ## Non-negotiable behavior
 

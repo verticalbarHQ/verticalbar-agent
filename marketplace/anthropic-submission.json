@@ -61,6 +61,7 @@
       "supportUrl": "https://vertical.bar/contact"
     },
     "testPolicy": "Use a populated dedicated non-customer reviewer account. Record successful live tool exercises and authorization refusals truthfully; fixture checks alone are not live dogfood.",
-    "requirementsReference": "https://claude.com/docs/connectors/building/submission"
+    "requirementsReference": "https://claude.com/docs/connectors/building/submission",
+    "skillExecutionBoundary": "When loaded, the Stress Test and Test Suite skills allow Agent starts only in verified non-production NetSuite environments. They refuse production starts and hand execution to the user in CrossCheck. The remote MCP API retains its existing permissions; clients that do not load these skills do not receive this behavioral guard."
   }
 }
