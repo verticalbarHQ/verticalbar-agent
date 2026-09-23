@@ -5,20 +5,13 @@
     "package": "packages/anthropic-hosted",
     "displayName": "Vertical Bar Agent",
     "connector": "https://mcp.vertical.bar/mcp",
-    "surfaces": [
-      "Claude web",
-      "Claude Desktop Chat",
-      "Cowork"
-    ]
+    "surfaces": ["Claude web", "Claude Desktop Chat", "Cowork"]
   },
   "desktop": {
     "package": "packages/anthropic-desktop",
     "displayName": "Vertical Bar Agent Desktop",
     "technicalName": "verticalbar-agent",
-    "surfaces": [
-      "Claude Code",
-      "Claude Desktop local"
-    ]
+    "surfaces": ["Claude Code", "Claude Desktop local"]
   },
   "listing": {
     "publisher": "Vertical Bar",
@@ -47,15 +40,15 @@
     "skillDistribution": "The remote connector exposes tools; skills are distributed by the separate hosted plugin package.",
     "releaseGate": [
       "Merged patch candidate",
-      "Core and MCP production deployments verified at the candidate SHA",
-      "Production OAuth dogfood passed in a dedicated non-customer sandbox",
+      "Core API and MCP production deployments verified at their serving release SHAs",
+      "Production OAuth dogfood passed for contract authoring, product UI handoff, and existing Run reads in a dedicated non-customer reviewer workspace",
       "Production tools/list titles, hints, output schemas and hosted skills verified",
       "Submit and retain the receipt; do not claim external review approval"
     ],
     "listing": {
       "name": "Vertical Bar Agent",
       "tagline": "Analyze and test NetSuite operations",
-      "description": "Inspect authorized NetSuite snapshots and process data, publish grounded Briefings, manage Test Suites and governed release workflows, and author Stress Test contracts. Start Stress Tests asynchronously, follow live CrossCheck Run links, read progress and bounded reports, and request graceful cancellation. Execution can create real NetSuite records; smoke runs also write records and do not clean them up automatically. Agent execution is restricted to verified active sandbox or release_preview environments. Production and development execution is available only in the CrossCheck product UI; MCP runtime guards cover Stress Tests, Test Suites and every CI workflow stage.",
+      "description": "Inspect authorized NetSuite snapshots and process data, publish grounded Briefings, and manage Test Suites and release workflows. Author and publish Stress Test contracts, open their CrossCheck page to start a Run, and inspect Run progress and results. Agent-started Stress Test runs are available only in active sandbox or release-preview environments.",
       "documentationUrl": "https://github.com/verticalbarHQ/verticalbar-agent",
       "privacyPolicyUrl": "https://vertical.bar/privacy",
       "supportUrl": "https://vertical.bar/contact"

@@ -29,9 +29,9 @@
     "rescanRequiredWhenDigestChanges": true
   },
   "starterPrompts": [
-    "List the CrossCheck workspaces I can access.",
-    "Create a grounded Briefing from my latest snapshot.",
-    "Review the deployment status for my workspace."
+    "Are we ready to close the books this month? Show me what changed in NetSuite since last close and anything that could block it.",
+    "Someone changed a workflow in production last week. Who did it, what depends on it, and what could break downstream?",
+    "Before we deploy Friday's release to production, prove the order-to-cash process still works end to end."
   ],
   "tests": {
     "sourceOfTruth": "repository-root chatgpt-app-submission.json",

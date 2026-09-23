@@ -10,8 +10,9 @@ credentials and grants no publishing authority.
 - Production MCP URL: `https://mcp.vertical.bar/mcp`.
 - Skill source: the exact generated `packages/openai-hosted/skills/` bundle. MCP `skills/list` may
   be scanned as a parity check, but clients do not depend on runtime skill delivery.
-- Local/private package wiring may reference an existing registered app ID. The public portal must
-  submit the production MCP URL from scratch and must not reuse that integration reference.
+- Update the existing approved Vertical Bar Agent listing in the public portal. Keep its identity,
+  production MCP URL, OAuth setup, and prior review cases unless the Stress Test addition requires
+  an explicit, reviewed change; do not create a second listing.
 - Machine-readable form preparation: [`openai-submission.json`](openai-submission.json).
 
 ## Anthropic
