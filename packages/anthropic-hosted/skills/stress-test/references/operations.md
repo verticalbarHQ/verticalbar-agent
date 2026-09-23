@@ -3,15 +3,18 @@
 ## Start
 
 Apply the main skill's environment gate before every start or retry: use a fresh `cc_environments`
-result for the exact environment ID. Start only when `environmentType` is `sandbox`, `development` or `release_preview`.
-For `production`, respond with the selected test/revision and environment, explain that Agent cannot
+result for the exact environment ID. Start only when `environmentType` is `sandbox` or `release_preview`.
+For `production` or `development`, respond with the selected test/revision and environment, explain that Agent cannot
 start it, and direct the user to **CrossCheck → Stress Tests → the selected test → Run** to select
-the production environment and complete the product confirmation themselves. User approval, smoke
+the production or development environment and complete the product confirmation themselves. User approval, smoke
 mode and an idempotency key do not override this refusal. If classification is unavailable, resolve
-it without starting. Never invent a Run link for this handoff. Production observation and stopping
+it without starting. Never invent a Run link for this handoff. Production and development observation and stopping
 an existing Run remain available.
 
-For a verified non-production environment, read the exact published revision. Preview its definition with
+The MCP runtime also rejects production, development, inactive or unverified environments before dispatch.
+Do not retry a refusal through a different tool or API.
+
+For a verified active sandbox or release_preview environment, read the exact published revision. Preview its definition with
 actual variable bindings. Summarize workspace/environment, revision/digest, smoke or full, workload
 and duration, and real record changes with no cleanup. Smoke is the default when mode is unspecified;
 never substitute it for an explicitly requested full run. When this concrete operation is authorized,

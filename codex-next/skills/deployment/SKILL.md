@@ -1,12 +1,12 @@
 ---
 name: deployment
-description: Assemble a CrossCheck Release Package and run it through a CI workflow — create the package, add customization items, then start a workflow run and follow it. Use when the user wants to deploy, promote, or release NetSuite customizations between environments, asks what a release contains, wants a CI workflow started or its run status, or says deploy / release / promote / 배포 / 릴리스. These are the only mutating tools this plugin exposes; read the authorization rules below before calling one.
+description: Assemble a CrossCheck Release Package and run it through a CI workflow — create the package, add customization items, then start a workflow run and follow it. Use when the user wants to deploy, promote, or release NetSuite customizations between environments, asks what a release contains, wants a CI workflow started or its run status, or says deploy / release / promote / 배포 / 릴리스. Agent execution is limited to workflows whose stages all target verified active sandbox or release_preview environments; hand production and development execution to the user in CrossCheck.
 ---
 
 # Deployment — release packages and CI workflow runs
 
-Four read tools and three that mutate. The mutating three are the **only** writes this plugin
-performs against CrossCheck, and they are governed differently from everything else here.
+This skill assembles Release Packages and follows governed CI workflow runs. Package preparation
+does not authorize execution.
 
 | Tool | Kind | Requires |
 | --- | --- | --- |
@@ -51,8 +51,14 @@ stage.
    the refusal is the server's, so surface it verbatim rather than retrying.
 4. **`cc_list_ci_workflows`** / **`cc_get_ci_workflow`** — pick the workflow and read its ordered
    stages. `cc_get_ci_workflow` joins each stage to its environment name, which is the only readable
-   way to confirm a promotion is aimed where the user thinks it is. Confirm the target environment
-   with the user before step 6 whenever the workflow touches production.
+   way to confirm a promotion is aimed where the user thinks it is. Before every start or retry,
+   refresh `cc_environments` and match every stage environment ID. Each must have `isActive: true`
+   and `environmentType` of `sandbox` or `release_preview`. A production, development, missing,
+   unknown or conflicting target means do not start. Hand production and development execution to the user in the
+   CrossCheck workflow UI, even with explicit approval. Never relabel or substitute environments,
+   delegate execution, provide a direct API bypass, or click Run on the user's behalf. The MCP
+   runtime independently enforces this check before dispatch. Package preparation and run reads
+   remain available. Reconcile uncertain starts with reads; do not resend across this boundary.
 5. **Have a person Validate the package in the CrossCheck UI.** This is a real step, not paperwork,
    and no MCP tool performs it. Validate binds the package to the pipeline AND qualifies it, which is
    what publishes the immutable artifact revision a run consumes. Skip it and step 6 refuses with
