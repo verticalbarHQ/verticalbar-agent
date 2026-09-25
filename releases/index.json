@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": {
     "repository": "verticalbarHQ/crosscheck",
-    "commit": "f945aa3dd53478d8172b0cf28384b1ea726c547f"
+    "commit": "1ede13e285541b705e6b6a38e13edae322446448"
   },
   "pluginVersion": "0.13.8",
   "canonicalSkillDigest": "5c7150490540e22d80265fbae598f541494913be2829e31a3e3247d74b6f98f3",
