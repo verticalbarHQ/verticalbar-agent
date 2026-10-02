@@ -42,51 +42,27 @@ of the proprietary-IP boundary.
 Shipped today:
 
 - **Plugin**, ONE published marketplace — the public safe-surface mirror
-  (`verticalbarHQ/verticalbar-agent`, RND-2786). It serves **Claude Desktop, Claude Code, the Codex CLI
-  and the ChatGPT desktop app**, all from the same repository and the same runtime.
-  The mirror is an allowlist copy; `mcp/`, `desktop/`, `mcpb/`, `test/` and the denylist never leave
-  the monorepo.
-  The repo-root marketplace (`.claude-plugin/marketplace.json`, name `verticalbar`) is **development-only
-  and has never been published**: `install.mjs` registers it by absolute path so a monorepo checkout can
-  install its own working tree. It is not a teammate-facing route — pointing anyone at
-  `verticalbarHQ/crosscheck` would demand SSH access to a private repo AND hand Claude Code a different
-  runtime than every other surface. *(Corrected 2026-08-16; this paragraph described it as the
-  teammate marketplace.)*
-  The repository root is the canonical plugin. Claude takes
-  `.claude-plugin/{marketplace,plugin}.json`; stable Codex takes
-  `.agents/plugins/marketplace.json` + `.codex-plugin/plugin.json`. The Codex prerelease entry uses a
-  generated `codex-next/` declaration adapter in that same public commit so its materialized manifest
-  name matches `verticalbar-agent-next`. The adapter copies the canonical launcher and skills byte
-  for byte, keeps the same MCP server key, and selects the same signed runtime's next channel. The
-  catalogs and manifests are generated from the same source, so name, version, and surface-neutral
-  copy cannot drift without failing the mirror tests.
+  (`verticalbarHQ/verticalbar-agent`, RND-2786). It carries the Hosted plugin
+  (`verticalbar-agent-hosted`) as two generated vendor packages: `packages/anthropic-hosted` (remote
+  HTTP MCP + skills) for Claude, and `packages/openai-hosted` (Apps SDK app + skills) for ChatGPT and
+  Codex. Claude reads `.claude-plugin/marketplace.json`; Codex reads `.agents/plugins/marketplace.json`.
+  The Codex prerelease entry uses a generated `codex-hosted-next/` identity adapter in that same public
+  commit so its manifest name matches `verticalbar-agent-hosted-next`; every other byte is the
+  canonical package. The mirror is an allowlist copy; `mcp/`, `test/` and the denylist never leave the
+  monorepo.
+- **The MCP server is not distributed.** It runs in production at `https://mcp.vertical.bar/mcp`
+  behind OAuth; installing the plugin installs skills and a connector definition, not code.
 - **Host confirmation is not a security boundary, and it is not uniform.**
   `cc_start_ci_workflow_run` is published with `anthropic/requiresUserInteraction`, which makes
-  Claude Code ask a person on every call. Codex does not implement that marker and shows no such
+  Claude hosts ask a person on every call. Codex does not implement that marker and shows no such
   prompt. The guarantees that hold on every surface are server-side: start-run requires an
-  identified Cognito user, and environment writes happen only after
-  CrossCheck's Pipeline stage approval.
-- **Desktop app** — `.dmg` / `.tar.gz` / `.zip`, minisign-signed, on the public mirror's Releases.
+  identified Cognito user, and environment writes happen only after CrossCheck's Pipeline stage
+  approval.
 
-**No `.mcpb` is published.** `release-verticalbar-agent.yml` attaches the desktop archives,
-`latest.json` and their signatures, and nothing else. Do not go looking for one.
-
-> This entry claimed a `.mcpb` ships, in three successive and successively wrong forms, from the day
-> the builder was written until 2026-08-15. First it said the bundle was attached to releases: true
-> once — RND-2764 attached exactly one, BY HAND, as `lens-0.4.0.mcpb` (tag `lens-v0.4.0`,
-> 2026-06-25) — and then quietly false, because the Lens→Vertical Bar Agent rename moved releases to
-> the public mirror and the hand step did not follow, so v0.9.4–v0.9.8 shipped without one. It was
-> then rewritten to say the build had become part of the release workflow. That was false on the day
-> it was written: `ceb44db12` (RND-3397, 2026-08-05) had REMOVED the build/sign/attach steps in the
-> same change that made the marketplace the Desktop path, because a `.mcpb` is a Connector and so
-> ships the tools without the skills.
->
-> Kept because the failure mode is not the obvious one. Neither revision was careless — each
-> described a real artifact or a real intention. What changed was the **release path**, and nothing
-> tied the sentence to it. A claim about what ships needs a gate in the thing that ships.
-
-**Not shipped (RND-2794):** OS code-signing — no Apple Developer ID notarization, no Authenticode.
-macOS users clear quarantine by hand for the `.dmg`.
+**Retired (RND-4759): Vertical Bar Agent Desktop.** The local stdio plugin (`verticalbar-agent`), its
+desktop companion, the signed native downloads and their release channel are no longer published, and
+CrossCheck refuses Agent Desktop's NetSuite connect flow with a pointer to Vertical Bar Companion.
+Copies already installed keep whatever their host cached.
 
 ## Read-only analysis paths and the governed deployment exception
 
@@ -120,15 +96,12 @@ macOS users clear quarantine by hand for the `.dmg`.
 
 ## Credentials
 
-- Auth is **Cognito** via **browser OAuth** (the `login` tool with no args, or the installer default: opens the
-  Hosted UI, incl. Google, Authorization Code + PKCE, loopback callback on `localhost:9876`,
-  backup `localhost:9877` — both registered on the Cognito client), or explicit email/password
-  arguments on the Node compatibility surface. The Cognito token is minted on the CrossCheck
-  app-client and is used only for the CrossCheck API.
-- Credentials come only from an explicit login flow. They are **never** written into
-  `.mcp.json`, `.claude/settings*.json`, or a repository `.env`, and **never** echoed to
-  stdout/stderr or pasted into the conversation. Cognito tokens (if used) are cached at
-  `~/tmp/verticalbar-agent/cc-mcp-token.json`, outside any repo.
+- Auth is **OAuth 2.0 with PKCE** run by the host's connector against the CrossCheck identity provider
+  (Cognito). Credentials are entered only on that identity-provider page; the plugin never sees them.
+- Every MCP request carries the host's bearer token, which the hosted server verifies before any tool
+  runs; the resulting CrossCheck token is used only for the CrossCheck API.
+- Credentials are **never** written into a connector definition, `.claude/settings*.json`, or a
+  repository `.env`, and **never** echoed or pasted into the conversation.
 
 ## Sandboxed render
 

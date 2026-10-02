@@ -18,10 +18,8 @@ credentials and grants no publishing authority.
 ## Anthropic
 
 - Hosted package: `packages/anthropic-hosted`, containing skills plus the public remote MCP
-  connector.
-- Desktop package: `packages/anthropic-desktop`, preserving the existing Claude plugin identity and
-  using the local signed launcher.
-- Submit the exact Hosted and Desktop package surfaces through Anthropic's official plugin form at
+  connector. (The Desktop package was retired with Agent Desktop in RND-4759.)
+- Submit the exact Hosted package through Anthropic's official plugin form at
   `claude.ai/settings/plugins/submit` or `platform.claude.com/plugins/submit`. Independent GitHub
   marketplace distribution remains available before and after review.
 - Machine-readable form preparation: [`anthropic-submission.json`](anthropic-submission.json).
@@ -38,7 +36,7 @@ No public marketplace activation is implied by these files.
 
 ## Release channels
 
-The repository projection exposes separate stable/next IDs for Hosted and Desktop. Local pre-review
+The repository projection exposes stable and next IDs for the Hosted plugin. Local pre-review
 checks use the generated `verticalbar-agent-candidate` catalog. A marketplace reviewer receives one
 exact package digest; no package is rebuilt between candidate verification and submission.
 
@@ -48,8 +46,8 @@ exact package digest; no package is rebuilt between candidate verification and s
   the canonical OpenAI test set. [`test-cases.json`](test-cases.json) mirrors those positive and
   negative cases for package-level verification; an automated parity test prevents the two files
   from describing different submissions.
-- Every source descriptor declares an object-root `outputSchema` (66 hosted, 67 Node local, and 68
-  desktop tools), and every successful result carries matching `structuredContent`. Tool errors
+- Every hosted tool descriptor (66) declares an object-root `outputSchema`, and every successful
+  result carries matching `structuredContent`. Tool errors
   remain `isError:true` responses without structured content, as permitted by the MCP SDK. Stable
   owned result shapes use domain schemas; opaque pass-through results use the same explicit
   versioned envelope without inventing fields.
@@ -65,9 +63,9 @@ exact package digest; no package is rebuilt between candidate verification and s
   the operator-confirmed classification to the exact expected CrossCheck workspace ID; each write
   is refused if discovery does not return that ID, while the remaining read evidence is still
   collected.
-- The candidate hosted projection is 66 tools: the 68-tool desktop catalog minus local-only
-  `login` and `logout`. After merge, verify the deployed staging `tools/list` response is exactly 66
-  and excludes both local-only tools before any marketplace resubmission.
+- The hosted projection is 66 tools and has no `login` or `logout` session tools (those belonged to
+  the retired local surface). After merge, verify the deployed staging `tools/list` response is
+  exactly 66 before any marketplace resubmission.
 - The process-data surface is the Environment-scoped `cc_process_*` family. Legacy `vb_*` tools are
   absent from hosted and installed catalogs, so reviewers and agents cannot select the sunset
   Vertical Bar workspace route.
