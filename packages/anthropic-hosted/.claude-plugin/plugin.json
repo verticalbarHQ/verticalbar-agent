@@ -9,6 +9,7 @@
   },
   "homepage": "https://github.com/verticalbarHQ/verticalbar-agent#readme",
   "privacyPolicyUrl": "https://vertical.bar/privacy",
+  "icon": "./.claude-plugin/icon.png",
   "repository": "https://github.com/verticalbarHQ/verticalbar-agent",
   "keywords": [
     "crosscheck",
