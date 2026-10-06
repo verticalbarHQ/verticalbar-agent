@@ -1,13 +1,15 @@
 {
   "name": "verticalbar-agent-hosted",
   "displayName": "Vertical Bar Agent",
-  "version": "0.13.9",
+  "version": "0.13.10",
   "description": "Grounded CrossCheck and Vertical Bar workflows through the production MCP service.",
   "author": {
     "name": "Vertical Bar",
     "url": "https://vertical.bar"
   },
   "homepage": "https://github.com/verticalbarHQ/verticalbar-agent#readme",
+  "privacyPolicyUrl": "https://vertical.bar/privacy",
+  "icon": "./.claude-plugin/icon.png",
   "repository": "https://github.com/verticalbarHQ/verticalbar-agent",
   "keywords": [
     "crosscheck",
