@@ -4,28 +4,28 @@
   "positive": [
     {
       "id": "P1",
-      "prompt": "List the CrossCheck workspaces I can access.",
-      "expected": "Returns only server-authorized workspace names and IDs so the reviewer can select a safe test workspace."
+      "prompt": "List my authorized CrossCheck workspaces, then in my selected reviewer test workspace create and publish a small Briefing about its latest completed snapshot.",
+      "expected": "Returns only authorized workspaces, grounds the analysis in retrieved data, and publishes the requested artifact to the selected test workspace with its actual links."
     },
     {
       "id": "P2",
       "prompt": "In my selected reviewer environment, show up to five active customers from live NetSuite.",
-      "expected": "Before invocation, ChatGPT shows an approval confirmation because the call records a private audit event and may cache the result. After approval, it returns a bounded SELECT-only result, explains that NetSuite was not modified, and remains scoped to the selected environment."
+      "expected": "Returns a bounded SELECT-only result from the selected external NetSuite environment, explains that CrossCheck records an audit event and may cache results, and does not modify NetSuite records."
     },
     {
       "id": "P3",
-      "prompt": "Show the top Sales Order process variants in my selected reviewer environment from 2026-08-01 through 2026-08-31.",
-      "expected": "Returns corpus-backed variant paths with case count, frequency, and average duration, scoped to the selected reviewer environment and requested date range."
+      "prompt": "In my selected reviewer sandbox, draft a small supported record-read Test Suite, validate it and show what it will check; after I approve that exact suite, register it and start one run.",
+      "expected": "Exposes and follows the fixed case, assertion and action schemas, validates before registration, checks the authorized active sandbox target and starts only the approved stored suite; reports the actual acceptance without inventing completion."
     },
     {
       "id": "P4",
-      "prompt": "In my selected reviewer workspace, use a supported published test case to draft and preview a small Stress Test. After I review its workload, publish the contract and link its CrossCheck page where I can start a Run. Also show the status and report of an existing Run, if one is available. Do not start a new Run.",
-      "expected": "Shows the supported case and bounded workload before writing, publishes only the reviewed definition after authorization, and returns the server-provided CrossCheck contract URL for starting a Run in the product UI. If an existing Run is available, reports its observed status and report availability without claiming a new Run was started or completed."
+      "prompt": "In my selected reviewer sandbox, use a supported published test case to draft and preview a small Stress Test; after I approve its exact workload, publish it and start one smoke run, then show its observed progress and available report.",
+      "expected": "Shows the supported case and workload before writing, verifies the active sandbox, warns that smoke creates real records without cleanup, starts only the approved run with a stable retry key, and distinguishes acceptance, observed progress and final report readiness."
     },
     {
       "id": "P5",
-      "prompt": "Create and publish a small Briefing that summarizes the latest completed snapshot in my selected reviewer workspace.",
-      "expected": "Before invocation, ChatGPT shows an approval confirmation because publishing writes an artifact and advances its topic's current pointer. After approval, it publishes only to the explicitly selected non-customer test workspace and returns links to the grounded artifact."
+      "prompt": "In my selected reviewer sandbox workflow, inspect the Release Package I already validated in CrossCheck; after I approve this exact package and workflow, prepare one deployment run and show its current stage status.",
+      "expected": "Checks the identified user, authorized active sandbox stages and current qualification, starts only the approved deployment intent and reports the actual run; actual environment writes remain governed by Pipeline stage approval, and missing or stale qualification is refused."
     }
   ],
   "negative": [

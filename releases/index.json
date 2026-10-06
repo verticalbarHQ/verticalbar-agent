@@ -2,33 +2,33 @@
   "schemaVersion": 1,
   "source": {
     "repository": "verticalbarHQ/crosscheck",
-    "commit": "9ae7dec26f5b97a692b13468eb0efd2d14d0ff8c"
+    "commit": "71fed74b2be0d92246ba4c3e389142843e4afc89"
   },
-  "pluginVersion": "0.13.11",
-  "canonicalSkillDigest": "0007aa2ccb98ec08bdd11415a268016ffb82ab0dfd51aeda938ba6519a03c26e",
+  "pluginVersion": "0.13.12",
+  "canonicalSkillDigest": "6c71e7f75ab2f725156bbd1d9518fc46814990b58f8be34ca8264b0148d16edb",
   "packages": [
     {
       "id": "openai-hosted",
       "pluginName": "verticalbar-agent-hosted",
-      "digest": "85be491ae9bff149aee2f1a4dd58628aa26811494e2aa4196ce9d704c150a708",
+      "digest": "243cac48fbdfb026d1d72c645211857b7fae9babbceb67cd2bd7355a1f7fdbbd",
       "files": 14,
       "path": "packages/openai-hosted",
       "archive": {
         "path": "releases/VerticalBarAgent-openai-hosted.zip",
-        "sha256": "85eed4d03e47f6aa9adbb0b1dd3770aca914954edde451929ee6613a730b4002",
-        "size": 116343
+        "sha256": "fbeb85672f402a8c1d183f61909428f2d53965d85d58c4062f4353a8463d12e4",
+        "size": 117184
       }
     },
     {
       "id": "anthropic-hosted",
       "pluginName": "verticalbar-agent-hosted",
-      "digest": "b0e695aaea2a1ef35f7296ad707b52f3f0016e6240222b186197728754107f9e",
+      "digest": "e4a0f68caf3da0b8d9fa4e5f09e438d021a1fd775b87577e0287ba49f581ea46",
       "files": 11,
       "path": "packages/anthropic-hosted",
       "archive": {
         "path": "releases/VerticalBarAgent-anthropic-hosted.zip",
-        "sha256": "ad4aaa68d751877ae0840327b0c287dd8285ce950720a0b62aea2a13d05e3e22",
-        "size": 70827
+        "sha256": "f22d927316fe1f8a4930e8ea1bfa6f4711f3e879c68f5b477987742881076ddf",
+        "size": 71668
       }
     }
   ]

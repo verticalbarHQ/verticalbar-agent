@@ -39,9 +39,19 @@ or the MCP server's deployment environment.
 ### 2. Learn what the runner can EXECUTE — not what the contract permits
 
 **`cc_test_suite_capabilities` first, every time.** It returns the case kinds, the assertion kinds
-allowed **per case kind**, the step actions, and the per-case assertion cap. The contract accepts
-open codes; the RUNNER accepts this set. A suite that validates can still be refused at run time, so
-author inside what this returns and nothing wider.
+allowed **per case kind**, the step actions, and the per-case assertion cap. The MCP definition
+tools expose a fixed grammar with strict suite/revision shapes, action enums, per-kind assertions,
+and the JSON schemas encoded by each assertion’s `expected` string. Capabilities checks availability;
+it cannot add operations beyond those published schemas. Action config schemas publish required keys
+and scalar/variable carriers. Server semantic validation is still required.
+`find_or_create_record` is unavailable through MCP authoring because the stored contract cannot
+represent its required `find_by` object; do not substitute a different shape.
+
+`cc_start_test_suite_run` starts a stored suite by identity; it accepts no inline code or arbitrary
+operation payload. The fixed steps include record reads and mutations, while `endpoint_call` and
+functional assertions may invoke existing tenant scripts, RESTlets or Suitelets. These can change
+account data and require the corresponding mutate scope. Unknown case, assertion and action codes
+are rejected before a definition is forwarded.
 
 It also returns **`definitionEnvelope`** — the member names of a suite, a revision, a case, an
 assertion and a cleanup policy, and which are optional. Build your draft from that. Do not discover
