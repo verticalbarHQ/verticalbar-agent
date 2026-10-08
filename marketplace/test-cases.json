@@ -14,8 +14,8 @@
     },
     {
       "id": "P3",
-      "prompt": "In my selected reviewer sandbox, draft a small supported record-read Test Suite, validate it and show what it will check; after I approve that exact suite, register it and start one run.",
-      "expected": "Exposes and follows the fixed case, assertion and action schemas, validates before registration, checks the authorized active sandbox target and starts only the approved stored suite; reports the actual acceptance without inventing completion."
+      "prompt": "In my selected reviewer sandbox, draft a small supported record-read Test Suite, validate it and show what it will check; after I approve that exact suite, register it and tell me where to start one run.",
+      "expected": "Reads the supported case, assertion and action vocabulary, validates before registration, registers only the approved suite, and returns the CrossCheck suite page with the steps and target sandbox for a person to start the run; it does not start the run or claim a result."
     },
     {
       "id": "P4",

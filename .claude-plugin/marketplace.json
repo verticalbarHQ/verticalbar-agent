@@ -7,13 +7,13 @@
   "plugins": [
     {
       "name": "verticalbar-agent-hosted",
-      "version": "0.13.16",
+      "version": "0.13.17",
       "description": "Grounded CrossCheck and Vertical Bar workflows through the production MCP service.",
       "source": "./packages/anthropic-hosted"
     },
     {
       "name": "verticalbar-agent-hosted-next",
-      "version": "0.13.16",
+      "version": "0.13.17",
       "description": "Grounded CrossCheck and Vertical Bar workflows through the production MCP service. (prerelease channel — staged for verification before promotion)",
       "source": {
         "source": "git-subdir",

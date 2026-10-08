@@ -1,13 +1,12 @@
 ---
 name: test-suite
-description: Author, register and run a CrossCheck Test Suite from a user's need or QA checklist. Use for NetSuite regression checks such as "make sure the close still works" or "check nothing broke after the release". Agent execution is limited to verified sandbox or release_preview environments; hand production and development execution to the user in CrossCheck. Explain what completed runs actually observed. NOT for writing test code; the runner executes a declared vocabulary, not scripts.
+description: Author and register a CrossCheck Test Suite from a user's need or QA checklist, then hand its run to the user in CrossCheck. Use for NetSuite regression checks such as "make sure the close still works" or "check nothing broke after the release". The agent never starts a run; it returns the CrossCheck page and steps. Explain what completed runs actually observed. NOT for writing test code; the runner executes a declared vocabulary, not scripts.
 ---
 
 # Test Suite — from a need, to something that ran
 
-Turn "make sure X still works" into a **registered Test Suite**. Run it in a verified sandbox or release_preview
-account when authorized, or hand production and development execution to the user in CrossCheck. Explain what
-completed runs actually observed.
+Turn "make sure X still works" into a **registered Test Suite**, then hand its run to the user in CrossCheck.
+Explain what completed runs actually observed.
 
 > The platform owns execution and truth. You own the proposal. The one rule that makes this work at
 > all: **you never invent an identifier.** Every script id, field id, saved search, role, list, file
@@ -42,18 +41,18 @@ or the MCP server's deployment environment.
 allowed **per case kind**, the step actions, and the per-case assertion cap. It also returns the
 JSON schema (and a key-level summary) of the envelope each assertion’s `expected` string must
 encode, the config keys and values each action consumes, and the scalar/variable carriers. The MCP
-definition tools publish only the skeleton of that fixed grammar: suite/revision shapes, case kinds,
-per-kind assertion kinds, action enums and their required keys. Capabilities checks availability;
-it cannot add operations beyond that grammar. The definition tools check every rule of the
-published grammar when called; server semantic validation is still required.
+definition tools publish `suite` and `revision` as plain objects, so capabilities is where the
+grammar is read. Capabilities checks availability; it cannot add operations beyond that grammar.
+The definition tools check every rule of the grammar when called; server semantic validation is
+still required.
 `find_or_create_record` is unavailable through MCP authoring because the stored contract cannot
 represent its required `find_by` object; do not substitute a different shape.
 
-`cc_start_test_suite_run` starts a stored suite by identity; it accepts no inline code or arbitrary
-operation payload. The fixed steps include record reads and mutations, while `endpoint_call` and
-functional assertions may invoke existing tenant scripts, RESTlets or Suitelets. These can change
-account data and require the corresponding mutate scope. Unknown case, assertion and action codes
-are rejected before a definition is forwarded.
+No agent tool starts a Test Suite run. A person starts it in CrossCheck, where they can see the
+suite and the target first. The fixed steps include record reads and mutations, while `endpoint_call`
+and functional assertions may invoke existing tenant scripts, RESTlets or Suitelets. Those can change
+account data when the person runs them, and they require the corresponding mutate scope. Unknown case,
+assertion and action codes are rejected before a definition is forwarded.
 
 It also returns **`definitionEnvelope`** — the member names of a suite, a revision, a case, an
 assertion and a cleanup policy, and which are optional. Build your draft from that. Do not discover
@@ -140,26 +139,20 @@ If this tool answers `Route not found`, the environment you are talking to preda
 Register directly — and **say that you could not validate first**. Reporting "validated" against a
 route that does not exist is the exact class of false claim this skill spends its length preventing.
 
-### 6. Run it, and read what the account said
+### 6. Hand the run to the user, then read what the account said
 
-Before each start, retry or rerun, refresh `cc_environments` and match the exact environment ID.
-Only `environmentType` of `sandbox` or `release_preview`, with `isActive: true`, permits Agent execution.
-If it is missing, unknown or conflicting, do not start; resolve the classification first. Never
-silently switch or relabel environments to enable execution. After an uncertain start response,
-this gate still takes precedence over retrying; use existing-run reads to reconcile acceptance.
+You do not start runs. Call **`cc_test_suite_run_handoff`** with the suite and, when the user has
+chosen one, the environment ID from `cc_environments`. It returns the suite's CrossCheck page, its
+newest revision, the environment's name, type and active state, and the steps: open the page, select
+**Run this suite**, choose that environment, then **Run**. Give the user that link and those steps
+as they are. Do not invent a URL, and do not click Run or start the run through another tool, API,
+delegated agent or browser.
 
-For `production` or `development`, refuse to start any suite, including read-only cases, even with explicit user
-approval. Direct the user to **CrossCheck → Test Suites → the selected suite → Run** to choose the
-production or development environment and complete the product's execution flow themselves. Do not use a Stress
-Test, CI workflow, direct API, delegated agent or browser click to start it on their behalf; do not
-provide an executable bypass. Authoring, validation, registration and existing-run reads remain
-available. The handoff creates no Run. The MCP runtime independently checks fresh authorized metadata and
-rejects production, development or unverified targets before dispatch, including CI workflow starts. Product UI
-execution remains available; the agent must not click Run for the user.
+Say plainly what the run can change. A mutating revision changes records in the chosen account, and
+`production` or `development` targets deserve an explicit warning before the user runs there.
 
-For an authorized, verified sandbox or release_preview start, call **`cc_start_test_suite_run`**, then
-`cc_get_test_suite` with the environment until the run is
-terminal. Then explain, per case:
+When the user says the run has started, read it with `cc_get_test_suite` and the environment until
+the run is terminal. Then explain, per case:
 
 - `passed` / `failed` — the account answered and the assertion held or did not.
 - `unsupported` — the runner refused the case locally; the reason token says why. It is **not** a

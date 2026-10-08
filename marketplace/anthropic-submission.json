@@ -53,6 +53,6 @@
     },
     "testPolicy": "Use a populated dedicated non-customer reviewer account. Record successful live tool exercises and authorization refusals truthfully; fixture checks alone are not live dogfood.",
     "requirementsReference": "https://claude.com/docs/connectors/building/submission",
-    "executionBoundary": "The hosted MCP runtime resolves fresh authorized environment metadata on every start and rejects production, development, inactive, unknown or unverified targets before dispatch. Stress Test and Test Suite starts check the selected environment; CI workflow starts check every stage. Skills also refuse delegated, direct API or browser-click workarounds. Users execute production runs themselves in the CrossCheck product UI. Authoring, preview, publishing, observation and explicitly requested Stress Run cancellation remain available."
+    "executionBoundary": "The hosted MCP runtime resolves fresh authorized environment metadata on every start and rejects production, development, inactive, unknown or unverified targets before dispatch. Stress Test starts check the selected environment; CI workflow starts check every stage. Agents never start Test Suite runs: a read-only handoff returns the CrossCheck page where the user starts one. Skills also refuse delegated, direct API or browser-click workarounds. Users execute production runs themselves in the CrossCheck product UI. Authoring, preview, publishing, observation and explicitly requested Stress Run cancellation remain available."
   }
 }

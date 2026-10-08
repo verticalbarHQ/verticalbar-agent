@@ -114,7 +114,7 @@ skill digest, package digests, compatibility matrix, and file checksums.
 - Discover authorized environments with `cc_environments`, then read their published process
   context, map, variants, and cases through the `cc_process_*` tools.
 - Build and publish grounded interactive Briefings.
-- Author and run CrossCheck Test Suites and Stress Tests.
+- Author CrossCheck Test Suites and hand their runs to the user in CrossCheck; author and run Stress Tests.
 - Inspect release packages and CI workflows, with mutations remaining behind server-side scopes and
   Pipeline approval.
 

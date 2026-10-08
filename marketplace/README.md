@@ -56,9 +56,9 @@ exact package digest; no package is rebuilt between candidate verification and s
   required `returnedCount` for safely shortened owned lists. Structured payloads use a 256 KiB
   serialized UTF-8 budget and never cut an arbitrary object or indivisible string.
 - The credential-free regression harness invokes all 66 hosted tools through the real MCP registry
-  and SDK validator. The optional live reviewer harness permits 48 read-only tools by default and
+  and SDK validator. The optional live reviewer harness permits 49 read-only tools by default and
   explicitly skips tools without discovered inputs; this is not proof of full live coverage. Dedicated
-  reviewer-workspace writes require explicit opt-in, and real CI/Test Suite/Stress Test executions require a
+  reviewer-workspace writes require explicit opt-in, and real CI/Stress Test executions require a
   second explicit opt-in because they incur execution cost and side effects. Write mode also binds
   the operator-confirmed classification to the exact expected CrossCheck workspace ID; each write
   is refused if discovery does not return that ID, while the remaining read evidence is still
