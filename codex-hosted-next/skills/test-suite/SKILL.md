@@ -39,11 +39,13 @@ or the MCP server's deployment environment.
 ### 2. Learn what the runner can EXECUTE — not what the contract permits
 
 **`cc_test_suite_capabilities` first, every time.** It returns the case kinds, the assertion kinds
-allowed **per case kind**, the step actions, and the per-case assertion cap. The MCP definition
-tools expose a fixed grammar with strict suite/revision shapes, action enums, per-kind assertions,
-and the JSON schemas encoded by each assertion’s `expected` string. Capabilities checks availability;
-it cannot add operations beyond those published schemas. Action config schemas publish required keys
-and scalar/variable carriers. Server semantic validation is still required.
+allowed **per case kind**, the step actions, and the per-case assertion cap. It also returns the
+JSON schema (and a key-level summary) of the envelope each assertion’s `expected` string must
+encode, the config keys and values each action consumes, and the scalar/variable carriers. The MCP
+definition tools publish only the skeleton of that fixed grammar: suite/revision shapes, case kinds,
+per-kind assertion kinds, action enums and their required keys. Capabilities checks availability;
+it cannot add operations beyond that grammar. The definition tools check every rule of the
+published grammar when called; server semantic validation is still required.
 `find_or_create_record` is unavailable through MCP authoring because the stored contract cannot
 represent its required `find_by` object; do not substitute a different shape.
 
