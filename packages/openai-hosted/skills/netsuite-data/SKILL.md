@@ -14,7 +14,7 @@ run **as a NetSuite role the signed-in user may use** in that environment. Each 
 1. `cc_workspaces` → `cc_environments` to find the `environmentId`.
 2. Call the tool. Without `runAs`, the server picks the user's default role, or their only one.
 3. If you get `PROFILE_SELECTION_REQUIRED`, show the listed roles (employee + role) and ask which to
-   use. Pass that role's `profileKey` as `runAs`. Suggest they set a default in CrossCheck
+   use. Set `runAs` to that role's `profileKey`. Suggest they set a default in CrossCheck
    (environment → Connection → NetSuite roles) so they are not asked again.
 4. `NO_PROFILE_AVAILABLE` means no role is mapped to this user. An owner or admin maps roles on the
    environment's Connection page; you cannot fix it.
@@ -28,7 +28,7 @@ Order: **catalog → custom → live probe.**
 - `cc_netsuite_suiteql_metadata` with no arguments returns the standard catalog (key columns and
   joins for transaction, transactionline, transactionaccountingline, account, accountingperiod,
   entities, item, subsidiary, …) and the account's custom fields placed on the table they belong to.
-- Pass `tables: ["transaction"]` to probe every column the live table really has (custom fields
+- Call it with `tables: ["transaction"]` to probe every column the live table really has (custom fields
   included) before guessing a column name.
 - Custom field placement follows NetSuite's field type: body fields are columns of `transaction`,
   column fields of `transactionline`, item fields of `item`, record fields of the custom record's
@@ -37,7 +37,7 @@ Order: **catalog → custom → live probe.**
 ## 3. Write SuiteQL that works first time
 
 - `cc_netsuite_suiteql` takes one `SELECT` (no `WITH`, no semicolons). It returns `page.totalCount`
-  and `page.nextCursor`; pass `cursor` back with the **same query** to continue. Prefer aggregates
+  and `page.nextCursor`; send `cursor` back with the **same query** to continue. Prefer aggregates
   (`COUNT`, `SUM`, `GROUP BY`) over paging thousands of rows.
 - Readable values: `BUILTIN.DF(t.entity)`, `BUILTIN.DF(t.status)`.
 - Dates: `t.trandate >= TO_DATE('2026-10-01','YYYY-MM-DD')`. Periods: join `accountingperiod` on
@@ -50,7 +50,7 @@ Order: **catalog → custom → live probe.**
 
 - `cc_netsuite_record_get` returns a record's fields and sublists. **Opening a record runs its
   before-load scripts and may start workflows, as opening it in NetSuite does.** Tell the user
-  before reading a record type whose workflows they care about, and pass `fields`/`sublists` to keep
+  before reading a record type whose workflows they care about, and limit `fields`/`sublists` to keep
   large records small. It never saves. A `truncated` answer carries `resume`: call again with
   exactly its `fields`, `sublists` and `lineStart` to continue.
 - `cc_netsuite_saved_searches` lists the searches **this role** can see. `cc_netsuite_saved_search_run`
