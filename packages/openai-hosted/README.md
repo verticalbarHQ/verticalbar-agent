@@ -5,6 +5,6 @@ Grounded CrossCheck and Vertical Bar workflows through the production MCP servic
 - Vendor: openai
 - Surface: hosted
 - MCP transport: remote-http
-- Skills: briefing, deployment, test-suite, stress-test
+- Skills: briefing, deployment, test-suite, stress-test, netsuite-data
 
 Authentication happens through the host connector when a protected tool is used.

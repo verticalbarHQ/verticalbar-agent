@@ -12,7 +12,8 @@
         "briefing",
         "deployment",
         "test-suite",
-        "stress-test"
+        "stress-test",
+        "netsuite-data"
       ],
       "supportedHosts": [
         "ChatGPT web",
@@ -31,7 +32,8 @@
         "briefing",
         "deployment",
         "test-suite",
-        "stress-test"
+        "stress-test",
+        "netsuite-data"
       ],
       "supportedHosts": [
         "Claude web",

@@ -2,33 +2,33 @@
   "schemaVersion": 1,
   "source": {
     "repository": "verticalbarHQ/crosscheck",
-    "commit": "cfea84f939f592611498ba559f68d8be31ef57a5"
+    "commit": "5d715d73e526859c004a52c4e16f6e1dfd3a60aa"
   },
-  "pluginVersion": "0.14.1",
+  "pluginVersion": "0.14.2",
   "canonicalSkillDigest": "8bc8608aac3f2736452a96d624f2fef09fe10a348d90cbf62e2627e60bb6e74c",
   "packages": [
     {
       "id": "openai-hosted",
       "pluginName": "verticalbar-agent-hosted",
-      "digest": "73073bc5f0dad1a6f6b7279371c3e2b65156dea4c9c73c2522d6396c7372f27e",
-      "files": 14,
+      "digest": "d27a3069d7b1c2d78d2e0528087ca26e346fd18a0ae4d0f74b4c856a5b1c51a7",
+      "files": 15,
       "path": "packages/openai-hosted",
       "archive": {
         "path": "releases/VerticalBarAgent-openai-hosted.zip",
-        "sha256": "4fef0ae90100144937f5b8f66ca18ad229cf2047f42cf0b86fb098dfd4624aa5",
-        "size": 116836
+        "sha256": "777c94381df6f1a57ac68da50727740dc69ef8d18f8990418fcc2f95dae932a3",
+        "size": 122582
       }
     },
     {
       "id": "anthropic-hosted",
       "pluginName": "verticalbar-agent-hosted",
-      "digest": "81c6dc4e3537d228334c1d7f07707e4c25dfb1c18b4fec5ff094d2bf59c5a325",
-      "files": 11,
+      "digest": "ac6ff2beeeb6afdf0ae44cba6ffaf8021f63a8a5db4459b860f9ea3a84a6b8c3",
+      "files": 12,
       "path": "packages/anthropic-hosted",
       "archive": {
         "path": "releases/VerticalBarAgent-anthropic-hosted.zip",
-        "sha256": "9529f2e538182d3976712939d2936129f946cd05e0f6f4197efd1f37f27b694d",
-        "size": 71320
+        "sha256": "93f7407dd913c2053d1ef2c9a3a2dcb95087fb9f760e0fba4f7c2f05b1eaece3",
+        "size": 77066
       }
     }
   ]

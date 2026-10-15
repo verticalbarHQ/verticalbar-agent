@@ -63,7 +63,7 @@ authorization. Client prompts are usability aids, not approval authority.
 
 In a new chat:
 
-1. Confirm the `briefing`, `deployment`, `test-suite`, and `stress-test` skills are visible or naturally selected.
+1. Confirm the `briefing`, `deployment`, `test-suite`, `stress-test`, and `netsuite-data` skills are visible or naturally selected.
 2. Ask for `runtime_info`.
 3. Ask for the CrossCheck workspaces you can access.
 4. Select only a workspace returned by discovery.
