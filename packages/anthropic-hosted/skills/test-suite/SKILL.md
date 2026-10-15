@@ -89,7 +89,7 @@ NOT mean "try it and see" — the run would spend a live call to learn what you 
 snapshot is old, say so rather than implying currency.
 
 **When you need a VALUE and not just existence, read it — never register a check to learn it.**
-`cc_live_read` runs a SELECT-only SuiteQL against the live account through the platform, so
+`cc_netsuite_suiteql` runs a SELECT-only SuiteQL against the live account through the platform, so
 "which period is open", "what is this field set to", "does this search return rows today" are one
 read away. `cc_get_snapshot` answers the same questions as of the last capture.
 

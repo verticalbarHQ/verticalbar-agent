@@ -34,7 +34,7 @@
     "urlConfiguration": "universal",
     "authentication": "OAuth 2.0 with PKCE; credentials are entered only on the CrossCheck identity-provider page.",
     "toolTitleSource": "mcp/tool-titles.json",
-    "expectedRemoteToolCount": 66,
+    "expectedRemoteToolCount": 75,
     "skillDistribution": "The remote connector exposes tools; skills are distributed by the separate hosted plugin package.",
     "releaseGate": [
       "Merged patch candidate",

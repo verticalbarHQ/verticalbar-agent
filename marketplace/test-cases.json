@@ -10,7 +10,7 @@
     {
       "id": "P2",
       "prompt": "In my selected reviewer environment, show up to five active customers from live NetSuite.",
-      "expected": "Returns a bounded SELECT-only result from the selected external NetSuite environment, explains that CrossCheck records an audit event and may cache results, and does not modify NetSuite records."
+      "expected": "Returns a bounded SELECT-only result from the selected external NetSuite environment, names the NetSuite role that answered, explains that CrossCheck records an audit event and may cache results, and does not modify NetSuite records."
     },
     {
       "id": "P3",

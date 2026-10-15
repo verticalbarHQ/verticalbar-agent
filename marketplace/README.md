@@ -46,7 +46,7 @@ exact package digest; no package is rebuilt between candidate verification and s
   the canonical OpenAI test set. [`test-cases.json`](test-cases.json) mirrors those positive and
   negative cases for package-level verification; an automated parity test prevents the two files
   from describing different submissions.
-- Every hosted tool descriptor (66) declares an object-root `outputSchema`, and every successful
+- Every hosted tool descriptor (75) declares an object-root `outputSchema`, and every successful
   result carries matching `structuredContent`. Tool errors
   remain `isError:true` responses without structured content, as permitted by the MCP SDK. Stable
   owned result shapes use domain schemas; opaque pass-through results use the same explicit
@@ -55,7 +55,7 @@ exact package digest; no package is rebuilt between candidate verification and s
   reports `dataState` (`complete`, safe item/field `truncated`, or `omitted`), `contentTruncated`, and a
   required `returnedCount` for safely shortened owned lists. Structured payloads use a 256 KiB
   serialized UTF-8 budget and never cut an arbitrary object or indivisible string.
-- The credential-free regression harness invokes all 66 hosted tools through the real MCP registry
+- The credential-free regression harness invokes all 75 hosted tools through the real MCP registry
   and SDK validator. The optional live reviewer harness permits 49 read-only tools by default and
   explicitly skips tools without discovered inputs; this is not proof of full live coverage. Dedicated
   reviewer-workspace writes require explicit opt-in, and real CI/Stress Test executions require a
@@ -63,9 +63,9 @@ exact package digest; no package is rebuilt between candidate verification and s
   the operator-confirmed classification to the exact expected CrossCheck workspace ID; each write
   is refused if discovery does not return that ID, while the remaining read evidence is still
   collected.
-- The hosted projection is 66 tools and has no `login` or `logout` session tools (those belonged to
+- The hosted projection is 75 tools and has no `login` or `logout` session tools (those belonged to
   the retired local surface). After merge, verify the deployed staging `tools/list` response is
-  exactly 66 before any marketplace resubmission.
+  exactly 75 before any marketplace resubmission.
 - The process-data surface is the Environment-scoped `cc_process_*` family. Legacy `vb_*` tools are
   absent from hosted and installed catalogs, so reviewers and agents cannot select the sunset
   Vertical Bar workspace route.
