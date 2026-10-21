@@ -41,9 +41,7 @@ stage.
 2. **`cc_create_release_package`** `{workspaceId?, name, description?, environmentId?}` — returns the
    server response unchanged, including the package id you will need next.
 3. **`cc_add_release_package_items`** `{workspaceId?, packageId, items[]}` — the response carries
-   `autoInclude.status`. **Read it.** CrossCheck may pull in dependencies you did not list, and that
-   set is what will actually deploy. Report what `autoInclude` added, not what you asked for.
-   The response also carries `validation`: the server validates AFTER committing the write, so
+   `validation`: the server validates AFTER committing the write, so
    deployment blockers arrive as data on a successful call, not as a failure. Report them; do not
    re-send the items. A `validation` that is not `available` means the check did not run — say the
    items are saved but unvalidated.
@@ -76,7 +74,7 @@ stage.
   baseline rules. These tools return its response *unchanged* by design. Quote it; do not paraphrase
   a refusal into your own words, and never soften one into "it may not have permission".
 * **Say what is in the package**, from `cc_get_release_package` after the adds, not from the list you
-  submitted — `autoInclude` is exactly the gap between the two.
+  submitted.
 * **A run has stages.** "Started" is one fact and "passed" is another; give the run id and the stage
   it is on rather than a single verdict.
 

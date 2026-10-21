@@ -79,7 +79,7 @@ Each mutation is a single direct server call — there is no client-side `confir
 server enforces its own guards and its response (including any error) is surfaced verbatim. Start-run
 requires an identified Cognito user. Demo order: establish identity only when `runtime_info` says the
 installed runtime needs it → resolve the snapshot Git source → create package →
-add items → get package/closure → start run → poll run. The full start→observe flow (strict
+add items → get package → start run → poll run. The full start→observe flow (strict
 all-target Review, staged A→B) needs PR #833 in the target deployment; before that, start-run
 returns `RUN_ENGINE_NOT_READY` (503). Approval is intentionally absent and stays in the web UI.
 
