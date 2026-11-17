@@ -13,7 +13,8 @@
         "deployment",
         "test-suite",
         "stress-test",
-        "netsuite-data"
+        "netsuite-data",
+        "shopify"
       ],
       "supportedHosts": [
         "ChatGPT web",
@@ -33,7 +34,8 @@
         "deployment",
         "test-suite",
         "stress-test",
-        "netsuite-data"
+        "netsuite-data",
+        "shopify"
       ],
       "supportedHosts": [
         "Claude web",
