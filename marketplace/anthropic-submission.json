@@ -34,7 +34,7 @@
     "urlConfiguration": "universal",
     "authentication": "OAuth 2.0 with PKCE; credentials are entered only on the CrossCheck identity-provider page.",
     "toolTitleSource": "mcp/tool-titles.json",
-    "expectedRemoteToolCount": 75,
+    "expectedRemoteToolCount": 80,
     "skillDistribution": "The remote connector exposes tools; skills are distributed by the separate hosted plugin package.",
     "releaseGate": [
       "Merged patch candidate",
@@ -46,13 +46,14 @@
     "listing": {
       "name": "Vertical Bar Agent",
       "tagline": "Analyze and test NetSuite operations",
-      "description": "Inspect authorized NetSuite snapshots and process data, publish grounded Briefings, and manage Test Suites and release workflows. Author and publish Stress Test contracts, open their CrossCheck page to start a Run, and inspect Run progress and results. Agent-started Stress Test runs are available only in active sandbox or release-preview environments.",
+      "description": "Inspect authorized NetSuite snapshots and process data, publish grounded Briefings, and manage Test Suites and release workflows. Author and publish Stress Test contracts, open their CrossCheck page to start a Run, and inspect Run progress and results. Agent-started Stress Test runs are available only in active sandbox or release-preview environments. Shopify tools read snapshots and records with personal data excluded, start snapshots, restore selected objects, execute saved sync definitions and manage runs. Both Shopify write tools require fresh host interaction; server authorization remains authoritative.",
       "documentationUrl": "https://github.com/verticalbarHQ/verticalbar-agent",
       "privacyPolicyUrl": "https://vertical.bar/privacy",
       "supportUrl": "https://vertical.bar/contact"
     },
     "testPolicy": "Use a populated dedicated non-customer reviewer account. Record successful live tool exercises and authorization refusals truthfully; fixture checks alone are not live dogfood.",
     "requirementsReference": "https://claude.com/docs/connectors/building/submission",
-    "executionBoundary": "The hosted MCP runtime resolves fresh authorized environment metadata on every start and rejects production, development, inactive, unknown or unverified targets before dispatch. Stress Test starts check the selected environment; CI workflow starts check every stage. Agents never start Test Suite runs: a read-only handoff returns the CrossCheck page where the user starts one. Skills also refuse delegated, direct API or browser-click workarounds. Users execute production runs themselves in the CrossCheck product UI. Authoring, preview, publishing, observation and explicitly requested Stress Run cancellation remain available."
+    "executionBoundary": "The hosted MCP runtime resolves fresh authorized environment metadata on every start and rejects production, development, inactive, unknown or unverified targets before dispatch. Stress Test starts check the selected environment; CI workflow starts check every stage. Agents never start Test Suite runs: a read-only handoff returns the CrossCheck page where the user starts one. Skills also refuse delegated, direct API or browser-click workarounds. Users execute production runs themselves in the CrossCheck product UI. Authoring, preview, publishing, observation and explicitly requested Stress Run cancellation remain available.",
+    "shopifyBoundary": "Shopify write tools require cc.read and cc.write plus server-authorized access; Restore is limited to owner/admin. Read responses exclude personal data and fail closed without a runtime marker. Shopify is separate from the NetSuite execution-policy restriction. Version 0.15.0 is prepared for resubmission; submission and Publish update remain human actions."
   }
 }

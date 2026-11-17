@@ -1,13 +1,11 @@
 # Vertical Bar Agent — Security
 
-Vertical Bar Agent's analysis and data paths are **read-only**. One narrow, governed exception exposes
-three workspace-scoped deployment mutations — create a Release Package, add package items, and start
-a CI workflow run — each a single direct server call (no client-side gate). Create and add-items
-require the server-authorized mutation scope; start-run additionally requires an identified
-Cognito user. It exposes no approval
-capability. Deployment reads require their own per-tool scopes; mutation scope does not grant read
-access. It is self-contained and talks to CrossCheck **only over HTTP** (no
-`@vb-crosscheck/*` imports, no in-process DB access). See `docs/briefing-boundary.adr.md`.
+Vertical Bar Agent provides read-only analysis plus authorized operational tools for Release Packages,
+Test Suites, Stress Tests and Shopify snapshots and runs. Shopify can start backups, restore selected
+objects, execute saved sync definitions, cancel or recover runs, recheck items and record user decisions.
+These writes are single server-authorized calls. No tool approves write access. The plugin is
+self-contained and talks to CrossCheck **only over HTTP**, without database or store credentials.
+See `docs/briefing-boundary.adr.md` for the analysis boundary.
 
 ## The security boundary — honest statement (G3)
 
@@ -16,7 +14,7 @@ the shipped client is unreversible or that compilation hides anything — anyone
 observe its traffic, and that is expected. The proprietary CrossCheck × Vertical Bar schema /
 join-key / detector knowledge is protected by two things, **neither of which is obfuscation**:
 
-1. **Server-side, auth-gated reads.** Every data read is an HTTP proxy the CrossCheck platform runs
+1. **Server-side, auth-gated reads.** Analytics queries use an HTTP proxy the CrossCheck platform runs
    server-side behind Cognito auth, read-only, SELECT-only, workspace-fenced
    (the floors below). The client never holds DB / NetSuite credentials.
 2. **Runtime schema delivery — never plaintext in the public tree.** The schema / join / detector
@@ -53,11 +51,12 @@ Shipped today:
 - **The MCP server is not distributed.** It runs in production at `https://mcp.vertical.bar/mcp`
   behind OAuth; installing the plugin installs skills and a connector definition, not code.
 - **Host confirmation is not a security boundary, and it is not uniform.**
-  `cc_start_ci_workflow_run` is published with `anthropic/requiresUserInteraction`, which makes
+  `cc_start_ci_workflow_run`, `cc_shopify_start`, and `cc_shopify_manage_run` are published with `anthropic/requiresUserInteraction`, which makes
   Claude hosts ask a person on every call. Codex does not implement that marker and shows no such
-  prompt. The guarantees that hold on every surface are server-side: start-run requires an
-  identified Cognito user, and environment writes happen only after CrossCheck's Pipeline stage
-  approval.
+  prompt; Codex follows the user's approval policy. The Shopify skill also requests confirmation
+  in conversation on every host. Server authorization applies on every surface. NetSuite CI writes
+  retain Pipeline stage approval. Shopify Restore requires owner/admin, and Shopify writes retain
+  the connector's server-side roles and store write-access checks.
 
 **Retired (RND-4759): Vertical Bar Agent Desktop.** The local stdio plugin (`verticalbar-agent`), its
 desktop companion, the signed native downloads and their release channel are no longer published, and
@@ -84,10 +83,17 @@ Copies already installed keep whatever their host cached.
   signed-in Cognito user must have the server-authorized scope for each operation. Start-run
   additionally requires an identified Cognito user. Approval is intentionally excluded and remains in
   the web UI under server-enforced separation of duties. See `docs/briefing-boundary.adr.md`.
-- It exposes no other source-data or deployment-control write path. Its only other mutation is
-  publishing an HTML artifact (`POST /api/v1/briefings`), which writes a workspace-scoped Briefing row —
-  never source data. It never holds DB or NetSuite credentials; deployment effects remain behind
-  the authenticated CrossCheck server boundary.
+- Shopify `start` and `manage_run` require read and write OAuth scopes. Restore and its management
+  require the authorized workspace owner/admin through Cognito or MCP; API keys cannot approve a
+  Restore. Other operations retain their server-side roles, store write-access checks, concurrency
+  controls and request-id conflict rules. The NetSuite execution policy does not apply to Shopify.
+- MCP Shopify record, comparison-record, history and recheck reads force personal-data exclusion
+  server-side. The API rejects a response lacking the runtime's exclusion marker, and the MCP
+  server also rejects unmarked personal-read responses when Core has not yet rolled out. Store personal
+  data is not rejoined into these responses. Non-personal Customer fields remain available.
+  Snapshot payloads are unchanged. Original files, exports and anonymization are not exposed.
+- Publishing a Briefing writes a workspace-scoped artifact. No tool holds DB, NetSuite or Shopify
+  credentials; all operational effects remain behind the authenticated CrossCheck server boundary.
 
 ## Multi-tenant isolation (the non-negotiable floor)
 
@@ -121,7 +127,7 @@ Copies already installed keep whatever their host cached.
 
 ## Production data note
 
-- The installed runtime targets **production** CrossCheck/NetSuite data within the
-  authenticated/discovered workspace scope. The read-only + workspace-fenced + SELECT-only floors
-  above hold regardless, but treat published Briefings as potentially containing real customer
-  data and govern access to the Briefing surface accordingly.
+- The installed connector operates on authorized CrossCheck data and connected NetSuite or Shopify
+  environments. Analysis stays read-only and workspace-fenced; the Shopify operations described above
+  can change store data. Treat returned business records and published Briefings according to their
+  workspace access controls.
