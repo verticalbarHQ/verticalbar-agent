@@ -9,23 +9,23 @@
     },
     {
       "id": "P2",
-      "prompt": "In my selected reviewer environment, show up to five active customers from live NetSuite.",
-      "expected": "Returns a bounded SELECT-only result from the selected external NetSuite environment, names the NetSuite role that answered, explains that CrossCheck records an audit event and may cache results, and does not modify NetSuite records."
+      "prompt": "In my selected reviewer environment, show up to five currencies from live NetSuite.",
+      "expected": "Returns a bounded SELECT-only result from the selected NetSuite environment, names the role that answered, explains audit and possible caching, and does not modify NetSuite records."
     },
     {
       "id": "P3",
-      "prompt": "In my selected reviewer sandbox, draft a small supported record-read Test Suite, validate it and show what it will check; after I approve that exact suite, register it and tell me where to start one run.",
-      "expected": "Reads the supported case, assertion and action vocabulary, validates before registration, registers only the approved suite, and returns the CrossCheck suite page with the steps and target sandbox for a person to start the run; it does not start the run or claim a result."
+      "prompt": "In my selected reviewer environment, draft a small supported record-read Test Suite, validate it and show what it will check; after I approve that exact suite, register it and tell me where to start one run.",
+      "expected": "Reads the supported case, assertion and action vocabulary, validates before registration, registers only the approved suite, and returns the CrossCheck suite page with the steps and target environment for a person to start the run; it does not start the run or claim a result."
     },
     {
       "id": "P4",
-      "prompt": "In my selected reviewer sandbox, use a supported published test case to draft and preview a small Stress Test; after I approve its exact workload, publish it and start one smoke run, then show its observed progress and available report.",
-      "expected": "Shows the supported case and workload before writing, verifies the active sandbox, warns that smoke creates real records without cleanup, starts only the approved run with a stable retry key, and distinguishes acceptance, observed progress and final report readiness."
+      "prompt": "In my selected reviewer workspace, use a supported published test case to draft and preview a small Stress Test; after I approve its exact workload, publish it and show its CrossCheck page. If an existing Run is available, read its progress and report; do not start a new Run.",
+      "expected": "Shows the supported case and exact workload, validates and previews before the approved publication, returns the actual CrossCheck page, and reads an existing Run if available without starting one or inventing results."
     },
     {
       "id": "P5",
-      "prompt": "In my selected reviewer sandbox workflow, inspect the Release Package I already validated in CrossCheck; after I approve this exact package and workflow, prepare one deployment run and show its current stage status.",
-      "expected": "Checks the identified user, authorized active sandbox stages and current qualification, starts only the approved deployment intent and reports the actual run; actual environment writes remain governed by Pipeline stage approval, and missing or stale qualification is refused."
+      "prompt": "In my selected reviewer Shopify environment, list recent backups, inspect one sealed backup and a Product record with personal data omitted, then show recent restore and sync runs. Explain a possible recovery scope without starting a snapshot, restore, or sync.",
+      "expected": "Selects an authorized Shopify environment, returns actual sealed-backup and Product details with personal data excluded, reads restore and sync history, and explains any missing data or recovery scope without a write."
     }
   ],
   "negative": [
