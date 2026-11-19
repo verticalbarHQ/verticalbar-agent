@@ -3,8 +3,10 @@
 Vertical Bar Agent provides read-only analysis plus authorized operational tools for Release Packages,
 Test Suites, Stress Tests and Shopify snapshots and runs. Shopify can start backups, restore selected
 objects, execute saved sync definitions, cancel or recover runs, recheck items and record user decisions.
-Selected restore and sync writes can create or change gift-card and store-credit balances; saved sync
-definitions selecting Order transactions can capture or void real payments. These monetary effects
+Restore may create gift cards or credit/debit gift-card and store-credit balances. Sync rejects
+GiftCard writes and keeps store-credit balances. Saved syncs configured to update existing orders
+can record manual payments or capture/void existing target-order payment authorizations when
+transactions are selected. These monetary effects
 must be explained before conversational confirmation. These writes are single server-authorized calls. No tool approves write access. The plugin is
 self-contained and talks to CrossCheck **only over HTTP**, without database or store credentials.
 See `docs/briefing-boundary.adr.md` for the analysis boundary.

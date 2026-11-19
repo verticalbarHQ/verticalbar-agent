@@ -20,10 +20,11 @@ or another identity.
    Follow nextCursor until the requested scope is covered; report truncation or omitted data.
 4. Before every write, describe the source, target, selected types/items, and commands in readable
    terms. A saved sync definition determines its commands: explicitly call out delete commands.
-   Selected writes can create or change gift-card and store-credit balances. A saved sync that selects
-   Order transactions can capture or void real payments. Explain these monetary effects, including the
-   selected amounts when available, before asking for confirmation; if the definition does not make
-   the scope clear, stop and ask instead of guessing. Do not invent missing scope. Read [selection.md](references/selection.md) for selection limits.
+   Read [selection.md](references/selection.md) for selection limits and store effects before summarizing
+   the write. Explain relevant monetary effects: gift-card/store-credit value changes on restore,
+   and payment capture/void on existing-order sync transaction updates. Include selected amounts when
+   available. If the definition does not make the scope clear, stop and ask instead of guessing.
+   Do not invent missing scope.
 5. Obtain the user's confirmation in this conversation before invoking either write tool, on
    every host. Host confirmation varies and is not permission to write. Claude also requires fresh
    interaction for these tools; ChatGPT uses tool annotations; Codex follows the user's approval
