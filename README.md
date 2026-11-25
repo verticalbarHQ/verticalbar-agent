@@ -5,10 +5,8 @@ MCP tools, served by the production remote MCP service.
 
 > **Vertical Bar Agent Desktop is retired.** The local plugin (`verticalbar-agent`), its desktop
 > companion and its native downloads are no longer published. Install the Hosted plugin below for the
-> MCP tools and skills. To connect a NetSuite account to CrossCheck, use
-> [Vertical Bar Companion](https://github.com/verticalbarHQ/verticalbar-companion/releases/latest).
-> Copies of Agent Desktop that are already installed are not updated any more and can no longer
-> connect NetSuite.
+> MCP tools and skills. Copies of Agent Desktop that are already installed are not updated any more
+> and can no longer connect NetSuite.
 
 ## Install
 

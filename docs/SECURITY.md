@@ -64,8 +64,8 @@ Shipped today:
 
 **Retired (RND-4759): Vertical Bar Agent Desktop.** The local stdio plugin (`verticalbar-agent`), its
 desktop companion, the signed native downloads and their release channel are no longer published, and
-CrossCheck refuses Agent Desktop's NetSuite connect flow with a pointer to Vertical Bar Companion.
-Copies already installed keep whatever their host cached.
+CrossCheck refuses Agent Desktop's NetSuite connect flow. NetSuite accounts are connected in the
+CrossCheck web app. Copies already installed keep whatever their host cached.
 
 ## Read-only analysis paths and the governed deployment exception
 
