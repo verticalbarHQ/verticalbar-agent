@@ -21,10 +21,10 @@ does not authorize execution.
 `cc_start_ci_workflow_run` needs a real signed-in human. This is a server guard, not a client check,
 so you cannot work around it and should not try.
 
-When a run is refused for identity, call `runtime_info` before choosing the recovery path. On an
+When a run is refused for identity, call `whoami` before choosing the recovery path. On an
 installed local surface, use the **`setup`** skill to sign in, then retry. On a hosted remote surface,
 `setup` and `login` do not exist: ask the user to reconnect or reauthorize the MCP connector in the
-host, then retry only after `runtime_info` / `whoami` reports verified request identity. Do not report
+host, then retry only after `whoami` reports verified request identity. Do not report
 an identity refusal as a workflow problem.
 
 Call `cc_start_ci_workflow_run` only for the deployment intent the user explicitly requested in the
@@ -35,7 +35,7 @@ stage.
 
 ## The order, and why it is the order
 
-1. **Resolve workspace routing from `runtime_info`.** Call `cc_workspaces`: use the
+1. **Resolve workspace routing.** Call `cc_list_workspaces`: use the
    sole result automatically. If more than one is returned, ask the user to choose by safe name.
    Never select the first, invent an id, or reuse one after the conversation changes workspace.
 2. **`cc_create_release_package`** `{workspaceId?, name, description?, environmentId?}` — returns the
@@ -50,7 +50,7 @@ stage.
 4. **`cc_list_ci_workflows`** / **`cc_get_ci_workflow`** — pick the workflow and read its ordered
    stages. `cc_get_ci_workflow` joins each stage to its environment name, which is the only readable
    way to confirm a promotion is aimed where the user thinks it is. Before every start or retry,
-   refresh `cc_environments` and match every stage environment ID. Each must have `isActive: true`
+   refresh `cc_list_environments` and match every stage environment ID. Each must have `isActive: true`
    and `environmentType` of `sandbox` or `release_preview`. A production, development, missing,
    unknown or conflicting target means do not start. Hand production and development execution to the user in the
    CrossCheck workflow UI, even with explicit approval. Never relabel or substitute environments,

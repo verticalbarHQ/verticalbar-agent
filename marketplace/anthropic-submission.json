@@ -34,7 +34,7 @@
     "urlConfiguration": "universal",
     "authentication": "OAuth 2.0 with PKCE; credentials are entered only on the CrossCheck identity-provider page.",
     "toolTitleSource": "mcp/tool-titles.json",
-    "expectedRemoteToolCount": 80,
+    "expectedRemoteToolCount": 83,
     "skillDistribution": "The remote connector exposes tools; skills are distributed by the separate hosted plugin package.",
     "releaseGate": [
       "Merged patch candidate",
@@ -54,6 +54,10 @@
     "testPolicy": "Use a populated dedicated non-customer reviewer account. Record successful live tool exercises and authorization refusals truthfully; fixture checks alone are not live dogfood.",
     "requirementsReference": "https://claude.com/docs/connectors/building/submission",
     "executionBoundary": "The hosted MCP runtime resolves fresh authorized environment metadata on every start and rejects production, development, inactive, unknown or unverified targets before dispatch. Stress Test starts check the selected environment; CI workflow starts check every stage. Agents never start Test Suite runs: a read-only handoff returns the CrossCheck page where the user starts one. Skills also refuse delegated, direct API or browser-click workarounds. Users execute production runs themselves in the CrossCheck product UI. Authoring, preview, publishing, observation and explicitly requested Stress Run cancellation remain available.",
-    "shopifyBoundary": "Shopify write tools require cc.read and cc.write plus server-authorized access; Restore is limited to owner/admin. Read responses exclude personal data and fail closed without a runtime marker. Shopify is separate from the NetSuite execution-policy restriction. Version 0.15.3 is prepared for resubmission; submission and Publish update remain human actions."
+    "shopifyBoundary": "Shopify write tools require cc.read and cc.write plus server-authorized access; Restore is limited to owner/admin. Read responses exclude personal data and fail closed without a runtime marker. Shopify is separate from the NetSuite execution-policy restriction. Version 0.15.3 is prepared for resubmission; submission and Publish update remain human actions.",
+    "toolAnnotationNotes": {
+      "screen_open": "screen_open is readOnlyHint true, destructiveHint false, openWorldHint false (owner decision, RND-6352): it sends the screen only to the signed-in user's own open CrossCheck tabs and always returns its link, and stores or changes no CrossCheck, NetSuite or Shopify data; a tab with unsaved edits waits instead of moving.",
+      "cc_preview_stress_test": "cc_preview_stress_test stays readOnlyHint true with the optional testRef: the preview is compiled and shown on the user's open screen of that test (Keep or Discard there); nothing is stored by this call."
+    }
   }
 }

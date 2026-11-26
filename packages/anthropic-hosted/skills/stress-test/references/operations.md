@@ -2,7 +2,7 @@
 
 ## Start
 
-Apply the main skill's environment gate before every start or retry: use a fresh `cc_environments`
+Apply the main skill's environment gate before every start or retry: use a fresh `cc_list_environments`
 result for the exact environment ID. Start only when `environmentType` is `sandbox` or `release_preview`.
 For `production` or `development`, respond with the selected test/revision and environment, explain that Agent cannot
 start it, and direct the user to **CrossCheck → Stress Tests → the selected test → Run** to select

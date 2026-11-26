@@ -1,6 +1,6 @@
 # Contract authoring
 
-1. Resolve workspace. Call `cc_stress_test_capabilities`, then `cc_list_stress_tests` and
+1. Resolve workspace. Call `cc_get_stress_test_capabilities`, then `cc_list_stress_tests` and
    `cc_get_stress_test` when revising. Establish the target business activity, mix, offered rate and
    duration. A request to inspect is read-only; stop after answering it.
 2. Resolve every flow's canonical `revisionRef` and `caseRef` using Test Suite reads. Reuse published
@@ -17,8 +17,10 @@
    worker ramp and have no arrival profile/timeUnit. Zero-rate stages are valid, but not an all-zero
    curve. Weights are relative proportions. Smoke is one serial iteration per flow, first pool row;
    it does not execute the full curve and does not prove account capacity.
-5. Call `cc_validate_stress_test_definition`, then `cc_preview_stress_test` with the exact candidate
-   and known run variables. Structural acceptance alone does not prove executable compatibility.
+5. Call `cc_preview_stress_test` with the exact candidate and known run variables. It reports every
+   reason the definition would be refused when it is made ready, plus what the compiler refuses.
+   When the definition revises an existing test, pass its `testRef`: the user's open screen of that
+   test then shows the preview, where they keep or discard it.
    Preview compiles without registering a binding, provisioning runtime, or writing to NetSuite.
    Fix unsupported cases and paths. If only run-time values are absent, identify those variables
    explicitly; saving a draft is allowed, but don't describe it as execution-ready.

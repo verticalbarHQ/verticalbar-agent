@@ -22,7 +22,7 @@ join-key / detector knowledge is protected by two things, **neither of which is 
    server-side behind Cognito auth, read-only, SELECT-only, workspace-fenced
    (the floors below). The client never holds DB / NetSuite credentials.
 2. **Runtime schema delivery — never plaintext in the public tree.** The schema / join / detector
-   map is served at runtime from an auth-gated endpoint (`briefing_schema`, requires `analysis:read`); it
+   map is served at runtime from an auth-gated endpoint (`briefing_get_schema`, requires `analysis:read`); it
    is **never** shipped as plaintext in the public safe-surface tree. A CI + local **leak-gate**
    (`leak-denylist.json`) fails any change that would reintroduce that IP — as source or inside a
    compiled bundle. See `docs/briefing-boundary.adr.md`.
@@ -32,7 +32,7 @@ join-key / detector knowledge is protected by two things, **neither of which is 
 The public tree carries the **authoring method + a generic tool surface** only: the skill's steps,
 the tool names and their shape, the auth/HTTP plumbing, the viz runtime. It carries **no proprietary
 schema IP** — no full join graph, no column schemas, no 2nd cross-product bridge key, and no detector
-logic or catalog. Those live behind `briefing_schema` and are delivered to an **authenticated** agent at
+logic or catalog. Those live behind `briefing_get_schema` and are delivered to an **authenticated** agent at
 runtime, so cognition is unchanged (the agent still learns the full map, just not from plaintext
 source). A few **generic NetSuite concepts** may appear as authoring orientation (e.g. that the two
 products join on the transaction id, that actor identity resolves via systemnote × employees) —
@@ -55,7 +55,7 @@ Shipped today:
 - **The MCP server is not distributed.** It runs in production at `https://mcp.vertical.bar/mcp`
   behind OAuth; installing the plugin installs skills and a connector definition, not code.
 - **Host confirmation is not a security boundary, and it is not uniform.**
-  `cc_start_ci_workflow_run`, `cc_shopify_start`, and `cc_shopify_manage_run` are published with `anthropic/requiresUserInteraction`, which makes
+  `cc_start_ci_workflow_run`, `cc_start_shopify_job`, and `cc_manage_shopify_run` are published with `anthropic/requiresUserInteraction`, which makes
   Claude hosts ask a person on every call. Codex does not implement that marker and shows no such
   prompt; Codex follows the user's approval policy. The Shopify skill also requests confirmation
   in conversation on every host. Server authorization applies on every surface. NetSuite CI writes
@@ -70,14 +70,14 @@ CrossCheck web app. Copies already installed keep whatever their host cached.
 ## Read-only analysis paths and the governed deployment exception
 
 - The plugin **never holds a database connection or DB credentials**, and **never issues raw
-  SQL against a database**. `briefing_data_query` and `cc_netsuite_suiteql` are **HTTP proxies the
+  SQL against a database**. `briefing_query_data` and `cc_run_netsuite_suiteql` are **HTTP proxies the
   CrossCheck platform runs server-side**; the caller sends a `SELECT`/`WITH` string and gets
   JSON back.
 - The landed-data proxy (`/api/v1/briefings-data`) is **SELECT/WITH only**, bound to an allowlist of
   `close_*` tables, and every allowlisted table is **CTE-shadowed with the auth-derived
   `workspace_id`** server-side — an arbitrary SELECT/JOIN can only ever see this workspace's
   rows. Write/DDL keywords are rejected.
-- The live NetSuite tools (`/api/v1/netsuite-live`, exposed as `cc_netsuite_*`) only read. SuiteQL
+- The live NetSuite tools (`/api/v1/netsuite-live`, exposed as `cc_*_netsuite_*`) only read. SuiteQL
   is **SELECT-only**, enforced server-side and at the NetSuite RESTlet; record and saved-search reads
   never save. Every call runs as a NetSuite role the signed-in member is mapped to (decided
   server-side), is admitted under the account's shared concurrency limit, is audited, and is paged.
@@ -102,7 +102,7 @@ CrossCheck web app. Copies already installed keep whatever their host cached.
 ## Multi-tenant isolation (the non-negotiable floor)
 
 - Workspace scope never comes from ambient client configuration. The agent calls
-  `cc_workspaces`, uses the sole authorized result or asks the user to choose among multiple results,
+  `cc_list_workspaces`, uses the sole authorized result or asks the user to choose among multiple results,
   and passes that explicit `workspaceId` to CrossCheck calls. The plugin **fails loudly** when scope is missing rather than
   fabricating a default. All `briefing_*` / `cc_*` reads and the publish are workspace-fenced by the API.
 

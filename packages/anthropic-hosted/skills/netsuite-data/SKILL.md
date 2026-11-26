@@ -11,7 +11,7 @@ run **as a NetSuite role the signed-in user may use** in that environment. Each 
 
 ## 1. Pick the environment and the role
 
-1. `cc_workspaces` → `cc_environments` to find the `environmentId`.
+1. `cc_list_workspaces` → `cc_list_environments` to find the `environmentId`.
 2. Call the tool. Without `runAs`, the server picks the user's default role, or their only one.
 3. If you get `PROFILE_SELECTION_REQUIRED`, show the listed roles (employee + role) and ask which to
    use. Set `runAs` to that role's `profileKey`. Suggest they set a default in CrossCheck
@@ -19,13 +19,13 @@ run **as a NetSuite role the signed-in user may use** in that environment. Each 
 4. `NO_PROFILE_AVAILABLE` means no role is mapped to this user. An owner or admin maps roles on the
    environment's Connection page; you cannot fix it.
 5. `PROFILE_NOT_PERMITTED` means the named role is not theirs to use. Do not retry with other names.
-6. `cc_netsuite_run_as_profiles` lists their roles and default without touching NetSuite.
+6. `cc_list_netsuite_run_as_profiles` lists their roles and default without touching NetSuite.
 
 ## 2. Find what to query before writing SuiteQL
 
 Order: **catalog → custom → live probe.**
 
-- `cc_netsuite_suiteql_metadata` with no arguments returns the standard catalog (key columns and
+- `cc_get_netsuite_suiteql_metadata` with no arguments returns the standard catalog (key columns and
   joins for transaction, transactionline, transactionaccountingline, account, accountingperiod,
   entities, item, subsidiary, …) and the account's custom fields placed on the table they belong to.
 - Call it with `tables: ["transaction"]` to probe every column the live table really has (custom fields
@@ -36,7 +36,7 @@ Order: **catalog → custom → live probe.**
 
 ## 3. Write SuiteQL that works first time
 
-- `cc_netsuite_suiteql` takes one `SELECT` (no `WITH`, no semicolons). It returns `page.totalCount`
+- `cc_run_netsuite_suiteql` takes one `SELECT` (no `WITH`, no semicolons). It returns `page.totalCount`
   and `page.nextCursor`; send `cursor` back with the **same query** to continue. Prefer aggregates
   (`COUNT`, `SUM`, `GROUP BY`) over paging thousands of rows.
 - Readable values: `BUILTIN.DF(t.entity)`, `BUILTIN.DF(t.status)`.
@@ -48,22 +48,22 @@ Order: **catalog → custom → live probe.**
 
 ## 4. Records and saved searches
 
-- `cc_netsuite_record_get` returns a record's fields and sublists. **Opening a record runs its
+- `cc_get_netsuite_record` returns a record's fields and sublists. **Opening a record runs its
   before-load scripts and may start workflows, as opening it in NetSuite does.** Tell the user
   before reading a record type whose workflows they care about, and limit `fields`/`sublists` to keep
   large records small. It never saves. A `truncated` answer carries `resume`: call again with
   exactly its `fields`, `sublists` and `lineStart` to continue.
-- `cc_netsuite_saved_searches` lists the searches **this role** can see. `cc_netsuite_saved_search_run`
+- `cc_list_netsuite_saved_searches` lists the searches **this role** can see. `cc_run_netsuite_saved_search`
   returns one page with column labels. **Zero rows can mean the role lacks permission on the record
   type** — NetSuite does not report that as an error. Say so instead of "there is no data".
-- `cc_netsuite_suiteql` gives `nextCursor` only when the query has a top-level `ORDER BY`; order by a
+- `cc_run_netsuite_suiteql` gives `nextCursor` only when the query has a top-level `ORDER BY`; order by a
   unique key (such as `id`) so pages neither repeat nor skip rows. A summary or joined saved search
   answers one page (`unpageable`); raise `pageSize` up to 1000 instead.
 
 ## 5. Financial statements
 
-- `cc_netsuite_reports` lists them; `cc_netsuite_report_filters` returns subsidiaries, books, periods
-  and currencies; `cc_netsuite_report_run` builds one:
+- `cc_list_netsuite_reports` lists them; `cc_list_netsuite_report_filters` returns subsidiaries, books, periods
+  and currencies; `cc_run_netsuite_report` builds one:
   - `trial_balance`, `balance_sheet`: `periodEnd`
   - `income_statement`: `periodStart`, `periodEnd`
   - `ar_aging`, `ap_aging`: as of today only — NetSuite keeps current open amounts, so a past-date aging is not offered

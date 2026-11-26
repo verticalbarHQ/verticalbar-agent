@@ -25,19 +25,19 @@ is one tool call away — so a guessed identifier is not a shortcut, it is a sui
 Ask what breaking would look like, not what to test. "The close still works" becomes: the period can
 close, the approval workflow is active, the report saved-search still returns rows.
 
-Resolve workspace routing from `runtime_info`. With Cognito, call `cc_workspaces`. Use the sole
+Resolve workspace routing: call `cc_list_workspaces`. Use the sole
 result automatically. If more than one is returned, ask the user to choose by safe name; never pick
 the first or invent an id. Pass that discovered `workspaceId` to every CrossCheck tool. Then use
 `cc_list_snapshots` / `cc_get_snapshot` to read what this environment actually contains before you
 propose.
 
-Call `cc_environments` for that workspace to resolve the exact target ID and `environmentType`.
+Call `cc_list_environments` for that workspace to resolve the exact target ID and `environmentType`.
 Do not infer the NetSuite environment type from a name, account-ID pattern, user assurance, snapshot,
 or the MCP server's deployment environment.
 
 ### 2. Learn what the runner can EXECUTE — not what the contract permits
 
-**`cc_test_suite_capabilities` first, every time.** It returns the case kinds, the assertion kinds
+**`cc_get_test_suite_capabilities` first, every time.** It returns the case kinds, the assertion kinds
 allowed **per case kind**, the step actions, and the per-case assertion cap. It also returns the
 JSON schema (and a key-level summary) of the envelope each assertion’s `expected` string must
 encode, the config keys and values each action consumes, and the scalar/variable carriers. The MCP
@@ -89,7 +89,7 @@ NOT mean "try it and see" — the run would spend a live call to learn what you 
 snapshot is old, say so rather than implying currency.
 
 **When you need a VALUE and not just existence, read it — never register a check to learn it.**
-`cc_netsuite_suiteql` runs a SELECT-only SuiteQL against the live account through the platform, so
+`cc_run_netsuite_suiteql` runs a SELECT-only SuiteQL against the live account through the platform, so
 "which period is open", "what is this field set to", "does this search return rows today" are one
 read away. `cc_get_snapshot` answers the same questions as of the last capture.
 
@@ -141,8 +141,8 @@ route that does not exist is the exact class of false claim this skill spends it
 
 ### 6. Hand the run to the user, then read what the account said
 
-You do not start runs. Call **`cc_test_suite_run_handoff`** with the suite and, when the user has
-chosen one, the environment ID from `cc_environments`. It returns the suite's CrossCheck page, its
+You do not start runs. Call **`cc_get_test_suite_run_handoff`** with the suite and, when the user has
+chosen one, the environment ID from `cc_list_environments`. It returns the suite's CrossCheck page, its
 newest revision, the environment's name, type and active state, and the steps: open the page, select
 **Run this suite**, choose that environment, then **Run**. Give the user that link and those steps
 as they are. Do not invent a URL, and do not click Run or start the run through another tool, API,
@@ -191,7 +191,7 @@ CURRENT revision or refuses (`manifest_drift`), never a superseded one.
 ## What this skill is NOT
 
 - Not a way to write test code. The runner executes a declared vocabulary; if the need cannot be
-  expressed in what `cc_test_suite_capabilities` returns, say that instead of approximating it.
+  expressed in what `cc_get_test_suite_capabilities` returns, say that instead of approximating it.
 - Not a mutation surface by default. A revision that declares mutating steps needs the mutating
   scope and writes to a real account — never propose one without saying, in the user's own terms,
   what it will create there and how it is cleaned up.

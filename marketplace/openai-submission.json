@@ -20,7 +20,11 @@
     "url": "https://mcp.vertical.bar/mcp",
     "authentication": "OAuth 2.1",
     "domainChallengeBase": "https://mcp.vertical.bar",
-    "toolAnnotationsGate": "plugins/verticalbar-agent/test/tool-annotations.test.mjs"
+    "toolAnnotationsGate": "plugins/verticalbar-agent/test/tool-annotations.test.mjs",
+    "toolAnnotationNotes": {
+      "screen_open": "screen_open is readOnlyHint true, destructiveHint false, openWorldHint false (owner decision, RND-6352): it sends the screen only to the signed-in user's own open CrossCheck tabs and always returns its link, and stores or changes no CrossCheck, NetSuite or Shopify data; a tab with unsaved edits waits instead of moving.",
+      "cc_preview_stress_test": "cc_preview_stress_test stays readOnlyHint true with the optional testRef: the preview is compiled and shown on the user's open screen of that test (Keep or Discard there); nothing is stored by this call."
+    }
   },
   "skills": {
     "delivery": "uploaded-static-bundle",

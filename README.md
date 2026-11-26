@@ -50,7 +50,7 @@ downstream token exchange, and workspace data remain authenticated and server-au
 
 - The MCP request carries the host OAuth token. Reconnect the plugin if the host reports an expired
   or invalid session; do not paste credentials into the conversation.
-- Always discover authorization with `cc_workspaces`, then use `cc_environments` for an
+- Always discover authorization with `cc_list_workspaces`, then use `cc_list_environments` for an
   environment-scoped operation. There is no ambient workspace or environment fallback.
 - No plugin package requires or accepts a distributed API-key environment variable.
 
@@ -62,7 +62,7 @@ authorization. Client prompts are usability aids, not approval authority.
 In a new chat:
 
 1. Confirm the `briefing`, `deployment`, `test-suite`, `stress-test`, and `netsuite-data` skills are visible or naturally selected.
-2. Ask for `runtime_info`.
+2. Ask for `whoami`.
 3. Ask for the CrossCheck workspaces you can access.
 4. Select only a workspace returned by discovery.
 
@@ -109,8 +109,9 @@ skill digest, package digests, compatibility matrix, and file checksums.
 
 - Read authorized CrossCheck snapshots, customizations, SuiteScript source, dependency graphs, and
   telemetry.
-- Discover authorized environments with `cc_environments`, then read their published process
-  context, map, variants, and cases through the `cc_process_*` tools.
+- Discover authorized environments with `cc_list_environments`, then read their published process
+  context, map, variants, and cases through `cc_get_process_context`, `cc_get_process_overview`,
+  `cc_list_process_variants` and `cc_list_process_cases`.
 - Build and publish grounded interactive Briefings.
 - Author CrossCheck Test Suites and hand their runs to the user in CrossCheck; author and run Stress Tests.
 - Inspect release packages and CI workflows, with mutations remaining behind server-side scopes and

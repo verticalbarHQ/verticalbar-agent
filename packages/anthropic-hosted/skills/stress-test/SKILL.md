@@ -19,7 +19,7 @@ real NetSuite records too; neither mode cleans them up.
 | Progress or results | List runs if needed, then read status or bounded report; no mutation approval |
 | Stop | Resolve one exact Run, request cancellation; explain acknowledgement versus completed stop |
 
-Resolve `workspaceId` with `cc_workspaces` and the target environment with `cc_environments`.
+Resolve `workspaceId` with `cc_list_workspaces` and the target environment with `cc_list_environments`.
 Reuse an unambiguous selection already made in this conversation. Ask only when multiple candidates
 remain; never choose the first match or invent identifiers. Use the same authorized workspace on
 every related call. Do not copy a Run reference from a different workspace.
@@ -31,7 +31,7 @@ do not add another approval loop. Core authorization remains authoritative.
 
 ## Production and development execution belong to the user in CrossCheck
 
-Before any start, retry or rerun, call `cc_environments` for the selected workspace and match the
+Before any start, retry or rerun, call `cc_list_environments` for the selected workspace and match the
 exact environment ID. Only an explicitly returned `environmentType` of `sandbox`
 or `release_preview`, with `isActive: true`, permits Agent execution. Names, account-ID patterns,
 user assurances and the MCP server's own
@@ -58,7 +58,7 @@ Keep the original idempotency key; an uncertain response never proves that no Ru
 
 - Arrival rate is the default authoring model. Ask for traffic volume and duration; don't ask for
   concurrency unless the user explicitly needs a concurrent-worker experiment.
-- Read `cc_stress_test_capabilities` before authoring. Flows reference published canonical Test Suite
+- Read `cc_get_stress_test_capabilities` before authoring. Flows reference published canonical Test Suite
   cases; no scripts, duplicated step language, guessed record IDs, or guessed unsupported actions.
 - Preserve unrelated flows, pools, stages and tags when editing. Use the current definition digest
   for updates and the exact reviewed digest for publishing.
